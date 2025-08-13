@@ -62,9 +62,11 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-primary">
-              ConstrutorPro
-            </h1>
+            <a href="/" className="hover:opacity-80 transition-opacity">
+              <h1 className="text-2xl font-bold text-primary">
+                ConstrutorPro
+              </h1>
+            </a>
           </div>
 
           {/* Search bar */}
