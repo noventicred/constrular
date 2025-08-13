@@ -23,7 +23,6 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      console.log('Auth page: attempting login for', email);
       const { error } = await signIn(email, password);
 
       if (error) {
@@ -33,9 +32,6 @@ const Auth = () => {
           description: error.message,
           variant: 'destructive',
         });
-      } else {
-        console.log('Auth page: login successful, waiting for redirect...');
-        // Não exibir toast aqui, deixar o AuthRedirect fazer o redirecionamento
       }
     } catch (error) {
       toast({

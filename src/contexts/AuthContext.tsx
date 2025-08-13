@@ -25,16 +25,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
-      console.log('Fetching profile for user:', userId);
-      console.log('Making Supabase query...');
-      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
-
-      console.log('Supabase query completed:', { data, error });
 
       if (error) {
         console.error('Error fetching user profile:', error);
@@ -46,7 +41,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return null;
       }
 
-      console.log('Profile fetched successfully:', data);
       return data;
     } catch (error) {
       console.error('Exception fetching user profile:', error);
@@ -55,28 +49,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const handleAuthStateChange = (session: Session | null) => {
-    console.log('Auth state change:', { 
-      session: session ? 'exists' : 'null', 
-      user: session?.user?.email 
-    });
-    
     if (session?.user) {
-      console.log('Session exists, updating auth state directly...');
-      
       // Update auth state immediately with basic info
       updateAuthState({
         user: session.user,
         session,
-        profile: null, // Will be fetched separately
+        profile: null,
         isAuthenticated: true,
-        isAdmin: false, // Will be updated after profile fetch
+        isAdmin: false,
         isLoading: false,
       });
 
       // Fetch profile separately
-      console.log('Fetching profile separately...');
       fetchUserProfile(session.user.id).then(profile => {
-        console.log('Profile fetch result:', profile);
         updateAuthState({
           profile,
           isAdmin: profile?.is_admin || false,
@@ -84,7 +69,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
       
     } else {
-      console.log('No session, clearing auth state...');
       updateAuthState({
         user: null,
         session: null,
@@ -93,8 +77,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isAdmin: false,
         isLoading: false,
       });
-      
-      console.log('User signed out');
     }
   };
 
@@ -102,17 +84,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth event:', event, 'Session:', session ? 'exists' : 'null');
-        // Use setTimeout to avoid potential issues with immediate state updates
-        setTimeout(() => {
+        // Only process certain events to avoid loops
+        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
           handleAuthStateChange(session);
-        }, 0);
+        }
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session ? 'exists' : 'null');
       handleAuthStateChange(session);
     });
 
@@ -121,12 +101,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('SignIn attempt for:', email);
       const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      console.log('SignIn result:', { error, session: data.session });
       return { error };
     } catch (error) {
       console.error('SignIn exception:', error);

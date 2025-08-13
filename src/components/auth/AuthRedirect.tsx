@@ -7,10 +7,8 @@ export function AuthRedirect() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('AuthRedirect check:', { isLoading, isAuthenticated, isAdmin });
     if (!isLoading && isAuthenticated) {
       const redirectPath = isAdmin ? '/admin' : '/';
-      console.log('AuthRedirect: redirecting to', redirectPath);
       navigate(redirectPath, { replace: true });
     }
   }, [isAuthenticated, isAdmin, isLoading, navigate]);
