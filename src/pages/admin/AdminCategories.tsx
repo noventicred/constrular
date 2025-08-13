@@ -3,33 +3,27 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { Plus, Edit2, Trash2, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Folder, FolderOpen } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Category {
   id: string;
   name: string;
   description: string | null;
   image_url: string | null;
+  parent_id: string | null;
   created_at: string;
 }
 
 const AdminCategories = () => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const { toast } = useToast();
-
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    image_url: '',
-  });
 
   useEffect(() => {
     fetchCategories();
@@ -40,7 +34,7 @@ const AdminCategories = () => {
       const { data, error } = await supabase
         .from('categories')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('name');
 
       if (error) throw error;
       setCategories(data || []);
@@ -56,56 +50,8 @@ const AdminCategories = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      const categoryData = {
-        name: formData.name,
-        description: formData.description || null,
-        image_url: formData.image_url || null,
-      };
-
-      let error;
-      if (editingCategory) {
-        ({ error } = await supabase
-          .from('categories')
-          .update(categoryData)
-          .eq('id', editingCategory.id));
-      } else {
-        ({ error } = await supabase
-          .from('categories')
-          .insert([categoryData]));
-      }
-
-      if (error) throw error;
-
-      toast({
-        title: 'Sucesso',
-        description: `Categoria ${editingCategory ? 'atualizada' : 'criada'} com sucesso!`,
-      });
-
-      setIsDialogOpen(false);
-      setEditingCategory(null);
-      resetForm();
-      fetchCategories();
-    } catch (error: any) {
-      toast({
-        title: 'Erro',
-        description: error.message,
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleEdit = (category: Category) => {
-    setEditingCategory(category);
-    setFormData({
-      name: category.name,
-      description: category.description || '',
-      image_url: category.image_url || '',
-    });
-    setIsDialogOpen(true);
+  const handleEdit = (id: string) => {
+    navigate(`/admin/categorias/editar/${id}`);
   };
 
   const handleDelete = async (id: string) => {
@@ -134,12 +80,14 @@ const AdminCategories = () => {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      description: '',
-      image_url: '',
-    });
+  const getCategoryHierarchy = (categoryId: string | null): Category[] => {
+    return categories.filter(cat => cat.parent_id === categoryId);
+  };
+
+  const getParentName = (parentId: string | null): string => {
+    if (!parentId) return '';
+    const parent = categories.find(cat => cat.id === parentId);
+    return parent ? parent.name : '';
   };
 
   const filteredCategories = categories.filter(category =>
@@ -165,50 +113,10 @@ const AdminCategories = () => {
           <h1 className="text-3xl font-bold">Categorias</h1>
           <p className="text-muted-foreground">Gerencie as categorias dos produtos</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm}>
-              <Plus className="mr-2 h-4 w-4" />
-              Nova Categoria
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
-              </DialogTitle>
-              <DialogDescription>
-                Preencha os dados da categoria abaixo.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <Input
-                placeholder="Nome da categoria"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-              <Textarea
-                placeholder="Descrição da categoria"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              />
-              <Input
-                placeholder="URL da imagem"
-                value={formData.image_url}
-                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-              />
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button type="submit">
-                  {editingCategory ? 'Atualizar' : 'Criar'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => navigate('/admin/categorias/nova')}>
+          <Plus className="mr-2 h-4 w-4" />
+          Nova Categoria
+        </Button>
       </div>
 
       <Card>
@@ -231,7 +139,9 @@ const AdminCategories = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
+                <TableHead>Categoria</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Imagem</TableHead>
                 <TableHead>Descrição</TableHead>
                 <TableHead>Criado em</TableHead>
                 <TableHead>Ações</TableHead>
@@ -240,7 +150,39 @@ const AdminCategories = () => {
             <TableBody>
               {filteredCategories.map((category) => (
                 <TableRow key={category.id}>
-                  <TableCell className="font-medium">{category.name}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {category.parent_id ? (
+                        <>
+                          <Folder className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">{category.name}</span>
+                        </>
+                      ) : (
+                        <>
+                          <FolderOpen className="h-4 w-4 text-primary" />
+                          <span className="font-bold">{category.name}</span>
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={category.parent_id ? "secondary" : "default"}>
+                      {category.parent_id ? `Subcategoria de ${getParentName(category.parent_id)}` : 'Principal'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {category.image_url ? (
+                      <img 
+                        src={category.image_url} 
+                        alt={category.name}
+                        className="w-8 h-8 rounded object-cover"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 bg-muted rounded flex items-center justify-center">
+                        <Folder className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell className="max-w-xs truncate">
                     {category.description || 'Sem descrição'}
                   </TableCell>
@@ -252,7 +194,7 @@ const AdminCategories = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleEdit(category)}
+                        onClick={() => handleEdit(category.id)}
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>
