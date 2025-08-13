@@ -34,9 +34,10 @@ const ProductForm = () => {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
-  const [existingImageUrl, setExistingImageUrl] = useState<string>('');
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
+
 
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
@@ -93,8 +94,18 @@ const ProductForm = () => {
       });
 
       if (data.image_url) {
-        setExistingImageUrl(data.image_url);
-        setImagePreview(data.image_url);
+        try {
+          // Tenta fazer parse como JSON para múltiplas imagens
+          const imageUrls = typeof data.image_url === 'string' ? 
+            (data.image_url.startsWith('[') ? JSON.parse(data.image_url) : [data.image_url]) : 
+            [data.image_url];
+          setExistingImageUrls(imageUrls);
+          setImagePreviews(imageUrls);
+        } catch {
+          // Se não for JSON válido, trata como string única
+          setExistingImageUrls([data.image_url]);
+          setImagePreviews([data.image_url]);
+        }
       }
     } catch (error: any) {
       toast({
@@ -109,47 +120,74 @@ const ProductForm = () => {
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
+    const files = Array.from(e.target.files || []);
+    
+    if (imageFiles.length + files.length > 5) {
+      toast({
+        title: 'Limite excedido',
+        description: 'Você pode selecionar no máximo 5 imagens.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const newFiles = [...imageFiles, ...files];
+    setImageFiles(newFiles);
+
+    // Criar previews para os novos arquivos
+    const newPreviews = [...imagePreviews];
+    files.forEach(file => {
       const reader = new FileReader();
       reader.onload = () => {
-        setImagePreview(reader.result as string);
+        newPreviews.push(reader.result as string);
+        setImagePreviews([...newPreviews]);
       };
       reader.readAsDataURL(file);
-    }
+    });
   };
 
-  const removeImage = () => {
-    setImageFile(null);
-    setImagePreview('');
-    setExistingImageUrl('');
+  const removeImage = (index: number) => {
+    const newFiles = imageFiles.filter((_, i) => i !== index);
+    const newPreviews = imagePreviews.filter((_, i) => i !== index);
+    const newExistingUrls = existingImageUrls.filter((_, i) => i !== index);
+    
+    setImageFiles(newFiles);
+    setImagePreviews(newPreviews);
+    setExistingImageUrls(newExistingUrls);
   };
 
-  const uploadImage = async (): Promise<string | null> => {
-    if (!imageFile) return existingImageUrl || null;
+  const uploadImages = async (): Promise<string | null> => {
+    if (imageFiles.length === 0 && existingImageUrls.length === 0) return null;
 
     try {
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `products/${fileName}`;
+      const uploadedUrls = [...existingImageUrls];
 
-      const { error: uploadError } = await supabase.storage
-        .from('product-images')
-        .upload(filePath, imageFile);
+      // Upload das novas imagens
+      for (const file of imageFiles) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `products/${fileName}`;
 
-      if (uploadError) throw uploadError;
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, file);
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(filePath);
+        if (uploadError) throw uploadError;
 
-      return publicUrl;
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        uploadedUrls.push(publicUrl);
+      }
+
+      // Se só tem uma imagem, retorna como string, senão como JSON
+      return uploadedUrls.length === 1 ? uploadedUrls[0] : JSON.stringify(uploadedUrls);
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('Error uploading images:', error);
       toast({
         title: 'Erro',
-        description: 'Erro ao fazer upload da imagem.',
+        description: 'Erro ao fazer upload das imagens.',
         variant: 'destructive',
       });
       return null;
@@ -161,7 +199,7 @@ const ProductForm = () => {
     setLoading(true);
 
     try {
-      const imageUrl = await uploadImage();
+      const imageUrl = await uploadImages();
 
       const productData = {
         name: formData.name.trim(),
@@ -370,29 +408,39 @@ const ProductForm = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Imagem do produto</CardTitle>
+                  <CardTitle>Imagens do produto</CardTitle>
                   <CardDescription>
-                    Adicione uma imagem para o produto
+                    Adicione até 5 imagens para o produto
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {imagePreview ? (
-                      <div className="relative">
-                        <img
-                          src={imagePreview}
-                          alt="Preview"
-                          className="w-full h-48 object-cover rounded-lg border"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          className="absolute top-2 right-2"
-                          onClick={removeImage}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                    {/* Grid de imagens */}
+                    {imagePreviews.length > 0 ? (
+                      <div className="grid grid-cols-2 gap-2">
+                        {imagePreviews.map((preview, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={preview}
+                              alt={`Preview ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-lg border"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => removeImage(index)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                            {index === 0 && (
+                              <div className="absolute bottom-1 left-1 bg-primary text-primary-foreground text-xs px-1 rounded">
+                                Principal
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     ) : (
                       <div className="border-2 border-dashed border-muted rounded-lg p-6 text-center">
@@ -403,21 +451,28 @@ const ProductForm = () => {
                       </div>
                     )}
 
-                    <div>
-                      <Label htmlFor="image" className="cursor-pointer">
-                        <div className="flex items-center justify-center gap-2 p-2 border rounded-lg hover:bg-muted transition-colors">
-                          <Upload className="h-4 w-4" />
-                          Selecionar imagem
-                        </div>
-                      </Label>
-                      <Input
-                        id="image"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
-                      />
-                    </div>
+                    {/* Botão para adicionar mais imagens */}
+                    {imagePreviews.length < 5 && (
+                      <div>
+                        <Label htmlFor="images" className="cursor-pointer">
+                          <div className="flex items-center justify-center gap-2 p-2 border rounded-lg hover:bg-muted transition-colors">
+                            <Upload className="h-4 w-4" />
+                            {imagePreviews.length === 0 ? 'Selecionar imagens' : 'Adicionar mais imagens'}
+                          </div>
+                        </Label>
+                        <Input
+                          id="images"
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                        <p className="text-xs text-muted-foreground mt-2 text-center">
+                          {imagePreviews.length}/5 imagens selecionadas
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
