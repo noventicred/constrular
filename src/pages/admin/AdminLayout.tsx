@@ -13,10 +13,21 @@ const AdminLayout = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!loading && (!user || !isAdmin)) {
-      navigate('/auth');
+    if (!loading) {
+      if (!user) {
+        // Não logado - redireciona para login
+        navigate('/auth');
+      } else if (!isAdmin) {
+        // Logado mas não é admin - redireciona para home
+        toast({
+          title: 'Acesso negado',
+          description: 'Você não tem permissão para acessar o painel administrativo.',
+          variant: 'destructive',
+        });
+        navigate('/');
+      }
     }
-  }, [user, isAdmin, loading, navigate]);
+  }, [user, isAdmin, loading, navigate, toast]);
 
   const handleSignOut = async () => {
     const { error } = await signOut();
@@ -31,6 +42,7 @@ const AdminLayout = () => {
     }
   };
 
+  // Mostra loading enquanto verifica autenticação
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -39,8 +51,15 @@ const AdminLayout = () => {
     );
   }
 
+  // Se não é admin ou não está logado, não renderiza nada (redirecionamento já foi feito)
   if (!user || !isAdmin) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-muted-foreground">Redirecionando...</h2>
+        </div>
+      </div>
+    );
   }
 
   return (
