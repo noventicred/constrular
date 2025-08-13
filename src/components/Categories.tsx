@@ -122,15 +122,15 @@ const Categories = () => {
                 return (
                   <div
                     key={index}
-                    className="flex-none w-28 md:w-32 animate-fade-in hover-scale"
+                    className="flex-none w-32 md:w-36 animate-fade-in hover-scale"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1 border-2 hover:border-construction-orange/30">
-                      <CardContent className="p-4 text-center">
-                        <div className={`w-12 h-12 md:w-14 md:h-14 ${category.color} rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300`}>
-                          <Icon className="h-6 w-6 md:h-7 md:w-7 text-white" />
+                    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1 border-2 hover:border-construction-orange/30 h-24 md:h-28">
+                      <CardContent className="p-3 md:p-4 text-center h-full flex flex-col justify-center">
+                        <div className={`w-10 h-10 md:w-12 md:h-12 ${category.color} rounded-full flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-300`}>
+                          <Icon className="h-5 w-5 md:h-6 md:w-6 text-white" />
                         </div>
-                        <h3 className="font-semibold text-xs md:text-sm text-center leading-tight">
+                        <h3 className="font-semibold text-xs md:text-sm text-center leading-tight line-clamp-2 min-h-[2.5rem] md:min-h-[3rem] flex items-center justify-center">
                           {category.name}
                         </h3>
                       </CardContent>
