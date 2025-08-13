@@ -209,7 +209,7 @@ const Header = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="mt-4 border-t pt-4">
+        <nav className="mt-4 border-t pt-4 hidden md:block">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-8">
               <div 
@@ -234,7 +234,7 @@ const Header = () => {
                 </DropdownMenu>
               </div>
               
-              <div className="hidden md:flex items-center gap-6 text-sm">
+              <div className="flex items-center gap-6 text-sm">
                 <a href="/produtos" className="hover:text-primary transition-colors">Produtos</a>
                 <a href="#" className="hover:text-primary transition-colors">Sobre Nós</a>
                 <a href="#" className="hover:text-primary transition-colors">Contato</a>
@@ -244,7 +244,7 @@ const Header = () => {
               </div>
             </div>
             
-            <div className="hidden md:block text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground">
               <span className="text-primary font-medium">Ofertas</span> até 50% OFF
             </div>
           </div>
