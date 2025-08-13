@@ -127,7 +127,7 @@ const Categories = () => {
                   >
                     <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1 border-2 hover:border-construction-orange/30 h-24 md:h-28">
                       <CardContent className="p-3 md:p-4 text-center h-full flex flex-col justify-center">
-                        <div className={`w-12 h-12 md:w-14 md:h-14 ${category.color} rounded-full flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                        <div className={`w-12 h-12 md:w-14 md:h-14 ${category.color} rounded-full flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-300 shadow-lg aspect-square`}>
                           <Icon className="h-5 w-5 md:h-6 md:w-6 text-white" />
                         </div>
                         <h3 className="font-semibold text-xs md:text-sm text-center leading-tight line-clamp-2 min-h-[2.5rem] md:min-h-[3rem] flex items-center justify-center">
