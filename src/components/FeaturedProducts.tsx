@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart, Heart } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const featuredProducts = [
   {
@@ -83,6 +84,7 @@ const featuredProducts = [
 const FeaturedProducts = () => {
   const { addItem } = useCart();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleAddToCart = (product: typeof featuredProducts[0]) => {
     addItem({
@@ -207,7 +209,7 @@ const FeaturedProducts = () => {
         </div>
         
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
+          <Button variant="outline" size="lg" onClick={() => navigate("/produtos")}>
             Ver Todos os Produtos
           </Button>
         </div>
