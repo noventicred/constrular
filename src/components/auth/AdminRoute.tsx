@@ -1,8 +1,6 @@
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
-import { useEffect } from 'react';
 
 interface AdminRouteProps {
   children: ReactNode;
@@ -10,18 +8,7 @@ interface AdminRouteProps {
 }
 
 export function AdminRoute({ children, fallback = '/' }: AdminRouteProps) {
-  const { isAuthenticated, isAdmin, isLoading } = useAuth();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (!isLoading && isAuthenticated && !isAdmin) {
-      toast({
-        title: 'Acesso negado',
-        description: 'Você não tem permissão para acessar o painel administrativo.',
-        variant: 'destructive',
-      });
-    }
-  }, [isLoading, isAuthenticated, isAdmin, toast]);
+  const { isAuthenticated, isAdmin, isLoading, profile } = useAuth();
 
   if (isLoading) {
     return (
@@ -33,6 +20,15 @@ export function AdminRoute({ children, fallback = '/' }: AdminRouteProps) {
 
   if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
+  }
+
+  // Wait for profile to be loaded before checking admin status
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   if (!isAdmin) {
