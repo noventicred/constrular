@@ -15,30 +15,22 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, loading, isAdmin } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Redirect if already logged in
+  // Simple redirect check - no duplicate admin verification
   useEffect(() => {
-    const checkUserAndRedirect = async () => {
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', user.id)
-          .single();
-        
-        if (profile?.is_admin) {
-          navigate('/admin');
-        } else {
-          navigate('/');
-        }
+    if (!loading && user) {
+      console.log('Redirecting user:', { isAdmin, email: user.email });
+      
+      if (isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/');
       }
-    };
-    
-    checkUserAndRedirect();
-  }, [user, navigate]);
+    }
+  }, [user, loading, isAdmin, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +40,7 @@ const Auth = () => {
       const { error } = await signIn(email, password);
 
       if (error) {
+        console.log('Login error:', error);
         toast({
           title: 'Erro ao fazer login',
           description: error.message,
@@ -59,20 +52,11 @@ const Auth = () => {
           description: 'Bem-vindo de volta.',
         });
         
-        // Check if user is admin and redirect accordingly
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', (await supabase.auth.getUser()).data.user?.id)
-          .single();
-        
-        if (profile?.is_admin) {
-          navigate('/admin');
-        } else {
-          navigate('/');
-        }
+        // Don't manually redirect here - let the auth state change handle it
+        console.log('Login successful, waiting for auth state change...');
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast({
         title: 'Erro inesperado',
         description: 'Tente novamente mais tarde.',

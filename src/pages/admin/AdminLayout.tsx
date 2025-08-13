@@ -13,12 +13,14 @@ const AdminLayout = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log('AdminLayout check:', { loading, user: !!user, isAdmin });
+    
     if (!loading) {
       if (!user) {
-        // Não logado - redireciona para login
+        console.log('No user, redirecting to auth');
         navigate('/auth');
       } else if (!isAdmin) {
-        // Logado mas não é admin - redireciona para home
+        console.log('User is not admin, redirecting to home');
         toast({
           title: 'Acesso negado',
           description: 'Você não tem permissão para acessar o painel administrativo.',

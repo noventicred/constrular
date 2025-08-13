@@ -12,20 +12,25 @@ export function useAuth() {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
           // Check if user is admin
-          setTimeout(async () => {
-            const { data: profile } = await supabase
+          try {
+            const { data: profile, error } = await supabase
               .from('profiles')
               .select('is_admin')
               .eq('id', session.user.id)
               .single();
             
+            console.log('Admin check:', profile, error);
             setIsAdmin(profile?.is_admin || false);
-          }, 0);
+          } catch (error) {
+            console.error('Error checking admin status:', error);
+            setIsAdmin(false);
+          }
         } else {
           setIsAdmin(false);
         }
@@ -36,9 +41,10 @@ export function useAuth() {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      // This will trigger the auth state change event above if there's a session
+      if (!session) {
+        setLoading(false);
+      }
     });
 
     return () => subscription.unsubscribe();
