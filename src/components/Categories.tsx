@@ -18,52 +18,52 @@ const categories = [
   {
     name: "Cimento & Argamassa",
     icon: HardHat,
-    color: "bg-blue-500"
+    color: "bg-blue-600"
   },
   {
     name: "Tijolos & Blocos",
     icon: Home,
-    color: "bg-red-500"
+    color: "bg-red-600"
   },
   {
     name: "Tintas & Vernizes",
     icon: Paintbrush,
-    color: "bg-green-500"
+    color: "bg-green-600"
   },
   {
     name: "Ferramentas",
     icon: Hammer,
-    color: "bg-yellow-500"
+    color: "bg-yellow-600"
   },
   {
     name: "Hidráulica",
     icon: Wrench,
-    color: "bg-cyan-500"
+    color: "bg-cyan-600"
   },
   {
     name: "Elétrica",
     icon: Zap,
-    color: "bg-purple-500"
+    color: "bg-purple-600"
   },
   {
     name: "Madeiras",
     icon: TreePine,
-    color: "bg-amber-600"
+    color: "bg-amber-700"
   },
   {
     name: "Transporte",
     icon: Truck,
-    color: "bg-gray-500"
+    color: "bg-gray-600"
   },
   {
     name: "Pisos & Revestimentos",
     icon: Home,
-    color: "bg-indigo-500"
+    color: "bg-indigo-600"
   },
   {
     name: "Iluminação",
     icon: Zap,
-    color: "bg-pink-500"
+    color: "bg-pink-600"
   }
 ];
 
@@ -127,7 +127,7 @@ const Categories = () => {
                   >
                     <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1 border-2 hover:border-construction-orange/30 h-24 md:h-28">
                       <CardContent className="p-3 md:p-4 text-center h-full flex flex-col justify-center">
-                        <div className={`w-10 h-10 md:w-12 md:h-12 ${category.color} rounded-full flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-300`}>
+                        <div className={`w-12 h-12 md:w-14 md:h-14 ${category.color} rounded-full flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                           <Icon className="h-5 w-5 md:h-6 md:w-6 text-white" />
                         </div>
                         <h3 className="font-semibold text-xs md:text-sm text-center leading-tight line-clamp-2 min-h-[2.5rem] md:min-h-[3rem] flex items-center justify-center">
