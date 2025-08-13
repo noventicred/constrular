@@ -1,7 +1,76 @@
-import { Search, Menu, Phone, MapPin } from "lucide-react";
+import { Search, Menu, Phone, MapPin, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { 
+  Hammer, 
+  Paintbrush, 
+  Wrench, 
+  Zap, 
+  Home, 
+  TreePine,
+  Truck,
+  HardHat
+} from "lucide-react";
 import Cart from "./Cart";
+
+const categories = [
+  {
+    name: "Cimento & Argamassa",
+    icon: HardHat,
+    color: "bg-blue-600"
+  },
+  {
+    name: "Tijolos & Blocos",
+    icon: Home,
+    color: "bg-red-600"
+  },
+  {
+    name: "Tintas & Vernizes",
+    icon: Paintbrush,
+    color: "bg-green-600"
+  },
+  {
+    name: "Ferramentas",
+    icon: Hammer,
+    color: "bg-yellow-600"
+  },
+  {
+    name: "Hidráulica",
+    icon: Wrench,
+    color: "bg-cyan-600"
+  },
+  {
+    name: "Elétrica",
+    icon: Zap,
+    color: "bg-purple-600"
+  },
+  {
+    name: "Madeiras",
+    icon: TreePine,
+    color: "bg-amber-700"
+  },
+  {
+    name: "Transporte",
+    icon: Truck,
+    color: "bg-gray-600"
+  },
+  {
+    name: "Pisos & Revestimentos",
+    icon: Home,
+    color: "bg-indigo-600"
+  },
+  {
+    name: "Iluminação",
+    icon: Zap,
+    color: "bg-pink-600"
+  }
+];
 
 const Header = () => {
   return (
@@ -64,9 +133,29 @@ const Header = () => {
         <nav className="mt-4 border-t pt-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-8">
-              <Button variant="construction" size="sm">
-                Todas as Categorias
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="construction" size="sm" className="gap-2">
+                    Todas as Categorias
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-64 bg-background border shadow-lg z-50" align="start">
+                  {categories.map((category, index) => {
+                    const Icon = category.icon;
+                    return (
+                      <DropdownMenuItem key={index} className="cursor-pointer p-3 hover:bg-muted">
+                        <div className="flex items-center gap-3 w-full">
+                          <div className={`w-8 h-8 ${category.color} rounded-full flex items-center justify-center flex-shrink-0`}>
+                            <Icon className="h-4 w-4 text-white" />
+                          </div>
+                          <span className="text-sm font-medium">{category.name}</span>
+                        </div>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
               
               <div className="hidden md:flex items-center gap-6 text-sm">
                 <a href="#" className="hover:text-primary transition-colors">Cimento e Argamassa</a>
