@@ -52,22 +52,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
     });
     
     if (session?.user) {
+      console.log('Session exists, fetching profile...');
       const profile = await fetchUserProfile(session.user.id);
+      console.log('Profile fetch completed, updating auth state...');
       
-      updateAuthState({
+      const newAuthState = {
         user: session.user,
         session,
         profile,
         isAuthenticated: true,
         isAdmin: profile?.is_admin || false,
         isLoading: false,
-      });
+      };
+      
+      console.log('New auth state:', newAuthState);
+      updateAuthState(newAuthState);
       
       console.log('User authenticated:', { 
         email: session.user.email, 
         isAdmin: profile?.is_admin || false 
       });
     } else {
+      console.log('No session, clearing auth state...');
       updateAuthState({
         user: null,
         session: null,
