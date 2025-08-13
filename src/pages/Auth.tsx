@@ -34,11 +34,8 @@ const Auth = () => {
           variant: 'destructive',
         });
       } else {
-        console.log('Auth page: login successful');
-        toast({
-          title: 'Login realizado com sucesso!',
-          description: 'Bem-vindo de volta.',
-        });
+        console.log('Auth page: login successful, waiting for redirect...');
+        // Não exibir toast aqui, deixar o AuthRedirect fazer o redirecionamento
       }
     } catch (error) {
       toast({
