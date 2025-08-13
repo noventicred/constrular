@@ -54,33 +54,35 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const handleAuthStateChange = async (session: Session | null) => {
+  const handleAuthStateChange = (session: Session | null) => {
     console.log('Auth state change:', { 
       session: session ? 'exists' : 'null', 
       user: session?.user?.email 
     });
     
     if (session?.user) {
-      console.log('Session exists, fetching profile...');
-      const profile = await fetchUserProfile(session.user.id);
-      console.log('Profile fetch completed, updating auth state...');
+      console.log('Session exists, updating auth state directly...');
       
-      const newAuthState = {
+      // Update auth state immediately with basic info
+      updateAuthState({
         user: session.user,
         session,
-        profile,
+        profile: null, // Will be fetched separately
         isAuthenticated: true,
-        isAdmin: profile?.is_admin || false,
+        isAdmin: false, // Will be updated after profile fetch
         isLoading: false,
-      };
-      
-      console.log('New auth state:', newAuthState);
-      updateAuthState(newAuthState);
-      
-      console.log('User authenticated:', { 
-        email: session.user.email, 
-        isAdmin: profile?.is_admin || false 
       });
+
+      // Fetch profile separately
+      console.log('Fetching profile separately...');
+      fetchUserProfile(session.user.id).then(profile => {
+        console.log('Profile fetch result:', profile);
+        updateAuthState({
+          profile,
+          isAdmin: profile?.is_admin || false,
+        });
+      });
+      
     } else {
       console.log('No session, clearing auth state...');
       updateAuthState({
