@@ -115,7 +115,7 @@ const FeaturedProducts = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {featuredProducts.map((product, index) => (
-            <Card key={product.id} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+            <Card key={product.id} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-fade-in cursor-pointer" style={{ animationDelay: `${index * 100}ms` }} onClick={() => navigate(`/produto/${product.id}`)}>
               <CardContent className="p-0">
                 <div className="relative">
                   <img 
@@ -198,7 +198,10 @@ const FeaturedProducts = () => {
                   className="w-full" 
                   disabled={!product.inStock}
                   variant={product.inStock ? "default" : "outline"}
-                  onClick={() => handleAddToCart(product)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddToCart(product);
+                  }}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   {product.inStock ? 'Adicionar ao Carrinho' : 'Indisponível'}
