@@ -8,14 +8,26 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminChecked, setIsAdminChecked] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+        console.log('Auth state changed:', event, session?.user?.email, 'isSigningOut:', isSigningOut);
+        
+        // If we're in the process of signing out, ignore session restoration
+        if (isSigningOut && session) {
+          console.log('Ignoring session during signout');
+          return;
+        }
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Reset signing out flag when we get SIGNED_OUT event
+        if (event === 'SIGNED_OUT') {
+          setIsSigningOut(false);
+        }
         
         if (session?.user) {
           // Check if user is admin
@@ -43,16 +55,17 @@ export function useAuth() {
       }
     );
 
-    // THEN check for existing session
+    // Check for existing session only if not signing out
     supabase.auth.getSession().then(({ data: { session } }) => {
-      // This will trigger the auth state change event above if there's a session
-      if (!session) {
+      console.log('Initial session check:', !!session, 'isSigningOut:', isSigningOut);
+      // Only restore session if we're not in the middle of signing out
+      if (!isSigningOut && !session) {
         setLoading(false);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [isSigningOut]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -80,34 +93,26 @@ export function useAuth() {
 
   const signOut = async () => {
     console.log('signOut function called');
+    setIsSigningOut(true);
+    
     try {
-      // Set timeout to force logout if Supabase doesn't respond
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Logout timeout')), 5000)
-      );
-      
-      const signOutPromise = supabase.auth.signOut();
-      
-      const result = await Promise.race([signOutPromise, timeoutPromise]);
-      console.log('Supabase signOut result:', result);
-      
-      // Force clear auth state regardless of Supabase response
-      console.log('Clearing auth state manually');
+      // Clear auth state immediately
+      console.log('Clearing auth state immediately');
       setUser(null);
       setSession(null);
       setIsAdmin(false);
       setIsAdminChecked(true);
       
+      // Try to sign out from Supabase (but don't wait for it)
+      supabase.auth.signOut().catch(err => {
+        console.log('Supabase signOut error (ignored):', err);
+      });
+      
+      console.log('Logout completed successfully');
       return { error: null };
     } catch (err) {
       console.error('SignOut exception:', err);
-      // Force clear auth state even on error
-      console.log('Forcing auth state clear due to error');
-      setUser(null);
-      setSession(null);
-      setIsAdmin(false);
-      setIsAdminChecked(true);
-      return { error: null }; // Return success to complete logout flow
+      return { error: null };
     }
   };
 
