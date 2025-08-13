@@ -30,10 +30,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching user profile:', error);
+        return null;
+      }
+
+      if (!data) {
+        console.log('No profile found for user:', userId);
         return null;
       }
 
