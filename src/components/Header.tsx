@@ -125,6 +125,7 @@ const Header = () => {
                         title: 'Sucesso',
                         description: 'Logout realizado com sucesso!',
                       });
+                      navigate('/');
                     }
                   }}>
                     <LogOut className="mr-2 h-4 w-4" />
@@ -289,6 +290,8 @@ const Header = () => {
                                 description: error.message,
                                 variant: 'destructive',
                               });
+                            } else {
+                              navigate('/');
                             }
                           }}
                         >
