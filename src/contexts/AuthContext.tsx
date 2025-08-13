@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthContextType, AuthState, UserProfile } from '@/types/auth';
@@ -19,12 +19,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isAdmin: false,
   });
 
-  const isInitialized = useRef(false);
-  const lastSessionId = useRef<string | null>(null);
-
-  const updateAuthState = useCallback((updates: Partial<AuthState>) => {
+  const updateAuthState = (updates: Partial<AuthState>) => {
     setAuthState(prev => ({ ...prev, ...updates }));
-  }, []);
+  };
 
   const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
@@ -51,20 +48,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const handleAuthStateChange = useCallback(async (session: Session | null) => {
-    // Avoid duplicate processing for the same session
-    const currentSessionId = session?.access_token || null;
-    if (currentSessionId === lastSessionId.current && isInitialized.current) {
-      return;
-    }
-    lastSessionId.current = currentSessionId;
-    
+  const handleAuthStateChange = async (session: Session | null) => {
     if (session?.user) {
-      // Fetch profile only if we don't have it or user changed
-      let profile = authState.profile;
-      if (!profile || profile.id !== session.user.id) {
-        profile = await fetchUserProfile(session.user.id);
-      }
+      // Fetch profile first to ensure we have complete data
+      const profile = await fetchUserProfile(session.user.id);
       
       // Update auth state with complete info
       updateAuthState({
@@ -86,37 +73,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isLoading: false,
       });
     }
-    
-    isInitialized.current = true;
-  }, [authState.profile, updateAuthState]);
+  };
 
   useEffect(() => {
-    let isMounted = true;
-    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (isMounted) {
-          await handleAuthStateChange(session);
-        }
+        // Process auth state changes
+        await handleAuthStateChange(session);
       }
     );
 
     // Check for existing session on mount
     const initializeAuth = async () => {
-      if (isMounted) {
-        const { data: { session } } = await supabase.auth.getSession();
-        await handleAuthStateChange(session);
-      }
+      const { data: { session } } = await supabase.auth.getSession();
+      await handleAuthStateChange(session);
     };
     
     initializeAuth();
 
-    return () => {
-      isMounted = false;
-      subscription.unsubscribe();
-    };
-  }, [handleAuthStateChange]);
+    return () => subscription.unsubscribe();
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     try {
