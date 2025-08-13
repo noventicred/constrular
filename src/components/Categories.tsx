@@ -18,7 +18,7 @@ const categories = [
   {
     name: "Cimento & Argamassa",
     icon: HardHat,
-    color: "bg-blue-600"
+    color: "bg-gray-600"
   },
   {
     name: "Tijolos & Blocos",
@@ -33,17 +33,17 @@ const categories = [
   {
     name: "Ferramentas",
     icon: Hammer,
-    color: "bg-yellow-600"
+    color: "bg-amber-600"
   },
   {
     name: "Hidráulica",
     icon: Wrench,
-    color: "bg-cyan-600"
+    color: "bg-slate-600"
   },
   {
     name: "Elétrica",
     icon: Zap,
-    color: "bg-purple-600"
+    color: "bg-yellow-600"
   },
   {
     name: "Madeiras",
@@ -53,17 +53,17 @@ const categories = [
   {
     name: "Transporte",
     icon: Truck,
-    color: "bg-gray-600"
+    color: "bg-stone-600"
   },
   {
     name: "Pisos & Revestimentos",
     icon: Home,
-    color: "bg-indigo-600"
+    color: "bg-neutral-600"
   },
   {
     name: "Iluminação",
     icon: Zap,
-    color: "bg-pink-600"
+    color: "bg-orange-500"
   }
 ];
 

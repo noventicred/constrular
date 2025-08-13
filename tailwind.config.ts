@@ -54,7 +54,7 @@ export default {
 				},
 				construction: {
 					orange: 'hsl(var(--construction-orange))',
-					blue: 'hsl(var(--construction-blue))',
+					secondary: 'hsl(var(--construction-secondary))',
 					gray: 'hsl(var(--construction-gray))'
 				},
 				success: 'hsl(var(--success))',
