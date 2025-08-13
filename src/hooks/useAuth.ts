@@ -55,17 +55,18 @@ export function useAuth() {
       }
     );
 
-    // Check for existing session only if not signing out
+    // Check for existing session - this will trigger the auth state change above
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', !!session, 'isSigningOut:', isSigningOut);
-      // Only restore session if we're not in the middle of signing out
-      if (!isSigningOut && !session) {
+      console.log('Initial session check:', !!session);
+      // The onAuthStateChange above will handle the session, we just need to handle when there's no session
+      if (!session) {
+        setIsAdminChecked(true);
         setLoading(false);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [isSigningOut]);
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({

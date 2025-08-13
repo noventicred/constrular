@@ -13,7 +13,13 @@ const AdminLayout = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log('AdminLayout check:', { loading, user: !!user, isAdmin, isAdminChecked });
+    console.log('AdminLayout check:', { 
+      loading, 
+      user: !!user, 
+      userEmail: user?.email,
+      isAdmin, 
+      isAdminChecked 
+    });
     
     // CRITICAL: Only make decisions when EVERYTHING is loaded
     if (!loading && isAdminChecked) {
@@ -32,7 +38,11 @@ const AdminLayout = () => {
         console.log('User is admin, staying in admin area');
       }
     } else {
-      console.log('Still loading or checking admin status, waiting...');
+      console.log('Still loading or checking admin status, waiting...', {
+        loading,
+        isAdminChecked,
+        needsWait: loading || !isAdminChecked
+      });
     }
   }, [user, isAdmin, loading, isAdminChecked, navigate, toast]);
 
@@ -51,7 +61,11 @@ const AdminLayout = () => {
 
   // Show loading while ANYTHING is still loading
   if (loading || !isAdminChecked) {
-    console.log('Showing loading screen because:', { loading, isAdminChecked });
+    console.log('Showing loading screen because:', { 
+      loading, 
+      isAdminChecked,
+      reason: loading ? 'still loading' : 'admin not checked'
+    });
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
