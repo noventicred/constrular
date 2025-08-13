@@ -14,20 +14,10 @@ export function useAuth() {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email, 'isSigningOut:', isSigningOut);
+        console.log('Auth state changed:', event, session?.user?.email);
         
-        // If we're in the process of signing out, ignore session restoration
-        if (isSigningOut && session) {
-          console.log('Ignoring session during signout');
-          return;
-        }
         setSession(session);
         setUser(session?.user ?? null);
-        
-        // Reset signing out flag when we get SIGNED_OUT event
-        if (event === 'SIGNED_OUT') {
-          setIsSigningOut(false);
-        }
         
         if (session?.user) {
           // Check if user is admin
@@ -94,7 +84,6 @@ export function useAuth() {
 
   const signOut = async () => {
     console.log('signOut function called');
-    setIsSigningOut(true);
     
     try {
       // Clear auth state immediately
@@ -104,26 +93,21 @@ export function useAuth() {
       setIsAdmin(false);
       setIsAdminChecked(true);
       
-      // Clear localStorage completely
-      localStorage.removeItem('sb-jynklrscgeshapzrogfa-auth-token');
-      localStorage.clear();
+      // Clear localStorage completely to prevent session restoration
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.includes('supabase') || key.includes('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
       
-      // Force sign out from Supabase
+      // Sign out from Supabase
       await supabase.auth.signOut({ scope: 'global' });
-      
-      // Force page reload to clear any cached state
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
       
       console.log('Logout completed successfully');
       return { error: null };
     } catch (err) {
       console.error('SignOut exception:', err);
-      // Force reload even on error
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
       return { error: null };
     }
   };
