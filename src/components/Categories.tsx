@@ -115,8 +115,8 @@ const Categories = () => {
           </Button>
 
           {/* Carousel */}
-          <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex gap-4 md:gap-6">
+          <div className="overflow-hidden py-2" ref={emblaRef}>
+            <div className="flex gap-4 md:gap-6 px-1">
               {categories.map((category, index) => {
                 const Icon = category.icon;
                 return (
