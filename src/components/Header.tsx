@@ -62,9 +62,11 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-primary">
-              ConstrutorPro
-            </h1>
+            <a href="/" className="hover:opacity-80 transition-opacity">
+              <h1 className="text-2xl font-bold text-primary">
+                ConstrutorPro
+              </h1>
+            </a>
           </div>
 
           {/* Search bar */}
@@ -107,36 +109,6 @@ const Header = () => {
                         className="pl-10 bg-background/80 border-primary/20 focus:border-primary"
                       />
                     </div>
-                  </div>
-
-                  {/* Mobile Categories */}
-                  <div className="p-6 border-b">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-between p-4 h-auto hover:bg-primary/10 rounded-lg border border-transparent hover:border-primary/20"
-                      onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Package className="h-5 w-5 text-primary" />
-                        <span className="text-lg font-semibold">Todas as Categorias</span>
-                      </div>
-                      <ChevronRight className={`h-5 w-5 text-primary transition-transform ${isCategoriesOpen ? 'rotate-90' : ''}`} />
-                    </Button>
-                    
-                    {isCategoriesOpen && (
-                      <div className="mt-4 ml-8 space-y-2 animate-fade-in">
-                        {categories.map((category, index) => (
-                          <a
-                            key={index}
-                            href="#"
-                            className="block text-sm text-muted-foreground hover:text-primary transition-colors py-2 px-3 rounded-md hover:bg-primary/5"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                          >
-                            {category}
-                          </a>
-                        ))}
-                      </div>
-                    )}
                   </div>
 
                   {/* Mobile Navigation Links */}
