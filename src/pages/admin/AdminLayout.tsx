@@ -15,7 +15,7 @@ const AdminLayout = () => {
   useEffect(() => {
     console.log('AdminLayout check:', { loading, user: !!user, isAdmin, isAdminChecked });
     
-    // Wait for everything to be loaded before making decisions
+    // CRITICAL: Only make decisions when EVERYTHING is loaded
     if (!loading && isAdminChecked) {
       if (!user) {
         console.log('No user, redirecting to auth');
@@ -31,6 +31,8 @@ const AdminLayout = () => {
       } else {
         console.log('User is admin, staying in admin area');
       }
+    } else {
+      console.log('Still loading or checking admin status, waiting...');
     }
   }, [user, isAdmin, loading, isAdminChecked, navigate, toast]);
 
@@ -47,8 +49,9 @@ const AdminLayout = () => {
     }
   };
 
-  // Show loading while checking admin status
+  // Show loading while ANYTHING is still loading
   if (loading || !isAdminChecked) {
+    console.log('Showing loading screen because:', { loading, isAdminChecked });
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
