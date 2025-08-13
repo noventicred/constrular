@@ -64,7 +64,7 @@ const categories = [
 
 const Categories = () => {
   return (
-    <section className="py-16 bg-muted/30">
+    <section className="py-16 bg-muted/30 animate-fade-in">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -81,7 +81,8 @@ const Categories = () => {
             return (
               <Card 
                 key={index} 
-                className="group hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1"
+                className="group hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1 animate-fade-in hover-scale"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
                 <CardContent className="p-6 text-center">
                   <div className={`w-16 h-16 ${category.color} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>

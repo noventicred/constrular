@@ -100,7 +100,7 @@ const FeaturedProducts = () => {
   };
 
   return (
-    <section className="py-16">
+    <section className="py-16 animate-fade-in">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -112,8 +112,8 @@ const FeaturedProducts = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredProducts.map((product) => (
-            <Card key={product.id} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          {featuredProducts.map((product, index) => (
+            <Card key={product.id} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
               <CardContent className="p-0">
                 <div className="relative">
                   <img 

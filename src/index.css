@@ -109,6 +109,10 @@ All colors MUST be HSL.
   }
 }
 
+.hover-scale {
+  @apply transition-transform duration-200 hover:scale-105;
+}
+
 @layer base {
   * {
     @apply border-border;
