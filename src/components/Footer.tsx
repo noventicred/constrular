@@ -24,22 +24,22 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-2xl font-bold text-primary">ConstrutorPro</h3>
             <p className="text-gray-300">
-              Há mais de 15 anos fornecendo materiais de construção com qualidade 
-              e preços justos para toda região de São Paulo.
+              Materiais de construção de qualidade com os melhores preços da região. 
+              Sua obra em boas mãos há mais de 20 anos.
             </p>
             
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-primary" />
-                <span>(11) 99999-9999</span>
+                <span>(11) 4002-8922</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-primary" />
-                <span>contato@construtorpro.com</span>
+                <span>vendas@construtorpro.com.br</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary" />
-                <span>Av. Paulista, 1000 - São Paulo, SP</span>
+                <span>Rua das Construções, 123 - Centro, São Paulo - SP</span>
               </div>
             </div>
           </div>
@@ -75,8 +75,8 @@ const Footer = () => {
               </div>
               <div className="text-sm text-gray-400">
                 <p>Segunda a Sexta: 7h às 18h</p>
-                <p>Sábado: 8h às 14h</p>
-                <p>Domingo: Fechado</p>
+                <p>Sábado: 7h às 17h</p>
+                <p>Domingo: 8h às 12h</p>
               </div>
             </div>
           </div>
@@ -136,7 +136,7 @@ const Footer = () => {
             </div>
             <div>
               <h5 className="font-semibold">Entrega Rápida</h5>
-              <p className="text-sm text-gray-400">Frete grátis acima de R$ 299</p>
+              <p className="text-sm text-gray-400">Frete grátis acima de R$ 199</p>
             </div>
           </div>
           
