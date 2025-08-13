@@ -1,4 +1,4 @@
-import { Search, Menu, Phone, MapPin, ChevronDown, ChevronRight, X } from "lucide-react";
+import { Search, Menu, Phone, MapPin, ChevronDown, ChevronRight, X, Package, Info, MessageCircle, Truck, RefreshCw, Headphones, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -92,105 +92,115 @@ const Header = () => {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-80 p-0">
-                <SheetHeader className="p-6 border-b">
-                  <SheetTitle>Menu</SheetTitle>
+              <SheetContent side="left" className="w-80 p-0 bg-gradient-to-b from-background to-muted/20">
+                <SheetHeader className="p-6 border-b bg-primary/5">
+                  <SheetTitle className="text-xl font-bold text-primary">Menu</SheetTitle>
                 </SheetHeader>
                 
-                <div className="p-6 space-y-6">
+                <div className="p-0">
                   {/* Mobile Search */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                    <Input
-                      placeholder="Buscar produtos..."
-                      className="pl-10"
-                    />
+                  <div className="p-6 border-b bg-muted/30">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                      <Input
+                        placeholder="Buscar produtos..."
+                        className="pl-10 bg-background/80 border-primary/20 focus:border-primary"
+                      />
+                    </div>
                   </div>
 
                   {/* Mobile Categories */}
-                  <div className="space-y-4">
-                    <div>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-between p-0 h-auto"
-                        onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                      >
-                        <span className="text-lg font-medium">Todas as Categorias</span>
-                        <ChevronRight className={`h-5 w-5 transition-transform ${isCategoriesOpen ? 'rotate-90' : ''}`} />
-                      </Button>
-                      
-                      {isCategoriesOpen && (
-                        <div className="mt-4 ml-4 space-y-3 animate-fade-in">
-                          {categories.map((category, index) => (
-                            <a
-                              key={index}
-                              href="#"
-                              className="block text-sm text-muted-foreground hover:text-primary transition-colors py-1"
-                              onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                              {category}
-                            </a>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                  <div className="p-6 border-b">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-between p-4 h-auto hover:bg-primary/10 rounded-lg border border-transparent hover:border-primary/20"
+                      onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Package className="h-5 w-5 text-primary" />
+                        <span className="text-lg font-semibold">Todas as Categorias</span>
+                      </div>
+                      <ChevronRight className={`h-5 w-5 text-primary transition-transform ${isCategoriesOpen ? 'rotate-90' : ''}`} />
+                    </Button>
+                    
+                    {isCategoriesOpen && (
+                      <div className="mt-4 ml-8 space-y-2 animate-fade-in">
+                        {categories.map((category, index) => (
+                          <a
+                            key={index}
+                            href="#"
+                            className="block text-sm text-muted-foreground hover:text-primary transition-colors py-2 px-3 rounded-md hover:bg-primary/5"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {category}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
-                    {/* Mobile Navigation Links */}
-                    <div className="space-y-4 border-t pt-4">
-                      <a 
-                        href="/produtos" 
-                        className="block text-lg font-medium hover:text-primary transition-colors"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Produtos
-                      </a>
-                      <a 
-                        href="#" 
-                        className="block text-lg font-medium hover:text-primary transition-colors"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Sobre Nós
-                      </a>
-                      <a 
-                        href="#" 
-                        className="block text-lg font-medium hover:text-primary transition-colors"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Contato
-                      </a>
-                      <a 
-                        href="#" 
-                        className="block text-lg font-medium hover:text-primary transition-colors"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Entrega
-                      </a>
-                      <a 
-                        href="#" 
-                        className="block text-lg font-medium hover:text-primary transition-colors"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Trocas e Devoluções
-                      </a>
-                      <a 
-                        href="#" 
-                        className="block text-lg font-medium hover:text-primary transition-colors"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Atendimento
-                      </a>
-                    </div>
+                  {/* Mobile Navigation Links */}
+                  <div className="p-6 space-y-1">
+                    <a 
+                      href="/produtos" 
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Package className="h-5 w-5 text-primary" />
+                      Produtos
+                    </a>
+                    <a 
+                      href="#" 
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Info className="h-5 w-5 text-primary" />
+                      Sobre Nós
+                    </a>
+                    <a 
+                      href="#" 
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <MessageCircle className="h-5 w-5 text-primary" />
+                      Contato
+                    </a>
+                    <a 
+                      href="#" 
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Truck className="h-5 w-5 text-primary" />
+                      Entrega
+                    </a>
+                    <a 
+                      href="#" 
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <RefreshCw className="h-5 w-5 text-primary" />
+                      Trocas e Devoluções
+                    </a>
+                    <a 
+                      href="#" 
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Headphones className="h-5 w-5 text-primary" />
+                      Atendimento
+                    </a>
+                  </div>
 
-                    {/* Mobile Account */}
-                    <div className="border-t pt-4">
-                      <Button 
-                        variant="construction" 
-                        className="w-full"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Minha Conta
-                      </Button>
-                    </div>
+                  {/* Mobile Account */}
+                  <div className="p-6 border-t bg-muted/30">
+                    <Button 
+                      variant="construction" 
+                      className="w-full gap-3 h-12 text-lg font-semibold"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <User className="h-5 w-5" />
+                      Minha Conta
+                    </Button>
                   </div>
                 </div>
               </SheetContent>
