@@ -26,11 +26,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
       console.log('Fetching profile for user:', userId);
+      console.log('Making Supabase query...');
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
+
+      console.log('Supabase query completed:', { data, error });
 
       if (error) {
         console.error('Error fetching user profile:', error);
