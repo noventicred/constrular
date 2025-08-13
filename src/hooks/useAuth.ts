@@ -103,15 +103,26 @@ export function useAuth() {
       setIsAdmin(false);
       setIsAdminChecked(true);
       
-      // Try to sign out from Supabase (but don't wait for it)
-      supabase.auth.signOut().catch(err => {
-        console.log('Supabase signOut error (ignored):', err);
-      });
+      // Clear localStorage completely
+      localStorage.removeItem('sb-jynklrscgeshapzrogfa-auth-token');
+      localStorage.clear();
+      
+      // Force sign out from Supabase
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Force page reload to clear any cached state
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
       
       console.log('Logout completed successfully');
       return { error: null };
     } catch (err) {
       console.error('SignOut exception:', err);
+      // Force reload even on error
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
       return { error: null };
     }
   };
