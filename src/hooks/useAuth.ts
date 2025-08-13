@@ -81,19 +81,33 @@ export function useAuth() {
   const signOut = async () => {
     console.log('signOut function called');
     try {
-      const { error } = await supabase.auth.signOut();
-      console.log('Supabase signOut result:', { error });
-      if (!error) {
-        console.log('Clearing auth state manually');
-        setUser(null);
-        setSession(null);
-        setIsAdmin(false);
-        setIsAdminChecked(true);
-      }
-      return { error };
+      // Set timeout to force logout if Supabase doesn't respond
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Logout timeout')), 5000)
+      );
+      
+      const signOutPromise = supabase.auth.signOut();
+      
+      const result = await Promise.race([signOutPromise, timeoutPromise]);
+      console.log('Supabase signOut result:', result);
+      
+      // Force clear auth state regardless of Supabase response
+      console.log('Clearing auth state manually');
+      setUser(null);
+      setSession(null);
+      setIsAdmin(false);
+      setIsAdminChecked(true);
+      
+      return { error: null };
     } catch (err) {
       console.error('SignOut exception:', err);
-      return { error: err };
+      // Force clear auth state even on error
+      console.log('Forcing auth state clear due to error');
+      setUser(null);
+      setSession(null);
+      setIsAdmin(false);
+      setIsAdminChecked(true);
+      return { error: null }; // Return success to complete logout flow
     }
   };
 
