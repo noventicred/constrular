@@ -8,14 +8,15 @@ import { LogOut, User } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const AdminLayout = () => {
-  const { user, isAdmin, loading, signOut } = useAuth();
+  const { user, isAdmin, loading, signOut, isAdminChecked } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log('AdminLayout check:', { loading, user: !!user, isAdmin });
+    console.log('AdminLayout check:', { loading, user: !!user, isAdmin, isAdminChecked });
     
-    if (!loading) {
+    // Wait for everything to be loaded before making decisions
+    if (!loading && isAdminChecked) {
       if (!user) {
         console.log('No user, redirecting to auth');
         navigate('/auth');
@@ -27,9 +28,11 @@ const AdminLayout = () => {
           variant: 'destructive',
         });
         navigate('/');
+      } else {
+        console.log('User is admin, staying in admin area');
       }
     }
-  }, [user, isAdmin, loading, navigate, toast]);
+  }, [user, isAdmin, loading, isAdminChecked, navigate, toast]);
 
   const handleSignOut = async () => {
     const { error } = await signOut();
@@ -44,8 +47,8 @@ const AdminLayout = () => {
     }
   };
 
-  // Mostra loading enquanto verifica autenticação
-  if (loading) {
+  // Show loading while checking admin status
+  if (loading || !isAdminChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -53,7 +56,7 @@ const AdminLayout = () => {
     );
   }
 
-  // Se não é admin ou não está logado, não renderiza nada (redirecionamento já foi feito)
+  // If not admin or not logged in, show nothing (redirection already happened)
   if (!user || !isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">

@@ -7,6 +7,7 @@ export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdminChecked, setIsAdminChecked] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -25,14 +26,17 @@ export function useAuth() {
               .eq('id', session.user.id)
               .single();
             
-            console.log('Admin check:', profile, error);
+            console.log('Admin check result:', profile, error);
             setIsAdmin(profile?.is_admin || false);
+            setIsAdminChecked(true);
           } catch (error) {
             console.error('Error checking admin status:', error);
             setIsAdmin(false);
+            setIsAdminChecked(true);
           }
         } else {
           setIsAdmin(false);
+          setIsAdminChecked(true);
         }
         
         setLoading(false);
@@ -84,6 +88,7 @@ export function useAuth() {
     session,
     loading,
     isAdmin,
+    isAdminChecked,
     signIn,
     signUp,
     signOut,

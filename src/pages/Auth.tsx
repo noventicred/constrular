@@ -15,22 +15,24 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const { signIn, signUp, user, loading, isAdmin } = useAuth();
+  const { signIn, signUp, user, loading, isAdmin, isAdminChecked } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Simple redirect check - no duplicate admin verification
+  // Only redirect when everything is loaded
   useEffect(() => {
-    if (!loading && user) {
-      console.log('Redirecting user:', { isAdmin, email: user.email });
+    if (!loading && user && isAdminChecked) {
+      console.log('Ready to redirect:', { isAdmin, email: user.email });
       
       if (isAdmin) {
+        console.log('Redirecting admin to /admin');
         navigate('/admin');
       } else {
+        console.log('Redirecting user to /');
         navigate('/');
       }
     }
-  }, [user, loading, isAdmin, navigate]);
+  }, [user, loading, isAdmin, isAdminChecked, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
