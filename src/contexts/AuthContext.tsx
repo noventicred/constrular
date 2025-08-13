@@ -99,13 +99,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        await handleAuthStateChange(session);
+      (event, session) => {
+        console.log('Auth event:', event, 'Session:', session ? 'exists' : 'null');
+        // Use setTimeout to avoid potential issues with immediate state updates
+        setTimeout(() => {
+          handleAuthStateChange(session);
+        }, 0);
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session ? 'exists' : 'null');
       handleAuthStateChange(session);
     });
 
