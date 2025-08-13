@@ -69,7 +69,7 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Link to="/" className="hover:opacity-80 transition-opacity">
+            <Link to={isAdmin ? "/admin" : "/"} className="hover:opacity-80 transition-opacity">
               <h1 className="text-2xl font-bold text-primary">
                 ConstrutorPro
               </h1>
@@ -261,7 +261,7 @@ const Header = () => {
                           className="w-full gap-3 h-12 text-lg font-semibold"
                           onClick={() => {
                             setIsMobileMenuOpen(false);
-                            navigate('/');
+                            navigate(isAdmin ? '/admin' : '/');
                           }}
                         >
                           <User className="h-5 w-5" />
