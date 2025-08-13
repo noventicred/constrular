@@ -110,12 +110,11 @@ const Header = () => {
               </div>
               
               <div className="hidden md:flex items-center gap-6 text-sm">
-                <a href="#" className="hover:text-primary transition-colors">Cimento e Argamassa</a>
-                <a href="#" className="hover:text-primary transition-colors">Tijolos e Blocos</a>
-                <a href="#" className="hover:text-primary transition-colors">Tintas</a>
-                <a href="#" className="hover:text-primary transition-colors">Ferramentas</a>
-                <a href="#" className="hover:text-primary transition-colors">Hidráulica</a>
-                <a href="#" className="hover:text-primary transition-colors">Elétrica</a>
+                <a href="#" className="hover:text-primary transition-colors">Sobre Nós</a>
+                <a href="#" className="hover:text-primary transition-colors">Contato</a>
+                <a href="#" className="hover:text-primary transition-colors">Entrega</a>
+                <a href="#" className="hover:text-primary transition-colors">Trocas e Devoluções</a>
+                <a href="#" className="hover:text-primary transition-colors">Atendimento</a>
               </div>
             </div>
             
