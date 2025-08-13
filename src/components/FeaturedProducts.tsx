@@ -2,6 +2,8 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart, Heart } from "lucide-react";
+import { useCart } from "@/hooks/useCart";
+import { useToast } from "@/hooks/use-toast";
 
 const featuredProducts = [
   {
@@ -79,6 +81,24 @@ const featuredProducts = [
 ];
 
 const FeaturedProducts = () => {
+  const { addItem } = useCart();
+  const { toast } = useToast();
+
+  const handleAddToCart = (product: typeof featuredProducts[0]) => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      brand: product.brand,
+      price: product.price,
+      image: product.image
+    });
+    
+    toast({
+      title: "Produto adicionado!",
+      description: `${product.name} foi adicionado ao carrinho.`,
+    });
+  };
+
   return (
     <section className="py-16">
       <div className="container mx-auto px-4">
@@ -176,6 +196,7 @@ const FeaturedProducts = () => {
                   className="w-full" 
                   disabled={!product.inStock}
                   variant={product.inStock ? "default" : "outline"}
+                  onClick={() => handleAddToCart(product)}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   {product.inStock ? 'Adicionar ao Carrinho' : 'Indisponível'}
