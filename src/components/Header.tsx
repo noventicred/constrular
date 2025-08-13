@@ -113,19 +113,27 @@ const Header = () => {
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={async () => {
-                    const { error } = await signOut();
-                    if (error) {
-                      toast({
-                        title: 'Erro',
-                        description: error.message,
-                        variant: 'destructive',
-                      });
-                    } else {
-                      toast({
-                        title: 'Sucesso',
-                        description: 'Logout realizado com sucesso!',
-                      });
-                      navigate('/');
+                    console.log('Desktop logout clicked');
+                    try {
+                      const { error } = await signOut();
+                      console.log('Logout result:', { error });
+                      if (error) {
+                        console.error('Logout error:', error);
+                        toast({
+                          title: 'Erro',
+                          description: error.message,
+                          variant: 'destructive',
+                        });
+                      } else {
+                        console.log('Logout successful, navigating to home');
+                        toast({
+                          title: 'Sucesso',
+                          description: 'Logout realizado com sucesso!',
+                        });
+                        navigate('/');
+                      }
+                    } catch (err) {
+                      console.error('Logout exception:', err);
                     }
                   }}>
                     <LogOut className="mr-2 h-4 w-4" />
@@ -282,16 +290,24 @@ const Header = () => {
                           variant="construction" 
                           className="w-full gap-3 h-12 text-lg font-semibold"
                           onClick={async () => {
+                            console.log('Mobile logout clicked');
                             setIsMobileMenuOpen(false);
-                            const { error } = await signOut();
-                            if (error) {
-                              toast({
-                                title: 'Erro',
-                                description: error.message,
-                                variant: 'destructive',
-                              });
-                            } else {
-                              navigate('/');
+                            try {
+                              const { error } = await signOut();
+                              console.log('Mobile logout result:', { error });
+                              if (error) {
+                                console.error('Mobile logout error:', error);
+                                toast({
+                                  title: 'Erro',
+                                  description: error.message,
+                                  variant: 'destructive',
+                                });
+                              } else {
+                                console.log('Mobile logout successful, navigating to home');
+                                navigate('/');
+                              }
+                            } catch (err) {
+                              console.error('Mobile logout exception:', err);
                             }
                           }}
                         >

@@ -79,8 +79,22 @@ export function useAuth() {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    return { error };
+    console.log('signOut function called');
+    try {
+      const { error } = await supabase.auth.signOut();
+      console.log('Supabase signOut result:', { error });
+      if (!error) {
+        console.log('Clearing auth state manually');
+        setUser(null);
+        setSession(null);
+        setIsAdmin(false);
+        setIsAdminChecked(true);
+      }
+      return { error };
+    } catch (err) {
+      console.error('SignOut exception:', err);
+      return { error: err };
+    }
   };
 
   return {
