@@ -23,15 +23,18 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
+      console.log('Auth page: attempting login for', email);
       const { error } = await signIn(email, password);
 
       if (error) {
+        console.error('Auth page: login error', error);
         toast({
           title: 'Erro ao fazer login',
           description: error.message,
           variant: 'destructive',
         });
       } else {
+        console.log('Auth page: login successful');
         toast({
           title: 'Login realizado com sucesso!',
           description: 'Bem-vindo de volta.',

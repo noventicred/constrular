@@ -44,6 +44,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const handleAuthStateChange = async (session: Session | null) => {
+    console.log('Auth state change:', { 
+      session: session ? 'exists' : 'null', 
+      user: session?.user?.email 
+    });
+    
     if (session?.user) {
       const profile = await fetchUserProfile(session.user.id);
       
@@ -55,6 +60,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isAdmin: profile?.is_admin || false,
         isLoading: false,
       });
+      
+      console.log('User authenticated:', { 
+        email: session.user.email, 
+        isAdmin: profile?.is_admin || false 
+      });
     } else {
       updateAuthState({
         user: null,
@@ -64,6 +74,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isAdmin: false,
         isLoading: false,
       });
+      
+      console.log('User signed out');
     }
   };
 
@@ -85,12 +97,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('SignIn attempt for:', email);
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+      console.log('SignIn result:', { error, session: data.session });
       return { error };
     } catch (error) {
+      console.error('SignIn exception:', error);
       return { error: error as Error };
     }
   };
