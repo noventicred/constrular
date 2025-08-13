@@ -18,7 +18,7 @@ import {
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Cart from "./Cart";
 
 const categories = [
@@ -69,11 +69,11 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <a href="/" className="hover:opacity-80 transition-opacity">
+            <Link to="/" className="hover:opacity-80 transition-opacity">
               <h1 className="text-2xl font-bold text-primary">
                 ConstrutorPro
               </h1>
-            </a>
+            </Link>
           </div>
 
           {/* Search bar */}
@@ -190,14 +190,13 @@ const Header = () => {
                     {isCategoriesOpen && (
                       <div className="mt-4 ml-8 space-y-2 animate-fade-in">
                         {categories.map((category, index) => (
-                          <a
+                          <button
                             key={index}
-                            href="#"
-                            className="block text-sm text-muted-foreground hover:text-primary transition-colors py-2 px-3 rounded-md hover:bg-primary/5"
+                            className="block text-sm text-muted-foreground hover:text-primary transition-colors py-2 px-3 rounded-md hover:bg-primary/5 w-full text-left"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
                             {category}
-                          </a>
+                          </button>
                         ))}
                       </div>
                     )}
@@ -205,54 +204,49 @@ const Header = () => {
 
                   {/* Mobile Navigation Links */}
                   <div className="p-6 space-y-1">
-                    <a 
-                      href="/produtos" 
+                    <Link 
+                      to="/produtos" 
                       className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Package className="h-5 w-5 text-primary" />
                       Produtos
-                    </a>
-                    <a 
-                      href="#" 
-                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
+                    </Link>
+                    <button 
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20 w-full text-left"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Info className="h-5 w-5 text-primary" />
                       Sobre Nós
-                    </a>
-                    <a 
-                      href="#" 
-                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
+                    </button>
+                    <button 
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20 w-full text-left"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <MessageCircle className="h-5 w-5 text-primary" />
                       Contato
-                    </a>
-                    <a 
-                      href="#" 
-                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
+                    </button>
+                    <button 
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20 w-full text-left"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Truck className="h-5 w-5 text-primary" />
                       Entrega
-                    </a>
-                    <a 
-                      href="#" 
-                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
+                    </button>
+                    <button 
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20 w-full text-left"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <RefreshCw className="h-5 w-5 text-primary" />
                       Trocas e Devoluções
-                    </a>
-                    <a 
-                      href="#" 
-                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
+                    </button>
+                    <button 
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20 w-full text-left"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Headphones className="h-5 w-5 text-primary" />
                       Atendimento
-                    </a>
+                    </button>
                   </div>
 
                   {/* Mobile Account */}
@@ -362,12 +356,12 @@ const Header = () => {
               </div>
               
               <div className="flex items-center gap-6 text-sm">
-                <a href="/produtos" className="hover:text-primary transition-colors">Produtos</a>
-                <a href="#" className="hover:text-primary transition-colors">Sobre Nós</a>
-                <a href="#" className="hover:text-primary transition-colors">Contato</a>
-                <a href="#" className="hover:text-primary transition-colors">Entrega</a>
-                <a href="#" className="hover:text-primary transition-colors">Trocas e Devoluções</a>
-                <a href="#" className="hover:text-primary transition-colors">Atendimento</a>
+                <Link to="/produtos" className="hover:text-primary transition-colors">Produtos</Link>
+                <button className="hover:text-primary transition-colors">Sobre Nós</button>
+                <button className="hover:text-primary transition-colors">Contato</button>
+                <button className="hover:text-primary transition-colors">Entrega</button>
+                <button className="hover:text-primary transition-colors">Trocas e Devoluções</button>
+                <button className="hover:text-primary transition-colors">Atendimento</button>
               </div>
             </div>
             
