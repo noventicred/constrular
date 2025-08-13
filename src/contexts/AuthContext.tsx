@@ -48,24 +48,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const handleAuthStateChange = (session: Session | null) => {
+  const handleAuthStateChange = async (session: Session | null) => {
     if (session?.user) {
-      // Update auth state immediately with basic info
+      // Fetch profile first to ensure we have complete data
+      const profile = await fetchUserProfile(session.user.id);
+      
+      // Update auth state with complete info
       updateAuthState({
         user: session.user,
         session,
-        profile: null,
+        profile,
         isAuthenticated: true,
-        isAdmin: false,
+        isAdmin: profile?.is_admin || false,
         isLoading: false,
-      });
-
-      // Fetch profile separately
-      fetchUserProfile(session.user.id).then(profile => {
-        updateAuthState({
-          profile,
-          isAdmin: profile?.is_admin || false,
-        });
       });
       
     } else {
@@ -83,18 +78,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        // Only process certain events to avoid loops
-        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
-          handleAuthStateChange(session);
-        }
+      async (event, session) => {
+        // Process auth state changes
+        await handleAuthStateChange(session);
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      handleAuthStateChange(session);
-    });
+    // Check for existing session on mount
+    const initializeAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      await handleAuthStateChange(session);
+    };
+    
+    initializeAuth();
 
     return () => subscription.unsubscribe();
   }, []);
