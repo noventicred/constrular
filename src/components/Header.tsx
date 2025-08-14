@@ -94,7 +94,7 @@ const Header = () => {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('id, name, price, image_url')
+        .select('id, name, price, image_url, sku')
         .or(`name.ilike.%${query}%, description.ilike.%${query}%`)
         .eq('in_stock', true)
         .limit(5);

@@ -36,6 +36,7 @@ interface Product {
   is_special_offer: boolean | null;
   created_at: string;
   updated_at: string;
+  sku: string | null;
   categories?: {
     id: string;
     name: string;

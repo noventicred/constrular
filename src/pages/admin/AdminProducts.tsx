@@ -27,6 +27,7 @@ interface Product {
   rating: number;
   reviews: number;
   created_at: string;
+  sku: string | null;
   categories?: { name: string };
 }
 
@@ -404,7 +405,7 @@ const AdminProducts = () => {
                             {product.name}
                           </div>
                           <div className="text-sm text-muted-foreground truncate">
-                            ID: {product.id.slice(0, 8)}...
+                            SKU: {product.sku || 'N/A'}
                           </div>
                         </div>
                       </div>

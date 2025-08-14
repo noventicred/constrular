@@ -347,9 +347,7 @@ const Produto = () => {
                 <p className="text-sm text-muted-foreground mb-1">{product.brand}</p>
               )}
               <h1 className="text-2xl md:text-3xl font-bold mb-2 break-words">{product.name}</h1>
-              {product.sku && (
-                <p className="text-sm text-muted-foreground">SKU: {product.sku}</p>
-              )}
+              <p className="text-sm text-muted-foreground">SKU: {product.sku || 'N/A'}</p>
             </div>
 
             {/* Rating */}
