@@ -69,7 +69,7 @@ const Header = () => {
     navigate(`/produtos?categoria=${categoryId}`);
   };
   return (
-    <header className="bg-background border-b shadow-sm">
+    <header className="bg-background border-b shadow-sm sticky top-0 z-40">
       {/* Top bar */}
       <div className="bg-construction-gray text-white py-2">
         <div className="container mx-auto px-4 flex justify-between items-center text-sm">
