@@ -15,34 +15,53 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from "@/integrations/supabase/client";
 import Cart from "./Cart";
 
-const categories = [
-  "Cimento & Argamassa",
-  "Tijolos & Blocos",
-  "Tintas & Vernizes",
-  "Ferramentas",
-  "Hidráulica",
-  "Elétrica",
-  "Madeiras",
-  "Transporte",
-  "Pisos & Revestimentos",
-  "Iluminação",
-  "Acessórios",
-  "Segurança"
-];
+interface Category {
+  id: string;
+  name: string;
+  description: string | null;
+  image_url: string | null;
+}
 
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
   const { user, isAdmin, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, name, description, image_url')
+        .is('parent_id', null)
+        .order('name');
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const handleCategoryClick = (categoryId: string, categoryName: string) => {
+    setIsDropdownOpen(false);
+    setIsMobileMenuOpen(false);
+    navigate(`/produtos?categoria=${categoryId}`);
+  };
   return (
     <header className="bg-background border-b shadow-sm">
       {/* Top bar */}
@@ -189,13 +208,13 @@ const Header = () => {
                     
                     {isCategoriesOpen && (
                       <div className="mt-4 ml-8 space-y-2 animate-fade-in">
-                        {categories.map((category, index) => (
+                        {categories.map((category) => (
                           <button
-                            key={index}
+                            key={category.id}
                             className="block text-sm text-muted-foreground hover:text-primary transition-colors py-2 px-3 rounded-md hover:bg-primary/5 w-full text-left"
-                            onClick={() => setIsMobileMenuOpen(false)}
+                            onClick={() => handleCategoryClick(category.id, category.name)}
                           >
-                            {category}
+                            {category.name}
                           </button>
                         ))}
                       </div>
@@ -346,9 +365,13 @@ const Header = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-80 bg-background border shadow-lg z-50 grid grid-cols-2 gap-1 p-2" align="start">
-                    {categories.map((category, index) => (
-                      <DropdownMenuItem key={index} className="cursor-pointer p-3 hover:bg-muted rounded-md">
-                        <span className="text-sm font-medium w-full">{category}</span>
+                    {categories.map((category) => (
+                      <DropdownMenuItem 
+                        key={category.id} 
+                        className="cursor-pointer p-3 hover:bg-muted rounded-md"
+                        onClick={() => handleCategoryClick(category.id, category.name)}
+                      >
+                        <span className="text-sm font-medium w-full">{category.name}</span>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
