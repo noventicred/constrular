@@ -24,108 +24,108 @@ const Entrega = () => {
       <main className="container mx-auto px-4 py-8 md:py-16">
         {/* Hero Section */}
         <div className="text-center mb-12 md:mb-16">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-foreground">
             Entrega e Frete
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Levamos seus materiais até você com segurança e pontualidade
+            Atendemos todo o Brasil através dos nossos parceiros credenciados
           </p>
         </div>
 
-        {/* Free Shipping Banner */}
-        <div className="bg-gradient-to-r from-green-600 to-green-500 rounded-2xl p-6 md:p-8 text-white text-center mb-12">
+        {/* National Coverage Banner */}
+        <div className="bg-primary rounded-lg p-6 md:p-8 text-white text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Truck className="h-8 w-8" />
-            <h2 className="text-2xl md:text-3xl font-bold">Frete Grátis</h2>
+            <h2 className="text-2xl md:text-3xl font-bold">Entrega Nacional</h2>
           </div>
           <p className="text-lg md:text-xl mb-2">
-            Em compras acima de <span className="font-bold text-green-100">R$ 199,00</span>
+            Atendemos <span className="font-bold">todo o Brasil</span>
           </p>
-          <p className="text-green-100">
-            Para toda a região metropolitana de São Paulo
+          <p className="text-primary-foreground/90">
+            Através dos nossos parceiros credenciados e transportadoras especializadas
           </p>
         </div>
 
         {/* Delivery Zones */}
         <div className="mb-12 md:mb-16">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Regiões de Entrega</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Regiões de Atendimento</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="p-6 border-2 border-green-200 bg-green-50">
+            <Card className="p-6 border hover:shadow-lg transition-shadow">
               <CardHeader className="px-0 pt-0">
-                <CardTitle className="text-xl text-green-800 flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5" />
-                  Zona Central
+                <CardTitle className="text-xl text-foreground flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-primary" />
+                  São Paulo e Região
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-0 pb-0">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-green-600" />
-                    <span className="text-sm">Entrega em até 4 horas</span>
+                    <Clock className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Entrega expressa disponível</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-green-600" />
-                    <span className="text-sm">Frete: R$ 15,00</span>
+                    <DollarSign className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Frete a partir de R$ 15,00</span>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    <p>• Centro</p>
-                    <p>• Vila Mariana</p>
-                    <p>• Consolação</p>
-                    <p>• Liberdade</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="p-6 border-2 border-blue-200 bg-blue-50">
-              <CardHeader className="px-0 pt-0">
-                <CardTitle className="text-xl text-blue-800 flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5" />
-                  Zona Metropolitana
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-0 pb-0">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm">Entrega em até 24 horas</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm">Frete: R$ 29,90</span>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
+                    <p>• Capital e Grande São Paulo</p>
                     <p>• ABC Paulista</p>
-                    <p>• Guarulhos</p>
-                    <p>• Osasco</p>
-                    <p>• Zona Sul/Norte</p>
+                    <p>• Região Metropolitana</p>
+                    <p>• Cidades próximas</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-6 border-2 border-orange-200 bg-orange-50">
+            <Card className="p-6 border hover:shadow-lg transition-shadow">
               <CardHeader className="px-0 pt-0">
-                <CardTitle className="text-xl text-orange-800 flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5" />
-                  Região Estendida
+                <CardTitle className="text-xl text-foreground flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-primary" />
+                  Interior de SP
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-0 pb-0">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-orange-600" />
-                    <span className="text-sm">Entrega em até 48 horas</span>
+                    <Clock className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Entrega em 1-3 dias úteis</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Calculator className="h-4 w-4 text-orange-600" />
-                    <span className="text-sm">Frete calculado</span>
+                    <Calculator className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Frete calculado por peso/volume</span>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    <p>• Interior de SP</p>
-                    <p>• Grande São Paulo</p>
-                    <p>• Região do ABC</p>
-                    <p>• Consulte outras regiões</p>
+                    <p>• Campinas e região</p>
+                    <p>• Santos e litoral</p>
+                    <p>• Vale do Paraíba</p>
+                    <p>• Principais cidades do interior</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6 border hover:shadow-lg transition-shadow">
+              <CardHeader className="px-0 pt-0">
+                <CardTitle className="text-xl text-foreground flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5 text-primary" />
+                  Demais Estados
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-0 pb-0">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Entrega em 5-15 dias úteis</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calculator className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Frete via transportadora</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    <p>• Todos os estados do Brasil</p>
+                    <p>• Parcerias com transportadoras</p>
+                    <p>• Entrega porta a porta</p>
+                    <p>• Rastreamento completo</p>
                   </div>
                 </div>
               </CardContent>

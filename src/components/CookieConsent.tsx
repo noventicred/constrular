@@ -102,193 +102,166 @@ const CookieConsent = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
-      <div className="fixed bottom-0 left-0 right-0 p-4 md:p-6">
-        <Card className="max-w-4xl mx-auto bg-white shadow-2xl border-2 border-primary/20">
-          <CardContent className="p-6 md:p-8">
-            {/* Header */}
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Cookie className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-xl md:text-2xl font-bold">Configuração de Cookies</h2>
-                  <p className="text-sm text-muted-foreground">Personalize sua experiência de navegação</p>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsVisible(false)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+    <div className="fixed bottom-4 left-4 z-50 max-w-sm">
+      <Card className="bg-white shadow-2xl border border-border">
+        <CardContent className="p-4">
+          {/* Header */}
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Cookie className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold text-sm">Cookies</h3>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsVisible(false)}
+              className="text-muted-foreground hover:text-foreground h-6 w-6 p-0"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
 
-            {/* Main Content */}
-            {!showDetails ? (
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <p className="text-muted-foreground">
-                    Utilizamos cookies para melhorar sua experiência, personalizar conteúdo e analisar nosso tráfego. 
-                    Você pode escolher quais tipos de cookies aceita.
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Saiba mais em nossa</span>
-                    <a href="/cookies" className="text-primary hover:underline text-sm font-medium">
-                      Política de Cookies
-                    </a>
-                    <span className="text-sm text-muted-foreground">e</span>
-                    <a href="/politica-privacidade" className="text-primary hover:underline text-sm font-medium">
-                      Política de Privacidade
-                    </a>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button 
-                    onClick={handleAcceptAll}
-                    className="flex-1 bg-primary hover:bg-primary/90"
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Aceitar Todos
-                  </Button>
+          {/* Main Content */}
+          {!showDetails ? (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Utilizamos cookies para melhorar sua experiência. Você pode personalizar suas preferências.
+              </p>
+              
+              {/* Action Buttons */}
+              <div className="space-y-2">
+                <Button 
+                  onClick={handleAcceptAll}
+                  className="w-full h-8 text-xs"
+                  size="sm"
+                >
+                  Aceitar Todos
+                </Button>
+                <div className="flex gap-2">
                   <Button 
                     onClick={() => setShowDetails(true)}
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 h-8 text-xs"
+                    size="sm"
                   >
-                    <Settings className="h-4 w-4 mr-2" />
                     Personalizar
                   </Button>
                   <Button 
                     onClick={handleRejectAll}
                     variant="ghost"
-                    className="flex-1"
+                    className="flex-1 h-8 text-xs"
+                    size="sm"
                   >
-                    Apenas Essenciais
+                    Rejeitar
                   </Button>
                 </div>
               </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Cookie Categories */}
-                <div className="space-y-4 max-h-96 overflow-y-auto">
-                  
-                  {/* Essential Cookies */}
-                  <div className="p-4 border rounded-lg bg-red-50 border-red-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <Shield className="h-5 w-5 text-red-600" />
-                        <h4 className="font-semibold">Cookies Essenciais</h4>
-                        <Badge className="bg-red-100 text-red-800">Obrigatórios</Badge>
-                      </div>
-                      <div className="w-12 h-6 bg-red-600 rounded-full flex items-center justify-end px-1">
-                        <div className="w-4 h-4 bg-white rounded-full"></div>
-                      </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Cookie Categories - Simplified */}
+              <div className="space-y-3 max-h-64 overflow-y-auto">
+                
+                {/* Essential Cookies */}
+                <div className="p-3 border rounded text-xs">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-3 w-3 text-foreground" />
+                      <span className="font-medium">Essenciais</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Necessários para o funcionamento básico do site. Incluem segurança, navegação e carrinho de compras.
-                    </p>
-                  </div>
-
-                  {/* Performance Cookies */}
-                  <div className="p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <BarChart className="h-5 w-5 text-blue-600" />
-                        <h4 className="font-semibold">Cookies de Performance</h4>
-                        <Badge variant="secondary">Opcionais</Badge>
-                      </div>
-                      <button
-                        onClick={() => handlePreferenceChange('performance')}
-                        className={`w-12 h-6 rounded-full flex items-center transition-colors ${
-                          preferences.performance 
-                            ? 'bg-primary justify-end' 
-                            : 'bg-gray-300 justify-start'
-                        } px-1`}
-                      >
-                        <div className="w-4 h-4 bg-white rounded-full transition-transform"></div>
-                      </button>
+                    <div className="w-8 h-4 bg-primary rounded-full flex items-center justify-end px-0.5">
+                      <div className="w-3 h-3 bg-white rounded-full"></div>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Nos ajudam a entender como você interage com o site para melhorar o desempenho e usabilidade.
-                    </p>
                   </div>
-
-                  {/* Functionality Cookies */}
-                  <div className="p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <Settings className="h-5 w-5 text-green-600" />
-                        <h4 className="font-semibold">Cookies de Funcionalidade</h4>
-                        <Badge variant="secondary">Opcionais</Badge>
-                      </div>
-                      <button
-                        onClick={() => handlePreferenceChange('functionality')}
-                        className={`w-12 h-6 rounded-full flex items-center transition-colors ${
-                          preferences.functionality 
-                            ? 'bg-primary justify-end' 
-                            : 'bg-gray-300 justify-start'
-                        } px-1`}
-                      >
-                        <div className="w-4 h-4 bg-white rounded-full transition-transform"></div>
-                      </button>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Permitem funcionalidades aprimoradas e personalizações, como lembrar suas preferências.
-                    </p>
-                  </div>
-
-                  {/* Marketing Cookies */}
-                  <div className="p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <Eye className="h-5 w-5 text-purple-600" />
-                        <h4 className="font-semibold">Cookies de Marketing</h4>
-                        <Badge variant="secondary">Opcionais</Badge>
-                      </div>
-                      <button
-                        onClick={() => handlePreferenceChange('marketing')}
-                        className={`w-12 h-6 rounded-full flex items-center transition-colors ${
-                          preferences.marketing 
-                            ? 'bg-primary justify-end' 
-                            : 'bg-gray-300 justify-start'
-                        } px-1`}
-                      >
-                        <div className="w-4 h-4 bg-white rounded-full transition-transform"></div>
-                      </button>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Utilizados para mostrar anúncios relevantes e medir a eficácia das campanhas publicitárias.
-                    </p>
-                  </div>
+                  <p className="text-muted-foreground text-xs">Necessários para funcionamento</p>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
-                  <Button 
-                    onClick={handleAcceptSelected}
-                    className="flex-1"
-                  >
-                    Confirmar Seleção
-                  </Button>
-                  <Button 
-                    onClick={() => setShowDetails(false)}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    Voltar
-                  </Button>
+                {/* Performance Cookies */}
+                <div className="p-3 border rounded text-xs">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <BarChart className="h-3 w-3 text-foreground" />
+                      <span className="font-medium">Performance</span>
+                    </div>
+                    <button
+                      onClick={() => handlePreferenceChange('performance')}
+                      className={`w-8 h-4 rounded-full flex items-center transition-colors ${
+                        preferences.performance 
+                          ? 'bg-primary justify-end' 
+                          : 'bg-gray-300 justify-start'
+                      } px-0.5`}
+                    >
+                      <div className="w-3 h-3 bg-white rounded-full"></div>
+                    </button>
+                  </div>
+                  <p className="text-muted-foreground text-xs">Melhorar experiência</p>
+                </div>
+
+                {/* Functionality Cookies */}
+                <div className="p-3 border rounded text-xs">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <Settings className="h-3 w-3 text-foreground" />
+                      <span className="font-medium">Funcionalidade</span>
+                    </div>
+                    <button
+                      onClick={() => handlePreferenceChange('functionality')}
+                      className={`w-8 h-4 rounded-full flex items-center transition-colors ${
+                        preferences.functionality 
+                          ? 'bg-primary justify-end' 
+                          : 'bg-gray-300 justify-start'
+                      } px-0.5`}
+                    >
+                      <div className="w-3 h-3 bg-white rounded-full"></div>
+                    </button>
+                  </div>
+                  <p className="text-muted-foreground text-xs">Lembrar preferências</p>
+                </div>
+
+                {/* Marketing Cookies */}
+                <div className="p-3 border rounded text-xs">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <Eye className="h-3 w-3 text-foreground" />
+                      <span className="font-medium">Marketing</span>
+                    </div>
+                    <button
+                      onClick={() => handlePreferenceChange('marketing')}
+                      className={`w-8 h-4 rounded-full flex items-center transition-colors ${
+                        preferences.marketing 
+                          ? 'bg-primary justify-end' 
+                          : 'bg-gray-300 justify-start'
+                      } px-0.5`}
+                    >
+                      <div className="w-3 h-3 bg-white rounded-full"></div>
+                    </button>
+                  </div>
+                  <p className="text-muted-foreground text-xs">Anúncios relevantes</p>
                 </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-2 pt-2 border-t">
+                <Button 
+                  onClick={handleAcceptSelected}
+                  className="w-full h-8 text-xs"
+                  size="sm"
+                >
+                  Confirmar
+                </Button>
+                <Button 
+                  onClick={() => setShowDetails(false)}
+                  variant="outline"
+                  className="w-full h-8 text-xs"
+                  size="sm"
+                >
+                  Voltar
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

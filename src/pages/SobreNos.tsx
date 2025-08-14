@@ -24,7 +24,7 @@ const SobreNos = () => {
       <main className="container mx-auto px-4 py-8 md:py-16">
         {/* Hero Section */}
         <div className="text-center mb-12 md:mb-16">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-foreground">
             Sobre Nós
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -36,8 +36,8 @@ const SobreNos = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 md:mb-16">
           <Card className="text-center p-6 hover:shadow-lg transition-shadow">
             <CardContent className="p-0">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Calendar className="h-8 w-8 text-primary" />
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Calendar className="h-8 w-8 text-foreground" />
               </div>
               <h3 className="font-bold text-2xl mb-2">20+</h3>
               <p className="text-muted-foreground">Anos de Experiência</p>
@@ -46,8 +46,8 @@ const SobreNos = () => {
 
           <Card className="text-center p-6 hover:shadow-lg transition-shadow">
             <CardContent className="p-0">
-              <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-green-600" />
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8 text-foreground" />
               </div>
               <h3 className="font-bold text-2xl mb-2">50,000+</h3>
               <p className="text-muted-foreground">Clientes Atendidos</p>
@@ -56,8 +56,8 @@ const SobreNos = () => {
 
           <Card className="text-center p-6 hover:shadow-lg transition-shadow">
             <CardContent className="p-0">
-              <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Award className="h-8 w-8 text-blue-600" />
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Award className="h-8 w-8 text-foreground" />
               </div>
               <h3 className="font-bold text-2xl mb-2">15,000+</h3>
               <p className="text-muted-foreground">Obras Concluídas</p>
@@ -66,8 +66,8 @@ const SobreNos = () => {
 
           <Card className="text-center p-6 hover:shadow-lg transition-shadow">
             <CardContent className="p-0">
-              <div className="w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="h-8 w-8 text-orange-600" />
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="h-8 w-8 text-foreground" />
               </div>
               <h3 className="font-bold text-2xl mb-2">4.9</h3>
               <p className="text-muted-foreground">Avaliação Média</p>
@@ -91,14 +91,14 @@ const SobreNos = () => {
               </p>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl p-8 flex items-center justify-center">
-            <Building className="h-32 w-32 text-primary/60" />
+          <div className="bg-muted/30 rounded-lg p-8 flex items-center justify-center">
+            <Building className="h-32 w-32 text-muted-foreground" />
           </div>
         </div>
 
         {/* Missão, Visão e Valores */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 md:mb-16">
-          <Card className="p-6 border-2 hover:border-primary/30 transition-colors">
+          <Card className="p-6 hover:shadow-lg transition-shadow">
             <CardContent className="p-0">
               <div className="flex items-center gap-3 mb-4">
                 <Target className="h-6 w-6 text-primary" />
@@ -110,10 +110,10 @@ const SobreNos = () => {
             </CardContent>
           </Card>
 
-          <Card className="p-6 border-2 hover:border-green-500/30 transition-colors">
+          <Card className="p-6 hover:shadow-lg transition-shadow">
             <CardContent className="p-0">
               <div className="flex items-center gap-3 mb-4">
-                <Star className="h-6 w-6 text-green-600" />
+                <Star className="h-6 w-6 text-primary" />
                 <h3 className="text-xl font-bold">Visão</h3>
               </div>
               <p className="text-muted-foreground">
@@ -122,10 +122,10 @@ const SobreNos = () => {
             </CardContent>
           </Card>
 
-          <Card className="p-6 border-2 hover:border-blue-500/30 transition-colors">
+          <Card className="p-6 hover:shadow-lg transition-shadow">
             <CardContent className="p-0">
               <div className="flex items-center gap-3 mb-4">
-                <Heart className="h-6 w-6 text-blue-600" />
+                <Heart className="h-6 w-6 text-primary" />
                 <h3 className="text-xl font-bold">Valores</h3>
               </div>
               <ul className="text-muted-foreground space-y-1 text-sm">
@@ -144,8 +144,8 @@ const SobreNos = () => {
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Nossos Diferenciais</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="flex gap-4 p-6 bg-white rounded-lg border hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Shield className="h-6 w-6 text-primary" />
+              <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                <Shield className="h-6 w-6 text-foreground" />
               </div>
               <div>
                 <h4 className="font-semibold mb-2">Garantia de Qualidade</h4>
@@ -154,18 +154,18 @@ const SobreNos = () => {
             </div>
 
             <div className="flex gap-4 p-6 bg-white rounded-lg border hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Truck className="h-6 w-6 text-green-600" />
+              <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                <Truck className="h-6 w-6 text-foreground" />
               </div>
               <div>
-                <h4 className="font-semibold mb-2">Entrega Rápida</h4>
-                <p className="text-sm text-muted-foreground">Logística eficiente com entrega no prazo combinado</p>
+                <h4 className="font-semibold mb-2">Entrega Nacional</h4>
+                <p className="text-sm text-muted-foreground">Atendemos todo o Brasil através de parceiros credenciados</p>
               </div>
             </div>
 
             <div className="flex gap-4 p-6 bg-white rounded-lg border hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Users className="h-6 w-6 text-blue-600" />
+              <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                <Users className="h-6 w-6 text-foreground" />
               </div>
               <div>
                 <h4 className="font-semibold mb-2">Atendimento Especializado</h4>
@@ -174,8 +174,8 @@ const SobreNos = () => {
             </div>
 
             <div className="flex gap-4 p-6 bg-white rounded-lg border hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Award className="h-6 w-6 text-orange-600" />
+              <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                <Award className="h-6 w-6 text-foreground" />
               </div>
               <div>
                 <h4 className="font-semibold mb-2">Melhores Preços</h4>
@@ -184,8 +184,8 @@ const SobreNos = () => {
             </div>
 
             <div className="flex gap-4 p-6 bg-white rounded-lg border hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                <MapPin className="h-6 w-6 text-purple-600" />
+              <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                <MapPin className="h-6 w-6 text-foreground" />
               </div>
               <div>
                 <h4 className="font-semibold mb-2">Localização Estratégica</h4>
@@ -194,8 +194,8 @@ const SobreNos = () => {
             </div>
 
             <div className="flex gap-4 p-6 bg-white rounded-lg border hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-red-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Heart className="h-6 w-6 text-red-600" />
+              <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                <Heart className="h-6 w-6 text-foreground" />
               </div>
               <div>
                 <h4 className="font-semibold mb-2">Responsabilidade Social</h4>
