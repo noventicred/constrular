@@ -62,13 +62,11 @@ const Produtos = () => {
     // Verificar parâmetros da URL ao carregar a página
     const urlParams = new URLSearchParams(window.location.search);
     const filterParam = urlParams.get('filter');
-    console.log('Filter param:', filterParam); // Debug
     if (filterParam === 'ofertas') {
       setOfferFilter(true);
-      console.log('Ativando filtro de ofertas'); // Debug
     }
     fetchData();
-  }, []);
+  }, []); // Remover dependências desnecessárias
 
   const fetchData = async () => {
     try {
@@ -116,14 +114,15 @@ const Produtos = () => {
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Filtro de ofertas: produtos com desconto (original_price > price) OU is_special_offer = true
-    const matchesOffer = !offerFilter || 
-      product.is_special_offer === true ||
-      (product.original_price && product.original_price > product.price);
+    // Se offerFilter está ativo, só mostrar produtos em oferta
+    if (offerFilter) {
+      const isOffer = product.is_special_offer === true ||
+        (product.original_price && product.original_price > product.price);
+      return matchesCategory && matchesSearch && isOffer;
+    }
     
-    console.log(`Produto: ${product.name}, offerFilter: ${offerFilter}, is_special_offer: ${product.is_special_offer}, original_price: ${product.original_price}, price: ${product.price}, matchesOffer: ${matchesOffer}`);
-    
-    return matchesCategory && matchesSearch && matchesOffer;
+    // Se não há filtro de oferta, aplicar apenas categoria e busca
+    return matchesCategory && matchesSearch;
   });
 
   // Sort products
@@ -273,10 +272,6 @@ const Produtos = () => {
           <p className="text-sm text-muted-foreground">
             {sortedProducts.length} produtos encontrados
             {offerFilter && ' em oferta'}
-          </p>
-          {/* Debug info */}
-          <p className="text-xs text-gray-400">
-            Debug: offerFilter = {offerFilter ? 'true' : 'false'}
           </p>
         </div>
 
