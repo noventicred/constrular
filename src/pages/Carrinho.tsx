@@ -221,30 +221,6 @@ const Carrinho = () => {
                       Ir para Checkout
                     </Button>
                     
-                    <Separator />
-                    
-                    <div>
-                      <Label htmlFor="phone" className="text-sm font-medium">
-                        Ou finalize direto pelo WhatsApp:
-                      </Label>
-                      <Input
-                        id="phone"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        placeholder="Ex: 5511999999999"
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    <Button 
-                      onClick={handleWhatsAppRedirect}
-                      variant="outline"
-                      className="w-full"
-                      size="lg"
-                    >
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Finalizar Rápido no WhatsApp
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
