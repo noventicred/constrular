@@ -246,41 +246,38 @@ const Header = () => {
                       <Package className="h-5 w-5 text-primary" />
                       Produtos
                     </Link>
-                    <button 
-                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20 w-full text-left"
+                    <Link 
+                      to="/sobre-nos"
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Info className="h-5 w-5 text-primary" />
                       Sobre Nós
-                    </button>
-                    <button 
-                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20 w-full text-left"
+                    </Link>
+                    <Link 
+                      to="/contato"
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <MessageCircle className="h-5 w-5 text-primary" />
                       Contato
-                    </button>
-                    <button 
-                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20 w-full text-left"
+                    </Link>
+                    <Link 
+                      to="/entrega"
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Truck className="h-5 w-5 text-primary" />
                       Entrega
-                    </button>
-                    <button 
-                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20 w-full text-left"
+                    </Link>
+                    <Link 
+                      to="/trocas-e-devolucoes"
+                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <RefreshCw className="h-5 w-5 text-primary" />
                       Trocas e Devoluções
-                    </button>
-                    <button 
-                      className="flex items-center gap-3 p-4 text-lg font-medium hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-transparent hover:border-primary/20 w-full text-left"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Headphones className="h-5 w-5 text-primary" />
-                      Atendimento
-                    </button>
+                    </Link>
                   </div>
 
                   {/* Mobile Account */}
@@ -395,11 +392,10 @@ const Header = () => {
               
               <div className="flex items-center gap-6 text-sm">
                 <Link to="/produtos" className="hover:text-primary transition-colors">Produtos</Link>
-                <button className="hover:text-primary transition-colors">Sobre Nós</button>
-                <button className="hover:text-primary transition-colors">Contato</button>
-                <button className="hover:text-primary transition-colors">Entrega</button>
-                <button className="hover:text-primary transition-colors">Trocas e Devoluções</button>
-                <button className="hover:text-primary transition-colors">Atendimento</button>
+                <Link to="/sobre-nos" className="hover:text-primary transition-colors">Sobre Nós</Link>
+                <Link to="/contato" className="hover:text-primary transition-colors">Contato</Link>
+                <Link to="/entrega" className="hover:text-primary transition-colors">Entrega</Link>
+                <Link to="/trocas-e-devolucoes" className="hover:text-primary transition-colors">Trocas e Devoluções</Link>
               </div>
             </div>
             

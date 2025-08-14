@@ -10,6 +10,10 @@ import Produtos from "./pages/Produtos";
 import Produto from "./pages/Produto";
 import Carrinho from "./pages/Carrinho";
 import Auth from "./pages/Auth";
+import SobreNos from "./pages/SobreNos";
+import Contato from "./pages/Contato";
+import Entrega from "./pages/Entrega";
+import TrocaseDevolucoes from "./pages/TrocaseDevolucoes";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
@@ -35,6 +39,10 @@ const App = () => (
             <Route path="/produtos" element={<Produtos />} />
             <Route path="/produto/:id" element={<Produto />} />
             <Route path="/carrinho" element={<Carrinho />} />
+            <Route path="/sobre-nos" element={<SobreNos />} />
+            <Route path="/contato" element={<Contato />} />
+            <Route path="/entrega" element={<Entrega />} />
+            <Route path="/trocas-e-devolucoes" element={<TrocaseDevolucoes />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
