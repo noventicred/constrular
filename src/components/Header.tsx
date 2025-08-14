@@ -156,8 +156,28 @@ const Header = () => {
             )}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" className="md:hidden">
-                  <Menu className="h-5 w-5" />
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="md:hidden relative h-10 w-10 rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/20 hover:border-primary/30 transition-all duration-300 group"
+                >
+                  <div className="relative w-5 h-5">
+                    {/* Top line */}
+                    <span className={`absolute block h-0.5 w-5 bg-primary rounded-full transition-all duration-300 ease-in-out ${
+                      isMobileMenuOpen ? 'rotate-45 translate-y-2' : 'translate-y-0'
+                    }`} />
+                    {/* Middle line */}
+                    <span className={`absolute block h-0.5 w-5 bg-primary rounded-full transition-all duration-300 ease-in-out translate-y-2 ${
+                      isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
+                    }`} />
+                    {/* Bottom line */}
+                    <span className={`absolute block h-0.5 w-5 bg-primary rounded-full transition-all duration-300 ease-in-out ${
+                      isMobileMenuOpen ? '-rotate-45 translate-y-2' : 'translate-y-4'
+                    }`} />
+                  </div>
+                  
+                  {/* Ripple effect */}
+                  <div className="absolute inset-0 rounded-xl bg-primary/5 scale-0 group-active:scale-100 transition-transform duration-200" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-80 p-0 bg-gradient-to-b from-background to-muted/20">
