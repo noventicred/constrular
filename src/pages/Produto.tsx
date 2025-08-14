@@ -236,34 +236,36 @@ const Produto = () => {
       <PromoBanner />
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 overflow-x-hidden">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 mb-6 text-sm">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => navigate("/")}
-            className="p-0 h-auto font-normal text-muted-foreground hover:text-primary"
-          >
-            Início
-          </Button>
-          <span className="text-muted-foreground">/</span>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => navigate("/produtos")}
-            className="p-0 h-auto font-normal text-muted-foreground hover:text-primary"
-          >
-            Produtos
-          </Button>
-          <span className="text-muted-foreground">/</span>
-          {product.category && (
-            <>
-              <span className="text-muted-foreground">{product.category}</span>
-              <span className="text-muted-foreground">/</span>
-            </>
-          )}
-          <span className="font-medium">{product.name}</span>
+        <div className="flex items-center gap-2 mb-6 text-sm overflow-hidden">
+          <div className="flex items-center gap-2 min-w-0 flex-shrink">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate("/")}
+              className="p-0 h-auto font-normal text-muted-foreground hover:text-primary shrink-0"
+            >
+              Início
+            </Button>
+            <span className="text-muted-foreground shrink-0">/</span>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate("/produtos")}
+              className="p-0 h-auto font-normal text-muted-foreground hover:text-primary shrink-0"
+            >
+              Produtos
+            </Button>
+            <span className="text-muted-foreground shrink-0">/</span>
+            {product.category && (
+              <>
+                <span className="text-muted-foreground shrink-0">{product.category}</span>
+                <span className="text-muted-foreground shrink-0">/</span>
+              </>
+            )}
+            <span className="font-medium truncate">{product.name}</span>
+          </div>
         </div>
 
         {/* Back button */}
@@ -276,9 +278,9 @@ const Produto = () => {
           Voltar
         </Button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12 overflow-hidden">
           {/* Product Images */}
-          <div className="space-y-4">
+          <div className="space-y-4 min-w-0">
             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
               <img 
                 src={product.image_url} 
@@ -289,12 +291,12 @@ const Produto = () => {
           </div>
 
           {/* Product Info */}
-          <div className="space-y-6">
+          <div className="space-y-6 min-w-0">
             <div>
               {product.brand && (
                 <p className="text-sm text-muted-foreground mb-1">{product.brand}</p>
               )}
-              <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold mb-2 break-words">{product.name}</h1>
               {product.sku && (
                 <p className="text-sm text-muted-foreground">SKU: {product.sku}</p>
               )}
@@ -311,22 +313,22 @@ const Produto = () => {
 
             {/* Price */}
             <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl font-bold text-primary">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-2xl md:text-3xl font-bold text-primary break-all">
                   {formatCurrency(product.price)}
                 </span>
                 {product.original_price && product.original_price > product.price && (
                   <>
-                    <span className="text-lg text-muted-foreground line-through">
+                    <span className="text-base md:text-lg text-muted-foreground line-through break-all">
                       {formatCurrency(product.original_price)}
                     </span>
-                    <Badge className="bg-red-500 text-white">
+                    <Badge className="bg-red-500 text-white shrink-0">
                       -{product.discount}%
                     </Badge>
                   </>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground break-words">
                 ou 10x de {formatCurrency(product.price / 10)} sem juros
               </p>
             </div>
@@ -345,9 +347,9 @@ const Produto = () => {
 
             {/* Quantity and Add to Cart */}
             <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <label className="text-sm font-medium">Quantidade:</label>
-                <div className="flex items-center border rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <label className="text-sm font-medium shrink-0">Quantidade:</label>
+                <div className="flex items-center border rounded-lg w-fit">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -367,20 +369,21 @@ const Produto = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button 
-                  className="flex-1" 
+                  className="flex-1 w-full sm:w-auto" 
                   size="lg"
                   onClick={handleAddToCart}
                   disabled={!product.in_stock}
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
-                  Adicionar ao Carrinho
+                  <span className="hidden sm:inline">Adicionar ao Carrinho</span>
+                  <span className="sm:hidden">Adicionar</span>
                 </Button>
-                <Button variant="outline" size="lg">
+                <Button variant="outline" size="lg" className="shrink-0">
                   <Heart className="h-5 w-5" />
                 </Button>
-                <Button variant="outline" size="lg">
+                <Button variant="outline" size="lg" className="shrink-0">
                   <Share2 className="h-5 w-5" />
                 </Button>
               </div>
