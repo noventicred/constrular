@@ -5,19 +5,20 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/hooks/useCart";
+import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
+
+interface Category {
+  id: string;
+  name: string;
+  description: string | null;
+  image_url: string | null;
+}
 
 interface Product {
   id: string;
@@ -38,11 +39,6 @@ interface Product {
     id: string;
     name: string;
   };
-}
-
-interface Category {
-  id: string;
-  name: string;
 }
 
 const Produtos = () => {
@@ -66,33 +62,51 @@ const Produtos = () => {
       setOfferFilter(true);
     }
     fetchData();
-  }, []); // Remover dependências desnecessárias
+  }, []);
+
+  // Atualizar URL quando filtro mudar
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentFilter = urlParams.get('filter');
+    
+    if (offerFilter && currentFilter !== 'ofertas') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('filter', 'ofertas');
+      window.history.replaceState({}, '', url.toString());
+    } else if (!offerFilter && currentFilter === 'ofertas') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('filter');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [offerFilter]);
 
   const fetchData = async () => {
     try {
-      // Fetch categories
-      const { data: categoriesData, error: categoriesError } = await supabase
-        .from('categories')
-        .select('id, name')
-        .order('name');
+      const [productsResponse, categoriesResponse] = await Promise.all([
+        supabase
+          .from('products')
+          .select(`
+            *,
+            categories (
+              id,
+              name
+            )
+          `)
+          .eq('in_stock', true)
+          .limit(50)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('categories')
+          .select('*')
+          .is('parent_id', null)
+          .order('name', { ascending: true })
+      ]);
 
-      if (categoriesError) throw categoriesError;
-      setCategories(categoriesData || []);
+      if (productsResponse.error) throw productsResponse.error;
+      if (categoriesResponse.error) throw categoriesResponse.error;
 
-      // Fetch products with categories
-      const { data: productsData, error: productsError } = await supabase
-        .from('products')
-        .select(`
-          *,
-          categories (
-            id,
-            name
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (productsError) throw productsError;
-      setProducts(productsData || []);
+      setProducts(productsResponse.data || []);
+      setCategories(categoriesResponse.data || []);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -128,23 +142,25 @@ const Produtos = () => {
   // Sort products
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
-      case 'menor-preco':
+      case "preco-menor":
         return a.price - b.price;
-      case 'maior-preco':
+      case "preco-maior":
         return b.price - a.price;
-      case 'nome':
+      case "nome":
         return a.name.localeCompare(b.name);
+      case "avaliacao":
+        return (b.rating || 0) - (a.rating || 0);
       default:
         return 0;
     }
   });
 
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
-    e.stopPropagation(); // Prevent navigation when clicking the button
+    e.stopPropagation();
     addItem({
       id: parseInt(product.id),
       name: product.name,
-      brand: product.categories?.name || '',
+      brand: '',
       price: product.price,
       image: product.image_url || "/placeholder.svg"
     });
@@ -157,13 +173,9 @@ const Produtos = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="container mx-auto px-4 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Produtos</h1>
-            <p className="text-muted-foreground">Carregando produtos...</p>
-          </div>
+        <main className="flex-1 container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="h-96 bg-muted rounded-lg animate-pulse" />
@@ -176,28 +188,31 @@ const Produtos = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Produtos</h1>
-          <p className="text-muted-foreground">
-            Encontre os melhores materiais de construção para sua obra
-          </p>
-        </div>
+      <main className="flex-1 container mx-auto px-4 py-8">
+        {/* Filters and Search */}
+        <div className="flex flex-col lg:flex-row gap-6 mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 flex-1">
+            {/* Search */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Buscar produtos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
 
-        {/* Filters and Controls */}
-        <div className="mb-6 space-y-4 lg:space-y-0 lg:flex lg:items-center lg:justify-between">
-          <div className="flex flex-col sm:flex-row gap-4">
             {/* Category Filter */}
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
               <SelectTrigger className="w-full sm:w-[200px]">
-                <SelectValue placeholder="Categoria" />
+                <SelectValue placeholder="Todas as categorias" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="todas">Todas as Categorias</SelectItem>
+                <SelectItem value="todas">Todas as categorias</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
@@ -205,17 +220,6 @@ const Produtos = () => {
                 ))}
               </SelectContent>
             </Select>
-
-            {/* Search */}
-            <div className="relative flex-1 sm:max-w-sm">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Buscar produtos..."
-                className="pl-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
             
             {/* Offer Filter */}
             <Button
@@ -228,21 +232,21 @@ const Produtos = () => {
             </Button>
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* Sort */}
+          {/* Sort and View Mode */}
+          <div className="flex gap-4">
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Ordenar por" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="relevancia">Relevância</SelectItem>
-                <SelectItem value="menor-preco">Menor preço</SelectItem>
-                <SelectItem value="maior-preco">Maior preço</SelectItem>
+                <SelectItem value="preco-menor">Menor Preço</SelectItem>
+                <SelectItem value="preco-maior">Maior Preço</SelectItem>
                 <SelectItem value="nome">Nome A-Z</SelectItem>
+                <SelectItem value="avaliacao">Melhor Avaliação</SelectItem>
               </SelectContent>
             </Select>
 
-            {/* View Mode */}
             <div className="flex border rounded-lg">
               <Button
                 variant={viewMode === "grid" ? "default" : "ghost"}
@@ -397,14 +401,18 @@ const Produtos = () => {
           ))}
         </div>
 
-        {/* Load More */}
-        <div className="mt-8 text-center">
-          <Button variant="outline" size="lg">
-            Carregar mais produtos
-          </Button>
-        </div>
+        {sortedProducts.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">
+              {offerFilter 
+                ? 'Nenhuma oferta encontrada.'
+                : 'Nenhum produto encontrado.'
+              }
+            </p>
+          </div>
+        )}
       </main>
-
+      
       <Footer />
     </div>
   );
