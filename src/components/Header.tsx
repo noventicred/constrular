@@ -58,9 +58,15 @@ const Header = () => {
   };
 
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
+    console.log('Category clicked:', categoryId, categoryName); // Debug
     setIsDropdownOpen(false);
+    setIsCategoriesOpen(false);
     setIsMobileMenuOpen(false);
-    navigate(`/produtos?categoria=${categoryId}`);
+    
+    // Pequeno delay para garantir que o menu feche antes de navegar
+    setTimeout(() => {
+      navigate(`/produtos?categoria=${categoryId}`);
+    }, 100);
   };
   return (
     <header className="bg-background border-b shadow-sm">
