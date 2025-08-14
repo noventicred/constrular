@@ -11,7 +11,11 @@ import {
   Youtube,
   CreditCard,
   Truck,
-  Shield
+  Shield,
+  MessageCircle,
+  Headphones,
+  HelpCircle,
+  FileText
 } from "lucide-react";
 
 const Footer = () => {
@@ -48,35 +52,69 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-base md:text-lg font-semibold">Categorias</h4>
             <ul className="space-y-2 text-gray-300">
-              <li><a href="#" className="hover:text-primary transition-colors text-sm md:text-base">Cimento & Argamassa</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors text-sm md:text-base">Tijolos & Blocos</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors text-sm md:text-base">Tintas & Vernizes</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors text-sm md:text-base">Ferramentas</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors text-sm md:text-base">Hidráulica</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors text-sm md:text-base">Elétrica</a></li>
+              <li><a href="/produtos?categoria=7a476ba3-ef37-4461-b3e6-d6677925aa03" className="hover:text-primary transition-colors text-sm md:text-base">Cimento & Argamassa</a></li>
+              <li><a href="/produtos?categoria=11fdb418-095b-4bd8-a279-4b7842778a51" className="hover:text-primary transition-colors text-sm md:text-base">Cimentos</a></li>
+              <li><a href="/produtos?categoria=bd132e20-62db-4621-9c29-a485494ed663" className="hover:text-primary transition-colors text-sm md:text-base">Tijolos & Blocos</a></li>
+              <li><a href="/produtos?categoria=09bb1be3-e5ea-4933-b3af-394825ddab82" className="hover:text-primary transition-colors text-sm md:text-base">Tintas & Vernizes</a></li>
+              <li><a href="/produtos?categoria=17ccd967-53f1-48b5-b5dc-2eafc279046e" className="hover:text-primary transition-colors text-sm md:text-base">Ferramentas</a></li>
+              <li><a href="/produtos?categoria=98bf132e-6a15-477c-af33-1fc2077e019a" className="hover:text-primary transition-colors text-sm md:text-base">Hidráulica</a></li>
+              <li><a href="/produtos?categoria=2bbe1a87-fa76-4041-b68b-3a19282438c2" className="hover:text-primary transition-colors text-sm md:text-base">Elétrica</a></li>
             </ul>
           </div>
 
           {/* Customer Service */}
           <div className="space-y-4">
-            <h4 className="text-base md:text-lg font-semibold">Atendimento</h4>
+            <h4 className="text-base md:text-lg font-semibold">Atendimento ao Cliente</h4>
             <ul className="space-y-2 text-gray-300">
-              <li><a href="#" className="hover:text-primary transition-colors text-sm md:text-base">Central de Ajuda</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors text-sm md:text-base">Política de Troca</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors text-sm md:text-base">Entrega e Frete</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors text-sm md:text-base">Garantia</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors text-sm md:text-base">Trabalhe Conosco</a></li>
+              <li className="flex items-center gap-2">
+                <HelpCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                <a href="#" className="hover:text-primary transition-colors text-sm md:text-base">Central de Ajuda</a>
+              </li>
+              <li className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                <a href="https://wa.me/5511999999999" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors text-sm md:text-base">
+                  Chat WhatsApp
+                </a>
+              </li>
+              <li className="flex items-center gap-2">
+                <Headphones className="h-4 w-4 text-primary flex-shrink-0" />
+                <a href="tel:1140028922" className="hover:text-primary transition-colors text-sm md:text-base">
+                  Suporte Técnico
+                </a>
+              </li>
+              <li className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-primary flex-shrink-0" />
+                <a href="#" className="hover:text-primary transition-colors text-sm md:text-base">Política de Troca</a>
+              </li>
+              <li className="flex items-center gap-2">
+                <Truck className="h-4 w-4 text-primary flex-shrink-0" />
+                <a href="#" className="hover:text-primary transition-colors text-sm md:text-base">Entrega e Frete</a>
+              </li>
             </ul>
             
-            <div className="pt-4">
+            <div className="pt-4 bg-white/5 rounded-lg p-3">
               <div className="flex items-center gap-2 text-gray-300 mb-2">
                 <Clock className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="font-medium text-sm md:text-base">Horário de Funcionamento:</span>
+                <span className="font-medium text-sm md:text-base">Horário de Atendimento:</span>
               </div>
-              <div className="text-xs md:text-sm text-gray-400">
-                <p>Segunda a Sexta: 7h às 18h</p>
-                <p>Sábado: 7h às 17h</p>
-                <p>Domingo: 8h às 12h</p>
+              <div className="text-xs md:text-sm text-gray-300 space-y-1">
+                <div className="flex justify-between">
+                  <span>Segunda a Sexta:</span>
+                  <span className="text-primary font-medium">7h às 18h</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Sábado:</span>
+                  <span className="text-primary font-medium">7h às 17h</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Domingo:</span>
+                  <span className="text-primary font-medium">8h às 12h</span>
+                </div>
+              </div>
+              <div className="mt-3 pt-2 border-t border-white/10">
+                <p className="text-xs text-gray-400">
+                  📞 Urgências 24h: (11) 9 8888-7777
+                </p>
               </div>
             </div>
           </div>
