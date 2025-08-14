@@ -1,17 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Truck, Shield, CreditCard } from "lucide-react";
 import heroImage from "@/assets/construction-hero.jpg";
-
 const Hero = () => {
-  return (
-    <section className="relative w-full h-[850px] md:h-[700px] overflow-hidden">
+  return <section className="relative w-full h-[850px] md:h-[700px] overflow-hidden">
       {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url(${heroImage})`
-        }}
-      />
+      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
+      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${heroImage})`
+    }} />
       
       {/* Hero Content */}
       <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
@@ -19,13 +14,13 @@ const Hero = () => {
           {/* Left content */}
           <div className="space-y-6 md:space-y-8 lg:col-span-2">
             <div className="space-y-4 text-center lg:text-left">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-white drop-shadow-lg">
-                <span className="drop-shadow-md">Tudo para sua</span>
-                <span className="block text-transparent bg-gradient-to-r from-primary to-secondary bg-clip-text drop-shadow-none">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-white">
+                Tudo para sua
+                <span className="block text-transparent bg-gradient-to-r from-primary to-secondary bg-clip-text">
                   Construção
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-white/95 max-w-lg mx-auto lg:mx-0 drop-shadow-md font-medium leading-relaxed">
+              <p className="text-lg md:text-xl text-white/90 max-w-lg mx-auto lg:mx-0">
                 Os melhores materiais de construção com preços imbatíveis. 
                 Qualidade garantida e entrega rápida para toda São Paulo.
               </p>
@@ -42,51 +37,13 @@ const Hero = () => {
             </div>
 
             {/* Features */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 pt-6 md:pt-8 justify-items-center lg:justify-items-start">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 md:h-12 md:w-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                  <Truck className="h-5 w-5 md:h-6 md:w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm md:text-base text-white drop-shadow-sm">Entrega Rápida</h3>
-                  <p className="text-xs md:text-sm text-white/90 drop-shadow-sm">Em até 24h</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 md:h-12 md:w-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                  <Shield className="h-5 w-5 md:h-6 md:w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm md:text-base text-white drop-shadow-sm">Garantia Total</h3>
-                  <p className="text-xs md:text-sm text-white/90 drop-shadow-sm">Produtos certificados</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 md:h-12 md:w-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                  <CreditCard className="h-5 w-5 md:h-6 md:w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm md:text-base text-white drop-shadow-sm">Pagamento Fácil</h3>
-                  <p className="text-xs md:text-sm text-white/90 drop-shadow-sm">Até 12x sem juros</p>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
         
         {/* Floating offer card */}
-        <div className="absolute bottom-4 right-4 md:bottom-6 md:right-6 bg-white p-4 md:p-6 rounded-lg shadow-xl border">
-          <div className="text-xl md:text-2xl xl:text-3xl font-bold text-primary">50% OFF</div>
-          <div className="text-xs md:text-sm text-muted-foreground">Em tintas selecionadas</div>
-          <Button variant="construction" size="sm" className="mt-2 text-xs md:text-sm">
-            Ver Ofertas
-          </Button>
-        </div>
+        
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default Hero;
