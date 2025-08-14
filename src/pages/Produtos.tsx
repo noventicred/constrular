@@ -303,7 +303,7 @@ const Produtos = () => {
                   </div>
                   
                   {/* Rating */}
-                  {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 && (
+                  {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 ? (
                     <div className="flex items-center gap-2">
                       <div className="flex items-center">
                         {[...Array(5)].map((_, i) => (
@@ -319,6 +319,12 @@ const Produtos = () => {
                       </div>
                       <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                         {product.rating} ({product.reviews} avaliações)
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500 dark:text-gray-400 italic">
+                        Seja o primeiro a avaliar
                       </span>
                     </div>
                   )}
