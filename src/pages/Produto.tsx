@@ -421,37 +421,39 @@ const Produto = () => {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <Button 
-                  className="w-full text-lg font-bold py-6 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 rounded-xl" 
+                  className="w-full text-base font-bold py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 rounded-xl border-0" 
                   size="lg"
                   onClick={handleAddToCart}
                   disabled={!product.in_stock}
                 >
                   {product.in_stock ? (
-                    <>
-                      <ShoppingCart className="h-6 w-6 mr-3" />
-                      Adicionar ao Carrinho
-                      <div className="ml-3 px-3 py-1 bg-white/20 rounded-lg text-sm font-semibold">
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center">
+                        <ShoppingCart className="h-5 w-5 mr-3" />
+                        <span>Adicionar ao Carrinho</span>
+                      </div>
+                      <div className="px-3 py-1 bg-white/20 rounded-lg text-sm font-bold">
                         {formatCurrency(product.price * quantity)}
                       </div>
-                    </>
+                    </div>
                   ) : (
                     <>
-                      <Shield className="h-6 w-6 mr-3" />
+                      <Shield className="h-5 w-5 mr-3" />
                       Produto Indisponível
                     </>
                   )}
                 </Button>
                 
                 {product.in_stock && (
-                  <div className="text-center space-y-2">
-                    <div className="flex items-center justify-center gap-2 text-sm text-green-600 font-semibold">
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center space-y-2">
+                    <div className="flex items-center justify-center gap-2 text-sm text-green-700 font-bold">
                       <CheckCircle className="h-4 w-4" />
                       Compra 100% Segura e Protegida
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Entrega rápida • Garantia • Suporte especializado
+                    <p className="text-xs text-green-600">
+                      ✓ Entrega rápida ✓ Garantia ✓ Suporte especializado
                     </p>
                   </div>
                 )}

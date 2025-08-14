@@ -28,6 +28,7 @@ interface Product {
 
 const SpecialOffers = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [productComments, setProductComments] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const { addItem } = useCart();
   const { toast } = useToast();
@@ -54,6 +55,27 @@ const SpecialOffers = () => {
 
       if (error) throw error;
       setProducts(data || []);
+
+      // Buscar comentários para cada produto
+      if (data && data.length > 0) {
+        const commentsData: Record<string, number> = {};
+        
+        for (const product of data) {
+          const { data: comments } = await supabase
+            .from('product_comments')
+            .select('rating')
+            .eq('product_id', product.id);
+          
+          if (comments && comments.length > 0) {
+            const averageRating = comments.reduce((acc, comment) => acc + comment.rating, 0) / comments.length;
+            commentsData[product.id] = averageRating;
+          } else {
+            commentsData[product.id] = 0;
+          }
+        }
+        
+        setProductComments(commentsData);
+      }
     } catch (error) {
       console.error('Error fetching special offers:', error);
       toast({
@@ -249,14 +271,14 @@ const SpecialOffers = () => {
                           </div>
                           
                           {/* Rating */}
-                          {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 ? (
+                          {productComments[product.id] > 0 ? (
                             <div className="flex items-center gap-2 mb-2">
                               <div className="flex items-center">
                                 {[...Array(5)].map((_, i) => (
                                   <Star 
                                     key={i} 
                                     className={`h-3 w-3 ${
-                                      i < Math.floor(product.rating!)
+                                      i < Math.floor(productComments[product.id])
                                         ? 'text-yellow-400 fill-current' 
                                         : 'text-gray-300'
                                     }`} 
@@ -264,7 +286,7 @@ const SpecialOffers = () => {
                                 ))}
                               </div>
                               <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                                {product.rating} ({product.reviews} avaliações)
+                                {productComments[product.id].toFixed(1)}
                               </span>
                             </div>
                           ) : (
