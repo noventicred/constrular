@@ -1,8 +1,5 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useCart } from "@/contexts/CartContext";
 import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, ShoppingBag, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -10,14 +7,16 @@ import { formatCurrency } from "@/lib/formatters";
 import { useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
+import { useSettings } from "@/hooks/useSettings";
 
 const FloatingCart = () => {
   const { items, removeItem, updateQuantity, clearCart, total, itemCount, sendToWhatsApp } = useCart();
-  const [phoneNumber, setPhoneNumber] = useState('5511999999999');
   const navigate = useNavigate();
+  const { getWhatsAppNumber } = useSettings();
 
   const handleWhatsAppRedirect = () => {
-    sendToWhatsApp(phoneNumber);
+    const whatsappNumber = getWhatsAppNumber();
+    sendToWhatsApp(whatsappNumber);
     clearCart();
   };
 
@@ -151,17 +150,6 @@ const FloatingCart = () => {
                       <Eye className="h-4 w-4 mr-2" />
                       Ver Carrinho Completo
                     </Button>
-                    
-                    <div>
-                      <Label htmlFor="phone" className="text-sm">WhatsApp:</Label>
-                      <Input
-                        id="phone"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        placeholder="Ex: 5511999999999"
-                        className="mt-1"
-                      />
-                    </div>
                     
                     <Button 
                       onClick={handleWhatsAppRedirect}
