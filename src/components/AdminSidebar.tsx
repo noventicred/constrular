@@ -17,7 +17,7 @@ const adminMenuItems = [
   { title: 'Dashboard', url: '/admin', icon: BarChart3 },
   { title: 'Produtos', url: '/admin/produtos', icon: Package },
   { title: 'Categorias', url: '/admin/categorias', icon: FolderOpen },
-  { title: 'Usuários', url: '/admin/usuarios', icon: Users },
+  { title: 'Clientes', url: '/admin/clientes', icon: Users },
   { title: 'Configurações', url: '/admin/configuracoes', icon: Settings },
 ];
 

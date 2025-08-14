@@ -8,12 +8,20 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { ArrowLeft } from 'lucide-react';
 import { AuthRedirect } from '@/components/auth/AuthRedirect';
+import { supabase } from '@/integrations/supabase/client';
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [zipCode, setZipCode] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [documentNumber, setDocumentNumber] = useState('');
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -49,7 +57,25 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await signUp(email, password, fullName);
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: fullName,
+            phone,
+            address,
+            city,
+            state,
+            zip_code: zipCode,
+            birth_date: birthDate,
+            document_number: documentNumber,
+          },
+        },
+      });
 
       if (error) {
         toast({
@@ -134,34 +160,98 @@ const Auth = () => {
 
                 <TabsContent value="signup" className="space-y-4">
                   <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="space-y-2">
-                      <Input
-                        type="text"
-                        placeholder="Nome completo"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        required
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Input
+                          type="text"
+                          placeholder="Nome completo *"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Input
+                          type="email"
+                          placeholder="Email *"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Input
+                          type="tel"
+                          placeholder="Telefone"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Input
+                          type="text"
+                          placeholder="CPF/CNPJ"
+                          value={documentNumber}
+                          onChange={(e) => setDocumentNumber(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Input
+                          type="date"
+                          placeholder="Data de nascimento"
+                          value={birthDate}
+                          onChange={(e) => setBirthDate(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Input
+                          type="password"
+                          placeholder="Senha *"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          minLength={6}
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                      />
+                    
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Input
+                          type="text"
+                          placeholder="Endereço"
+                          value={address}
+                          onChange={(e) => setAddress(e.target.value)}
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Input
+                            type="text"
+                            placeholder="Cidade"
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Input
+                            type="text"
+                            placeholder="Estado"
+                            value={state}
+                            onChange={(e) => setState(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Input
+                            type="text"
+                            placeholder="CEP"
+                            value={zipCode}
+                            onChange={(e) => setZipCode(e.target.value)}
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Input
-                        type="password"
-                        placeholder="Senha"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        minLength={6}
-                      />
-                    </div>
+
                     <Button
                       type="submit"
                       className="w-full"
@@ -169,6 +259,10 @@ const Auth = () => {
                     >
                       {isLoading ? 'Criando conta...' : 'Criar conta'}
                     </Button>
+                    
+                    <p className="text-sm text-muted-foreground text-center">
+                      * Campos obrigatórios
+                    </p>
                   </form>
                 </TabsContent>
               </Tabs>
