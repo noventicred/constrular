@@ -124,7 +124,7 @@ const Entrega = () => {
               </CardHeader>
               <CardContent className="px-0 pb-0">
                 <div className="space-y-4">
-                  <p className="text-lg font-semibold text-primary">3 a 10 dias úteis</p>
+                  <p className="text-lg font-semibold text-primary">Mesmo dia ou próximo dia útil</p>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-primary" />
@@ -132,7 +132,7 @@ const Entrega = () => {
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-primary" />
-                      Frete calculado por região
+                      Entrega expressa nacional
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-primary" />
