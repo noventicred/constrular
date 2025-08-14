@@ -24,6 +24,8 @@ interface ProductFormData {
   discount: string;
   category_id: string;
   in_stock: boolean;
+  is_featured: boolean;
+  is_special_offer: boolean;
 }
 
 const ProductForm = () => {
@@ -47,6 +49,8 @@ const ProductForm = () => {
     discount: '',
     category_id: '',
     in_stock: true,
+    is_featured: false,
+    is_special_offer: false,
   });
 
   useEffect(() => {
@@ -88,9 +92,11 @@ const ProductForm = () => {
         description: data.description || '',
         price: data.price.toString(),
         original_price: data.original_price?.toString() || '',
-        discount: data.discount.toString(),
+        discount: data.discount?.toString() || '0',
         category_id: data.category_id || '',
         in_stock: data.in_stock,
+        is_featured: data.is_featured || false,
+        is_special_offer: data.is_special_offer || false,
       });
 
       if (data.image_url) {
@@ -210,6 +216,8 @@ const ProductForm = () => {
         image_url: imageUrl,
         category_id: formData.category_id || null,
         in_stock: formData.in_stock,
+        is_featured: formData.is_featured,
+        is_special_offer: formData.is_special_offer,
       };
 
       let error;
@@ -401,6 +409,34 @@ const ProductForm = () => {
                       id="in_stock"
                       checked={formData.in_stock}
                       onCheckedChange={(value) => updateFormData('in_stock', value)}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="is_featured">Produto em destaque</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Exibir na seção de produtos em destaque
+                      </p>
+                    </div>
+                    <Switch
+                      id="is_featured"
+                      checked={formData.is_featured}
+                      onCheckedChange={(value) => updateFormData('is_featured', value)}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="is_special_offer">Oferta especial</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Exibir em ofertas especiais
+                      </p>
+                    </div>
+                    <Switch
+                      id="is_special_offer"
+                      checked={formData.is_special_offer}
+                      onCheckedChange={(value) => updateFormData('is_special_offer', value)}
                     />
                   </div>
                 </CardContent>

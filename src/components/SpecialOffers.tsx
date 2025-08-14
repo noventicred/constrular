@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -5,94 +6,78 @@ import { ArrowRight, Percent, Clock, ShoppingCart, Star } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/hooks/useCart";
+import { formatCurrency } from "@/lib/formatters";
 
-const products = [
-  {
-    id: 1,
-    name: "Cimento Portland CP II-E-32",
-    description: "Saco 50kg - Ideal para obras em geral",
-    originalPrice: 25.90,
-    salePrice: 18.13,
-    discount: 30,
-    image: "/placeholder.svg",
-    rating: 4.8,
-    reviews: 245,
-    inStock: true,
-    category: "Cimento"
-  },
-  {
-    id: 2,
-    name: "Kit Ferramentas Básicas",
-    description: "Martelo + Furadeira + Chaves de fenda",
-    originalPrice: 299.90,
-    salePrice: 199.90,
-    discount: 33,
-    image: "/placeholder.svg",
-    rating: 4.6,
-    reviews: 128,
-    inStock: true,
-    category: "Ferramentas"
-  },
-  {
-    id: 3,
-    name: "Tinta Acrílica Premium",
-    description: "18L - Branco Neve - Cobertura superior",
-    originalPrice: 179.90,
-    salePrice: 119.93,
-    discount: 33,
-    image: "/placeholder.svg",
-    rating: 4.9,
-    reviews: 89,
-    inStock: true,
-    category: "Tintas"
-  },
-  {
-    id: 4,
-    name: "Tijolo Cerâmico 6 Furos",
-    description: "9x14x19cm - Milheiro",
-    originalPrice: 890.00,
-    salePrice: 623.00,
-    discount: 30,
-    image: "/placeholder.svg",
-    rating: 4.7,
-    reviews: 67,
-    inStock: true,
-    category: "Tijolos"
-  },
-  {
-    id: 5,
-    name: "Argamassa Colante AC-I",
-    description: "Saco 20kg - Para pisos e azulejos",
-    originalPrice: 45.90,
-    salePrice: 32.13,
-    discount: 30,
-    image: "/placeholder.svg",
-    rating: 4.5,
-    reviews: 156,
-    inStock: true,
-    category: "Argamassa"
-  },
-  {
-    id: 6,
-    name: "Parafusadeira com Bateria",
-    description: "18V Li-ion + Kit 50 bits",
-    originalPrice: 249.90,
-    salePrice: 174.93,
-    discount: 30,
-    image: "/placeholder.svg",
-    rating: 4.8,
-    reviews: 93,
-    inStock: true,
-    category: "Ferramentas"
-  }
-];
+interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  original_price: number | null;
+  discount: number | null;
+  image_url: string | null;
+  rating: number | null;
+  reviews: number | null;
+  in_stock: boolean | null;
+  is_special_offer: boolean | null;
+}
 
 const SpecialOffers = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  const { addItem } = useCart();
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: false,
     dragFree: true,
     containScroll: 'trimSnaps'
   });
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_special_offer', true)
+        .eq('in_stock', true)
+        .limit(6)
+        .order('discount', { ascending: false });
+
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Error fetching special offers:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar as ofertas especiais.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddToCart = (product: Product) => {
+    addItem({
+      id: parseInt(product.id),
+      name: product.name,
+      brand: '',
+      price: product.price,
+      image: product.image_url || "/placeholder.svg"
+    });
+    
+    toast({
+      title: "Produto adicionado!",
+      description: `${product.name} foi adicionado ao carrinho.`,
+    });
+  };
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()
@@ -102,23 +87,39 @@ const SpecialOffers = () => {
     if (emblaApi) emblaApi.scrollNext()
   }, [emblaApi]);
 
-  const formatPrice = (price: number) => {
-    return price.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    });
-  };
-
-  return (
-    <section className="py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Percent className="h-6 w-6 text-construction-orange" />
-            <h2 className="text-3xl md:text-4xl font-bold">
+  if (loading) {
+    return (
+      <section className="py-16 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center justify-center gap-2">
+              <Percent className="h-8 w-8 text-orange-500" />
               Ofertas Especiais
             </h2>
+            <p className="text-lg text-muted-foreground">Carregando ofertas...</p>
           </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-80 bg-muted rounded-lg animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (products.length === 0) {
+    return null; // Don't show the section if there are no special offers
+  }
+
+  return (
+    <section className="py-16 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center justify-center gap-2">
+            <Percent className="h-8 w-8 text-orange-500" />
+            Ofertas Especiais
+          </h2>
           <p className="text-lg text-muted-foreground">
             Aproveite nossos descontos exclusivos por tempo limitado
           </p>
@@ -148,71 +149,97 @@ const SpecialOffers = () => {
           <div className="overflow-hidden py-2" ref={emblaRef}>
             <div className="flex gap-6 px-1">
               {products.map((product, index) => (
-                <div
-                  key={product.id}
+                <div 
+                  key={product.id} 
                   className="flex-none w-80 animate-fade-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  style={{ animationDelay: `${index * 150}ms` }}
                 >
-                  <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 overflow-hidden h-full">
+                  <Card className="group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white dark:bg-gray-900 border-2 hover:border-orange-200 dark:hover:border-orange-800 overflow-hidden h-full">
                     <CardContent className="p-0 h-full flex flex-col">
-                      <div className="relative">
-                        <img 
-                          src={product.image} 
+                      <div className="relative overflow-hidden">
+                        <img
+                          src={product.image_url || "/placeholder.svg"}
                           alt={product.name}
-                          className="w-full h-48 object-cover"
+                          className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
                         />
-                        <Badge className="absolute top-4 left-4 bg-red-500 text-white font-bold px-3 py-1">
-                          {product.discount}% OFF
+                        
+                        {/* Discount Badge */}
+                        {product.discount && product.discount > 0 && (
+                          <Badge className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-sm px-3 py-1 shadow-lg">
+                            -{product.discount}%
+                          </Badge>
+                        )}
+                        
+                        {/* Stock Badge */}
+                        <Badge 
+                          className={`absolute top-3 right-3 text-xs font-semibold ${
+                            product.in_stock
+                              ? 'bg-green-500 hover:bg-green-600 text-white' 
+                              : 'bg-gray-500 hover:bg-gray-600 text-white'
+                          }`}
+                        >
+                          {product.in_stock ? 'Em Estoque' : 'Indisponível'}
                         </Badge>
-                        <div className="absolute bottom-4 right-4 bg-white/90 rounded-full p-2">
-                          <Clock className="h-4 w-4 text-construction-orange" />
-                        </div>
                       </div>
                       
-                      <div className="p-6 flex flex-col flex-1">
-                        <div className="flex items-center gap-1 mb-2">
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-3 w-3 ${
-                                  i < Math.floor(product.rating) 
-                                    ? 'fill-yellow-400 text-yellow-400' 
-                                    : 'text-gray-300'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-xs text-muted-foreground">
-                            ({product.reviews})
-                          </span>
+                      <div className="p-6">
+                        <div className="mb-3">
+                          <h3 className="font-bold text-lg mb-1 group-hover:text-orange-600 transition-colors line-clamp-1">
+                            {product.name}
+                          </h3>
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {product.description}
+                          </p>
                         </div>
                         
-                        <h3 className="text-lg font-bold mb-2 group-hover:text-construction-orange transition-colors line-clamp-2">
-                          {product.name}
-                        </h3>
+                        {/* Rating */}
+                        {product.rating && product.reviews && (
+                          <div className="flex items-center gap-2 mb-4">
+                            <div className="flex items-center">
+                              {[...Array(5)].map((_, i) => (
+                                <Star 
+                                  key={i} 
+                                  className={`h-4 w-4 ${
+                                    i < Math.floor(product.rating!)
+                                      ? 'text-yellow-400 fill-current' 
+                                      : 'text-gray-300'
+                                  }`} 
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm text-muted-foreground">
+                              {product.rating} ({product.reviews} avaliações)
+                            </span>
+                          </div>
+                        )}
                         
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-1">
-                          {product.description}
-                        </p>
-                        
+                        {/* Price */}
                         <div className="mb-4">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm text-muted-foreground line-through">
-                              {formatPrice(product.originalPrice)}
+                            <span className="text-2xl font-bold text-orange-600">
+                              {formatCurrency(product.price)}
                             </span>
-                            <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
-                              Economize {formatPrice(product.originalPrice - product.salePrice)}
-                            </Badge>
+                            {product.original_price && product.original_price > product.price && (
+                              <span className="text-sm text-muted-foreground line-through">
+                                {formatCurrency(product.original_price)}
+                              </span>
+                            )}
                           </div>
-                          <span className="text-2xl font-bold text-construction-orange">
-                            {formatPrice(product.salePrice)}
-                          </span>
+                          {product.original_price && (
+                            <p className="text-xs text-green-600 font-medium">
+                              Economia de {formatCurrency(product.original_price - product.price)}
+                            </p>
+                          )}
                         </div>
                         
-                        <Button className="w-full group-hover:scale-105 transition-transform">
+                        {/* Action Button */}
+                        <Button 
+                          className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-2 transition-all duration-300 transform group-hover:scale-105"
+                          disabled={!product.in_stock}
+                          onClick={() => handleAddToCart(product)}
+                        >
                           <ShoppingCart className="h-4 w-4 mr-2" />
-                          Adicionar ao Carrinho
+                          {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
                         </Button>
                       </div>
                     </CardContent>
@@ -228,6 +255,13 @@ const SpecialOffers = () => {
               ← Deslize para ver mais ofertas →
             </div>
           </div>
+        </div>
+        
+        <div className="text-center mt-12">
+          <Button variant="outline" size="lg" className="group">
+            Ver Todas as Ofertas
+            <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+          </Button>
         </div>
       </div>
     </section>

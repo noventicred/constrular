@@ -38,6 +38,7 @@ const FeaturedProducts = () => {
       const { data, error } = await supabase
         .from('products')
         .select('*')
+        .eq('is_featured', true)
         .eq('in_stock', true)
         .limit(6)
         .order('rating', { ascending: false });
