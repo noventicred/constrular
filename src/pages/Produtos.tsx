@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Search, Filter, Grid, List, ShoppingCart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,7 @@ const Produtos = () => {
   const [sortBy, setSortBy] = useState("relevancia");
   const { toast } = useToast();
   const { addItem } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
@@ -121,7 +123,8 @@ const Produtos = () => {
     }
   });
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
+    e.stopPropagation(); // Prevent navigation when clicking the button
     addItem({
       id: parseInt(product.id),
       name: product.name,
@@ -249,7 +252,11 @@ const Produtos = () => {
             : "grid-cols-1"
         }`}>
           {sortedProducts.map((product) => (
-            <Card key={product.id} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <Card 
+              key={product.id} 
+              className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+              onClick={() => navigate(`/produto/${product.id}`)}
+            >
               <CardContent className="p-4">
                 {/* Product Image */}
                 <div className="aspect-square mb-4 bg-gray-100 rounded-lg overflow-hidden">
@@ -303,7 +310,7 @@ const Produtos = () => {
                   className="w-full" 
                   variant="construction"
                   disabled={!product.in_stock}
-                  onClick={() => handleAddToCart(product)}
+                  onClick={(e) => handleAddToCart(e, product)}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}

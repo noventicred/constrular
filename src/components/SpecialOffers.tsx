@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/hooks/useCart";
 import { formatCurrency } from "@/lib/formatters";
+import { useNavigate } from "react-router-dom";
 
 interface Product {
   id: string;
@@ -30,6 +31,7 @@ const SpecialOffers = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { addItem } = useCart();
+  const navigate = useNavigate();
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: false,
     dragFree: true,
@@ -64,7 +66,8 @@ const SpecialOffers = () => {
     }
   };
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
+    e.stopPropagation(); // Prevent navigation when clicking the button
     addItem({
       id: parseInt(product.id),
       name: product.name,
@@ -154,7 +157,10 @@ const SpecialOffers = () => {
                   className="flex-none w-80 animate-fade-in"
                   style={{ animationDelay: `${index * 150}ms` }}
                 >
-                  <Card className="group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white dark:bg-gray-900 border-2 hover:border-orange-200 dark:hover:border-orange-800 overflow-hidden h-full">
+                  <Card 
+                    className="group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white dark:bg-gray-900 border-2 hover:border-orange-200 dark:hover:border-orange-800 overflow-hidden h-full cursor-pointer"
+                    onClick={() => navigate(`/produto/${product.id}`)}
+                  >
                     <CardContent className="p-0 h-full flex flex-col">
                       <div className="relative overflow-hidden">
                         <img
@@ -236,7 +242,7 @@ const SpecialOffers = () => {
                         <Button 
                           className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-2 transition-all duration-300 transform group-hover:scale-105"
                           disabled={!product.in_stock}
-                          onClick={() => handleAddToCart(product)}
+                          onClick={(e) => handleAddToCart(e, product)}
                         >
                           <ShoppingCart className="h-4 w-4 mr-2" />
                           {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
