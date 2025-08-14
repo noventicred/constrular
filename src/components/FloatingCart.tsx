@@ -150,14 +150,6 @@ const FloatingCart = () => {
                       <Eye className="h-4 w-4 mr-2" />
                       Ver Carrinho Completo
                     </Button>
-                    
-                    <Button 
-                      onClick={handleWhatsAppRedirect}
-                      className="w-full bg-green-600 hover:bg-green-700"
-                    >
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Finalizar no WhatsApp
-                    </Button>
                   </div>
                 </div>
               </>
