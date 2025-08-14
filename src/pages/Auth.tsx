@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingCep, setIsLoadingCep] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -31,19 +32,184 @@ const Auth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Formatação de campos
+  const formatPhone = (value: string) => {
+    const cleaned = value.replace(/\D/g, '');
+    if (cleaned.length <= 10) {
+      return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+    }
+    return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  };
+
+  const formatCPF = (value: string) => {
+    const cleaned = value.replace(/\D/g, '');
+    if (cleaned.length <= 11) {
+      return cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+    return value;
+  };
+
+  const formatCNPJ = (value: string) => {
+    const cleaned = value.replace(/\D/g, '');
+    return cleaned.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+  };
+
+  const formatDocument = (value: string) => {
+    const cleaned = value.replace(/\D/g, '');
+    if (cleaned.length <= 11) {
+      return formatCPF(value);
+    }
+    return formatCNPJ(value);
+  };
+
+  const formatCEP = (value: string) => {
+    const cleaned = value.replace(/\D/g, '');
+    return cleaned.replace(/(\d{5})(\d{3})/, '$1-$2');
+  };
+
+  // Busca de endereço por CEP
+  const fetchAddressByCEP = async (cep: string) => {
+    const cleanCEP = cep.replace(/\D/g, '');
+    if (cleanCEP.length !== 8) return;
+
+    setIsLoadingCep(true);
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cleanCEP}/json/`);
+      const data = await response.json();
+
+      if (data.erro) {
+        toast({
+          title: 'CEP não encontrado',
+          description: 'Por favor, verifique o CEP informado.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      setAddress(data.logradouro || '');
+      setCity(data.localidade || '');
+      setState(data.uf || '');
+      
+      if (data.logradouro) {
+        toast({
+          title: 'Endereço encontrado!',
+          description: 'Os campos foram preenchidos automaticamente.',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Erro ao buscar CEP',
+        description: 'Tente novamente ou preencha manualmente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoadingCep(false);
+    }
+  };
+
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
+  const validateCPF = (cpf: string) => {
+    const cleaned = cpf.replace(/\D/g, '');
+    if (cleaned.length !== 11) return false;
+    
+    // Verifica se todos os dígitos são iguais
+    if (/^(\d)\1+$/.test(cleaned)) return false;
+    
+    // Valida primeiro dígito verificador
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      sum += parseInt(cleaned.charAt(i)) * (10 - i);
+    }
+    let remainder = 11 - (sum % 11);
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cleaned.charAt(9))) return false;
+    
+    // Valida segundo dígito verificador
+    sum = 0;
+    for (let i = 0; i < 10; i++) {
+      sum += parseInt(cleaned.charAt(i)) * (11 - i);
+    }
+    remainder = 11 - (sum % 11);
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cleaned.charAt(10))) return false;
+    
+    return true;
+  };
+
+  const validateCNPJ = (cnpj: string) => {
+    const cleaned = cnpj.replace(/\D/g, '');
+    if (cleaned.length !== 14) return false;
+    
+    // Verifica se todos os dígitos são iguais
+    if (/^(\d)\1+$/.test(cleaned)) return false;
+    
+    // Valida primeiro dígito verificador
+    let sum = 0;
+    let weight = 2;
+    for (let i = 11; i >= 0; i--) {
+      sum += parseInt(cleaned.charAt(i)) * weight;
+      weight = weight === 9 ? 2 : weight + 1;
+    }
+    let remainder = sum % 11;
+    if (remainder < 2) remainder = 0;
+    else remainder = 11 - remainder;
+    if (remainder !== parseInt(cleaned.charAt(12))) return false;
+    
+    // Valida segundo dígito verificador
+    sum = 0;
+    weight = 2;
+    for (let i = 12; i >= 0; i--) {
+      sum += parseInt(cleaned.charAt(i)) * weight;
+      weight = weight === 9 ? 2 : weight + 1;
+    }
+    remainder = sum % 11;
+    if (remainder < 2) remainder = 0;
+    else remainder = 11 - remainder;
+    if (remainder !== parseInt(cleaned.charAt(13))) return false;
+    
+    return true;
+  };
+
+  const validateDocument = (document: string) => {
+    const cleaned = document.replace(/\D/g, '');
+    if (cleaned.length === 11) {
+      return validateCPF(document);
+    } else if (cleaned.length === 14) {
+      return validateCNPJ(document);
+    }
+    return false;
+  };
+
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
     
+    // Campos obrigatórios básicos
     if (!fullName.trim()) newErrors.fullName = 'Nome é obrigatório';
     if (!email.trim()) newErrors.email = 'Email é obrigatório';
     else if (!validateEmail(email)) newErrors.email = 'Email inválido';
     if (!password.trim()) newErrors.password = 'Senha é obrigatória';
     else if (password.length < 6) newErrors.password = 'Senha deve ter pelo menos 6 caracteres';
+    
+    // Campos de endereço obrigatórios
+    if (!zipCode.trim()) newErrors.zipCode = 'CEP é obrigatório';
+    else if (zipCode.replace(/\D/g, '').length !== 8) newErrors.zipCode = 'CEP deve ter 8 dígitos';
+    
+    if (!address.trim()) newErrors.address = 'Endereço é obrigatório';
+    if (!city.trim()) newErrors.city = 'Cidade é obrigatória';
+    if (!state.trim()) newErrors.state = 'Estado é obrigatório';
+    
+    // Validações opcionais quando preenchidas
+    if (phone && phone.replace(/\D/g, '').length < 10) {
+      newErrors.phone = 'Telefone deve ter pelo menos 10 dígitos';
+    }
+    
+    if (documentNumber && !validateDocument(documentNumber)) {
+      newErrors.documentNumber = 'CPF ou CNPJ inválido';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -246,7 +412,7 @@ const Auth = () => {
                     <div className="space-y-4">
                       <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                         <User className="h-4 w-4" />
-                        Informações Básicas
+                        Informações Pessoais
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -295,9 +461,17 @@ const Auth = () => {
                             type="tel"
                             placeholder="(11) 99999-9999"
                             value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                            onChange={(e) => {
+                              const formatted = formatPhone(e.target.value);
+                              if (formatted.replace(/\D/g, '').length <= 11) {
+                                setPhone(formatted);
+                              }
+                            }}
+                            className={`h-11 transition-all duration-200 ${errors.phone ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
                           />
+                          {errors.phone && (
+                            <p className="text-sm text-destructive">{errors.phone}</p>
+                          )}
                         </div>
                         
                         <div className="space-y-2">
@@ -334,6 +508,101 @@ const Auth = () => {
                       </div>
                     </div>
 
+                    {/* Informações de Endereço */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                        <MapPin className="h-4 w-4" />
+                        Endereço de Entrega
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="zipCode" className="text-sm font-medium">
+                            CEP *
+                          </Label>
+                          <div className="relative">
+                            <Input
+                              id="zipCode"
+                              type="text"
+                              placeholder="00000-000"
+                              value={zipCode}
+                              onChange={(e) => {
+                                const formatted = formatCEP(e.target.value);
+                                if (formatted.replace(/\D/g, '').length <= 8) {
+                                  setZipCode(formatted);
+                                  if (formatted.replace(/\D/g, '').length === 8) {
+                                    fetchAddressByCEP(formatted);
+                                  }
+                                }
+                              }}
+                              className={`h-11 transition-all duration-200 ${errors.zipCode ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
+                            />
+                            {isLoadingCep && (
+                              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"></div>
+                              </div>
+                            )}
+                          </div>
+                          {errors.zipCode && (
+                            <p className="text-sm text-destructive">{errors.zipCode}</p>
+                          )}
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="address" className="text-sm font-medium">
+                            Endereço *
+                          </Label>
+                          <Input
+                            id="address"
+                            type="text"
+                            placeholder="Rua, número, complemento"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            className={`h-11 transition-all duration-200 ${errors.address ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
+                          />
+                          {errors.address && (
+                            <p className="text-sm text-destructive">{errors.address}</p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="city" className="text-sm font-medium">
+                            Cidade *
+                          </Label>
+                          <Input
+                            id="city"
+                            type="text"
+                            placeholder="Sua cidade"
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            className={`h-11 transition-all duration-200 ${errors.city ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
+                          />
+                          {errors.city && (
+                            <p className="text-sm text-destructive">{errors.city}</p>
+                          )}
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="state" className="text-sm font-medium">
+                            Estado *
+                          </Label>
+                          <Input
+                            id="state"
+                            type="text"
+                            placeholder="SP"
+                            value={state}
+                            onChange={(e) => setState(e.target.value)}
+                            className={`h-11 transition-all duration-200 ${errors.state ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
+                          />
+                          {errors.state && (
+                            <p className="text-sm text-destructive">{errors.state}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Informações Opcionais */}
                     <Collapsible open={isOptionalOpen} onOpenChange={setIsOptionalOpen}>
                       <CollapsibleTrigger asChild>
@@ -343,8 +612,8 @@ const Auth = () => {
                           className="w-full justify-between p-4 h-auto border border-muted rounded-lg hover:bg-muted/50 transition-colors"
                         >
                           <div className="flex items-center gap-2 text-sm font-medium">
-                            <MapPin className="h-4 w-4" />
-                            Informações Adicionais (Opcional)
+                            <Calendar className="h-4 w-4" />
+                            Informações Complementares (Opcional)
                           </div>
                           <ChevronDown className={`h-4 w-4 transition-transform ${isOptionalOpen ? 'rotate-180' : ''}`} />
                         </Button>
@@ -360,11 +629,17 @@ const Auth = () => {
                             <Input
                               id="document"
                               type="text"
-                              placeholder="000.000.000-00"
+                              placeholder="000.000.000-00 ou 00.000.000/0000-00"
                               value={documentNumber}
-                              onChange={(e) => setDocumentNumber(e.target.value)}
-                              className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                              onChange={(e) => {
+                                const formatted = formatDocument(e.target.value);
+                                setDocumentNumber(formatted);
+                              }}
+                              className={`h-11 transition-all duration-200 ${errors.documentNumber ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
                             />
+                            {errors.documentNumber && (
+                              <p className="text-sm text-destructive">{errors.documentNumber}</p>
+                            )}
                           </div>
                           
                           <div className="space-y-2">
@@ -381,70 +656,9 @@ const Auth = () => {
                             />
                           </div>
                         </div>
-                        
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="address" className="text-sm font-medium flex items-center gap-2">
-                              <MapPin className="h-4 w-4" />
-                              Endereço
-                            </Label>
-                            <Input
-                              id="address"
-                              type="text"
-                              placeholder="Rua, número, complemento"
-                              value={address}
-                              onChange={(e) => setAddress(e.target.value)}
-                              className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-                            />
-                          </div>
-                          
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="city" className="text-sm font-medium">
-                                Cidade
-                              </Label>
-                              <Input
-                                id="city"
-                                type="text"
-                                placeholder="Sua cidade"
-                                value={city}
-                                onChange={(e) => setCity(e.target.value)}
-                                className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="state" className="text-sm font-medium">
-                                Estado
-                              </Label>
-                              <Input
-                                id="state"
-                                type="text"
-                                placeholder="SP"
-                                value={state}
-                                onChange={(e) => setState(e.target.value)}
-                                className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="zipCode" className="text-sm font-medium">
-                                CEP
-                              </Label>
-                              <Input
-                                id="zipCode"
-                                type="text"
-                                placeholder="00000-000"
-                                value={zipCode}
-                                onChange={(e) => setZipCode(e.target.value)}
-                                className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-                              />
-                            </div>
-                          </div>
-                        </div>
+
                       </CollapsibleContent>
                     </Collapsible>
-
                     <div className="space-y-4 pt-4">
                       <Button
                         type="submit"
