@@ -159,25 +159,35 @@ const Header = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="md:hidden relative h-10 w-10 rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/20 hover:border-primary/30 transition-all duration-300 group"
+                  className="md:hidden relative h-12 w-12 rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent hover:from-primary/20 hover:via-primary/10 hover:to-primary/5 border border-primary/20 hover:border-primary/40 transition-all duration-500 group shadow-lg hover:shadow-xl backdrop-blur-sm"
                 >
-                  <div className="relative w-5 h-5">
+                  <div className="relative w-6 h-6 flex flex-col justify-center items-center">
+                    {/* Glow effect */}
+                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-md scale-0 group-hover:scale-150 transition-all duration-500" />
+                    
                     {/* Top line */}
-                    <span className={`absolute block h-0.5 w-5 bg-primary rounded-full transition-all duration-300 ease-in-out ${
-                      isMobileMenuOpen ? 'rotate-45 translate-y-2' : 'translate-y-0'
+                    <span className={`absolute block h-0.5 w-6 bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-300 ease-out shadow-sm ${
+                      isMobileMenuOpen ? 'rotate-45 translate-y-0' : '-translate-y-2'
                     }`} />
+                    
                     {/* Middle line */}
-                    <span className={`absolute block h-0.5 w-5 bg-primary rounded-full transition-all duration-300 ease-in-out translate-y-2 ${
-                      isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
+                    <span className={`absolute block h-0.5 w-6 bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-300 ease-out shadow-sm ${
+                      isMobileMenuOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
                     }`} />
+                    
                     {/* Bottom line */}
-                    <span className={`absolute block h-0.5 w-5 bg-primary rounded-full transition-all duration-300 ease-in-out ${
-                      isMobileMenuOpen ? '-rotate-45 translate-y-2' : 'translate-y-4'
+                    <span className={`absolute block h-0.5 w-6 bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-300 ease-out shadow-sm ${
+                      isMobileMenuOpen ? '-rotate-45 translate-y-0' : 'translate-y-2'
                     }`} />
                   </div>
                   
-                  {/* Ripple effect */}
-                  <div className="absolute inset-0 rounded-xl bg-primary/5 scale-0 group-active:scale-100 transition-transform duration-200" />
+                  {/* Pulse ring on active */}
+                  <div className={`absolute inset-0 rounded-2xl border-2 border-primary/30 transition-all duration-300 ${
+                    isMobileMenuOpen ? 'scale-110 opacity-100' : 'scale-100 opacity-0'
+                  }`} />
+                  
+                  {/* Press feedback */}
+                  <div className="absolute inset-0 rounded-2xl bg-primary/10 scale-0 group-active:scale-95 transition-all duration-150" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-80 p-0 bg-gradient-to-b from-background to-muted/20">
