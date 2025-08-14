@@ -158,93 +158,105 @@ const SpecialOffers = () => {
                   style={{ animationDelay: `${index * 150}ms` }}
                 >
                   <Card 
-                    className="group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white dark:bg-gray-900 border-2 hover:border-orange-200 dark:hover:border-orange-800 overflow-hidden h-full cursor-pointer"
+                    className="group relative overflow-hidden bg-white dark:bg-gray-900 border-0 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 h-full cursor-pointer"
                     onClick={() => navigate(`/produto/${product.id}`)}
                   >
                     <CardContent className="p-0 h-full flex flex-col">
-                      <div className="relative aspect-square overflow-hidden">
+                      <div className="relative aspect-square overflow-hidden rounded-t-2xl">
                         <img
                           src={product.image_url || "/placeholder.svg"}
                           alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         />
+                        
+                        {/* Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         
                         {/* Discount Badge */}
                         {product.discount && product.discount > 0 && (
-                          <Badge className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-sm px-3 py-1 shadow-lg">
+                          <Badge className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-base px-4 py-2 shadow-xl border-0 rounded-xl">
                             -{product.discount}%
                           </Badge>
                         )}
                         
                         {/* Stock Badge */}
                         <Badge 
-                          className={`absolute top-3 right-3 text-xs font-semibold ${
+                          className={`absolute top-4 right-4 text-sm font-semibold px-3 py-1 border-0 rounded-xl shadow-lg ${
                             product.in_stock
-                              ? 'bg-green-500 hover:bg-green-600 text-white' 
-                              : 'bg-gray-500 hover:bg-gray-600 text-white'
+                              ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
+                              : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white'
                           }`}
                         >
                           {product.in_stock ? 'Em Estoque' : 'Indisponível'}
                         </Badge>
+                        
+                        {/* Special Offer Label */}
+                        <div className="absolute bottom-4 left-4 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                          OFERTA ESPECIAL
+                        </div>
                       </div>
                       
-                      <div className="p-6">
-                        <div className="mb-3">
-                          <h3 className="font-bold text-lg mb-1 group-hover:text-orange-600 transition-colors line-clamp-1">
-                            {product.name}
-                          </h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {product.description}
-                          </p>
-                        </div>
-                        
-                        {/* Rating */}
-                        {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 && (
-                          <div className="flex items-center gap-2 mb-4">
-                            <div className="flex items-center">
-                              {[...Array(5)].map((_, i) => (
-                                <Star 
-                                  key={i} 
-                                  className={`h-4 w-4 ${
-                                    i < Math.floor(product.rating!)
-                                      ? 'text-yellow-400 fill-current' 
-                                      : 'text-gray-300'
-                                  }`} 
-                                />
-                              ))}
-                            </div>
-                            <span className="text-sm text-muted-foreground">
-                              {product.rating} ({product.reviews} avaliações)
-                            </span>
+                      <div className="p-6 flex-1 flex flex-col">
+                        <div className="space-y-3 flex-1">
+                          <div>
+                            <h3 className="font-bold text-xl mb-2 group-hover:text-orange-600 transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
+                              {product.name}
+                            </h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                              {product.description}
+                            </p>
                           </div>
-                        )}
-                        
-                        {/* Price */}
-                        <div className="mb-4">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-2xl font-bold text-orange-600">
-                              {formatCurrency(product.price)}
-                            </span>
-                            {product.original_price && product.original_price > product.price && (
-                              <span className="text-sm text-muted-foreground line-through">
-                                {formatCurrency(product.original_price)}
+                          
+                          {/* Rating */}
+                          {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 && (
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star 
+                                    key={i} 
+                                    className={`h-4 w-4 ${
+                                      i < Math.floor(product.rating!)
+                                        ? 'text-yellow-400 fill-current' 
+                                        : 'text-gray-300'
+                                    }`} 
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                                {product.rating} ({product.reviews} avaliações)
                               </span>
+                            </div>
+                          )}
+                          
+                          {/* Price */}
+                          <div className="space-y-2">
+                            <div className="flex items-baseline gap-3">
+                              <span className="text-3xl font-bold text-orange-600">
+                                {formatCurrency(product.price)}
+                              </span>
+                              {product.original_price && product.original_price > product.price && (
+                                <span className="text-lg text-gray-500 line-through">
+                                  {formatCurrency(product.original_price)}
+                                </span>
+                              )}
+                            </div>
+                            {product.original_price && (
+                              <div className="bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg">
+                                <p className="text-sm text-green-600 dark:text-green-400 font-bold">
+                                  🎉 Economia de {formatCurrency(product.original_price - product.price)}
+                                </p>
+                              </div>
                             )}
                           </div>
-                          {product.original_price && (
-                            <p className="text-xs text-green-600 font-medium">
-                              Economia de {formatCurrency(product.original_price - product.price)}
-                            </p>
-                          )}
                         </div>
                         
                         {/* Action Button */}
                         <Button 
-                          className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-2 transition-all duration-300 transform group-hover:scale-105"
+                          className="w-full mt-6 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl"
                           disabled={!product.in_stock}
                           onClick={(e) => handleAddToCart(e, product)}
                         >
-                          <ShoppingCart className="h-4 w-4 mr-2" />
+                          <ShoppingCart className="h-5 w-5 mr-2" />
                           {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
                         </Button>
                       </div>

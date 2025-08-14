@@ -254,52 +254,62 @@ const Produtos = () => {
           {sortedProducts.map((product) => (
             <Card 
               key={product.id} 
-              className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+              className="group relative overflow-hidden bg-white dark:bg-gray-900 border-0 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 cursor-pointer"
               onClick={() => navigate(`/produto/${product.id}`)}
             >
-              <CardContent className="p-4">
+              <CardContent className="p-5">
                 {/* Product Image */}
-                <div className="aspect-square mb-4 bg-gray-100 rounded-lg overflow-hidden">
+                <div className="aspect-square mb-4 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden relative">
                   <img
                     src={product.image_url || "/placeholder.svg"}
                     alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
+                  
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
 
-                {/* Discount Badge */}
-                {product.discount && product.discount > 0 && (
-                  <Badge className="mb-2 bg-red-500 hover:bg-red-600">
-                    -{product.discount}%
-                  </Badge>
-                )}
+                {/* Badges Container */}
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {/* Discount Badge */}
+                  {product.discount && product.discount > 0 && (
+                    <Badge className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0 px-3 py-1 text-sm font-bold rounded-full">
+                      -{product.discount}%
+                    </Badge>
+                  )}
 
-                {/* Stock Badge */}
-                <Badge 
-                  className={`mb-2 ml-2 ${
-                    product.in_stock 
-                      ? 'bg-green-500 hover:bg-green-600' 
-                      : 'bg-gray-500 hover:bg-gray-600'
-                  }`}
-                >
-                  {product.in_stock ? 'Em Estoque' : 'Indisponível'}
-                </Badge>
+                  {/* Stock Badge */}
+                  <Badge 
+                    className={`border-0 px-3 py-1 text-sm font-medium rounded-full ${
+                      product.in_stock 
+                        ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white' 
+                        : 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white'
+                    }`}
+                  >
+                    {product.in_stock ? 'Em Estoque' : 'Indisponível'}
+                  </Badge>
+                </div>
 
                 {/* Product Info */}
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">{product.categories?.name}</p>
-                  <h3 className="font-semibold line-clamp-2 min-h-[3rem]">
-                    {product.name}
-                  </h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">
+                      {product.categories?.name || 'Produto'}
+                    </p>
+                    <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors duration-300">
+                      {product.name}
+                    </h3>
+                  </div>
                   
                   {/* Rating */}
                   {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 && (
-                    <div className="flex items-center gap-1 mb-2">
-                      <div className="flex">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center">
                         {[...Array(5)].map((_, i) => (
                           <Star 
                             key={i} 
-                            className={`h-3 w-3 ${
+                            className={`h-4 w-4 ${
                               i < Math.floor(product.rating!) 
                                 ? 'text-yellow-400 fill-current' 
                                 : 'text-gray-300'
@@ -307,28 +317,38 @@ const Produtos = () => {
                           />
                         ))}
                       </div>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                         {product.rating} ({product.reviews} avaliações)
                       </span>
                     </div>
                   )}
                   
+                  {/* Price */}
                   <div className="space-y-1">
-                    {product.original_price && product.original_price > product.price && (
-                      <p className="text-sm text-muted-foreground line-through">
-                        {formatCurrency(product.original_price)}
-                      </p>
-                    )}
-                    <p className="text-xl font-bold text-primary">
-                      {formatCurrency(product.price)}
-                    </p>
+                    <div className="flex items-baseline gap-2">
+                      {product.original_price && product.original_price > product.price && (
+                        <span className="text-sm text-gray-500 line-through">
+                          {formatCurrency(product.original_price)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {formatCurrency(product.price)}
+                      </span>
+                      {product.original_price && product.original_price > product.price && (
+                        <span className="text-sm text-green-600 font-medium">
+                          -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardContent>
               
-              <CardFooter className="p-4 pt-0">
+              <CardFooter className="p-5 pt-0">
                 <Button 
-                  className="w-full" 
+                  className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg" 
                   variant="construction"
                   disabled={!product.in_stock}
                   onClick={(e) => handleAddToCart(e, product)}
