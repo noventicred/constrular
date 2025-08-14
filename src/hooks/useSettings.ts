@@ -52,7 +52,9 @@ export const useSettings = () => {
   };
 
   const getWhatsAppNumber = (): string => {
-    return settings.whatsapp_number || '5511999999999';
+    const number = settings.whatsapp_number || '5511999999999';
+    console.log('📞 BUSCANDO NÚMERO WHATSAPP:', number);
+    return number;
   };
 
   const getFreeShippingThreshold = (): number => {

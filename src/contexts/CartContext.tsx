@@ -100,16 +100,26 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const getTotalPrice = () => total;
 
   const generateWhatsAppMessage = () => {
+    console.log('🔥 GERANDO MENSAGEM WHATSAPP RÁPIDA');
+    console.log('📦 Items no carrinho:', items);
+    console.log('💰 Total:', total);
+    
     const message = `Olá! Gostaria de fazer um pedido:\n\n${items.map(item => 
       `${item.quantity}x ${item.name} - ${item.brand}\n${formatCurrency(item.price)} cada`
     ).join('\n\n')}\n\n*Total: ${formatCurrency(total)}*\n\nAguardo retorno para finalizar o pedido!`;
     
+    console.log('📱 MENSAGEM RÁPIDA GERADA:', message);
     return encodeURIComponent(message);
   };
 
   const sendToWhatsApp = (phoneNumber: string = '5511999999999') => {
+    console.log('🚀 ENVIANDO PARA WHATSAPP RÁPIDO');
+    console.log('📞 Número:', phoneNumber);
+    
     const message = generateWhatsAppMessage();
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;
+    console.log('🔗 URL WhatsApp:', whatsappUrl);
+    
     window.open(whatsappUrl, '_blank');
   };
 

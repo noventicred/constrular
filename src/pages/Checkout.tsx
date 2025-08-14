@@ -132,13 +132,25 @@ export default function Checkout() {
   };
 
   const createOrder = async () => {
-    if (!user || !validateForm()) return null;
+    if (!user || !validateForm()) {
+      console.log('❌ VALIDAÇÃO FALHOU - User:', !!user, 'Form válido:', validateForm());
+      return null;
+    }
 
     try {
+      console.log('📊 DADOS PARA CRIAÇÃO DO PEDIDO:');
+      console.log('- User ID:', user.id);
+      console.log('- Items:', items);
+      console.log('- Endereço:', shippingAddress);
+      
       const totalAmount = getTotalPrice();
       const addressString = `${shippingAddress.street}, ${shippingAddress.number}${shippingAddress.complement ? `, ${shippingAddress.complement}` : ''}, ${shippingAddress.city} - ${shippingAddress.state}, CEP: ${shippingAddress.zip_code}`;
 
+      console.log('💰 Total:', totalAmount);
+      console.log('📮 Endereço formatado:', addressString);
+
       // Create order
+      console.log('💾 INSERINDO PEDIDO...');
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -152,7 +164,12 @@ export default function Checkout() {
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('❌ ERRO AO CRIAR PEDIDO:', orderError);
+        throw orderError;
+      }
+
+      console.log('✅ PEDIDO CRIADO:', order);
 
       // Create order items
       const orderItems = items.map(item => ({
@@ -164,20 +181,32 @@ export default function Checkout() {
         total_price: item.price * item.quantity
       }));
 
+      console.log('📦 ITENS DO PEDIDO:', orderItems);
+      console.log('💾 INSERINDO ITENS...');
+
       const { error: itemsError } = await supabase
         .from('order_items')
         .insert(orderItems);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        console.error('❌ ERRO AO CRIAR ITENS:', itemsError);
+        throw itemsError;
+      }
 
+      console.log('✅ ITENS CRIADOS COM SUCESSO');
       return order;
     } catch (error) {
-      console.error('Error creating order:', error);
+      console.error('❌ ERRO GERAL NA CRIAÇÃO DO PEDIDO:', error);
       throw error;
     }
   };
 
   const generateWhatsAppMessage = (orderId: string) => {
+    console.log('🔥 GERANDO MENSAGEM WHATSAPP');
+    console.log('📦 Items no carrinho:', items);
+    console.log('🏠 Endereço:', shippingAddress);
+    console.log('🆔 Order ID:', orderId);
+    
     const total = getTotalPrice();
     const orderNumber = orderId.slice(0, 8).toUpperCase();
     
@@ -205,22 +234,31 @@ export default function Checkout() {
     
     message += `Aguardo confirmação do pagamento! 😊`;
     
+    console.log('📱 MENSAGEM GERADA:', message);
     return encodeURIComponent(message);
   };
 
   const handleFinishOrder = async () => {
+    console.log('🚀 INICIANDO FINALIZAÇÃO DO PEDIDO');
     setSubmitting(true);
     
     try {
+      console.log('💾 CRIANDO PEDIDO NO BANCO...');
       const order = await createOrder();
       
       if (order) {
+        console.log('✅ PEDIDO CRIADO:', order);
+        
         // Clear cart
         clearCart();
         
         // Generate WhatsApp message
+        console.log('📱 GERANDO MENSAGEM WHATSAPP...');
         const whatsappMessage = generateWhatsAppMessage(order.id);
-        const whatsappUrl = `https://wa.me/${getWhatsAppNumber()}?text=${whatsappMessage}`;
+        const whatsappNumber = getWhatsAppNumber();
+        console.log('📞 NÚMERO WHATSAPP:', whatsappNumber);
+        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+        console.log('🔗 URL WHATSAPP:', whatsappUrl);
         
         toast({
           title: 'Pedido criado com sucesso!',
@@ -228,6 +266,7 @@ export default function Checkout() {
         });
         
         // Redirect to WhatsApp
+        console.log('🚀 REDIRECIONANDO PARA WHATSAPP...');
         setTimeout(() => {
           window.open(whatsappUrl, '_blank');
           navigate('/minha-conta');
