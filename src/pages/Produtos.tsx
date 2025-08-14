@@ -121,6 +121,8 @@ const Produtos = () => {
       product.is_special_offer === true ||
       (product.original_price && product.original_price > product.price);
     
+    console.log(`Produto: ${product.name}, offerFilter: ${offerFilter}, is_special_offer: ${product.is_special_offer}, original_price: ${product.original_price}, price: ${product.price}, matchesOffer: ${matchesOffer}`);
+    
     return matchesCategory && matchesSearch && matchesOffer;
   });
 
@@ -271,6 +273,10 @@ const Produtos = () => {
           <p className="text-sm text-muted-foreground">
             {sortedProducts.length} produtos encontrados
             {offerFilter && ' em oferta'}
+          </p>
+          {/* Debug info */}
+          <p className="text-xs text-gray-400">
+            Debug: offerFilter = {offerFilter ? 'true' : 'false'}
           </p>
         </div>
 
