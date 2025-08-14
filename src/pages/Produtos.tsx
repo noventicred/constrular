@@ -31,6 +31,7 @@ interface Product {
   rating: number | null;
   reviews: number | null;
   in_stock: boolean | null;
+  is_special_offer: boolean | null;
   created_at: string;
   updated_at: string;
   categories?: {
@@ -58,10 +59,13 @@ const Produtos = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Verificar parâmetros da URL ao carregar a página
     const urlParams = new URLSearchParams(window.location.search);
     const filterParam = urlParams.get('filter');
+    console.log('Filter param:', filterParam); // Debug
     if (filterParam === 'ofertas') {
       setOfferFilter(true);
+      console.log('Ativando filtro de ofertas'); // Debug
     }
     fetchData();
   }, []);
@@ -112,7 +116,9 @@ const Produtos = () => {
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
+    // Filtro de ofertas: produtos com desconto (original_price > price) OU is_special_offer = true
     const matchesOffer = !offerFilter || 
+      product.is_special_offer === true ||
       (product.original_price && product.original_price > product.price);
     
     return matchesCategory && matchesSearch && matchesOffer;
@@ -259,8 +265,12 @@ const Produtos = () => {
 
         {/* Results Count */}
         <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-1">
+            {offerFilter ? 'Ofertas Especiais' : 'Todos os Produtos'}
+          </h2>
           <p className="text-sm text-muted-foreground">
             {sortedProducts.length} produtos encontrados
+            {offerFilter && ' em oferta'}
           </p>
         </div>
 
