@@ -318,130 +318,181 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="flex-1 py-8">
-        <div className="container max-w-4xl mx-auto px-4">
-          {/* Header */}
-          <div className="mb-8">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/carrinho')}
-              className="mb-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Voltar ao Carrinho
-            </Button>
-            
-            <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold">Finalizar Compra</h1>
-              <p className="text-muted-foreground">
-                Complete seus dados para finalizar o pedido
-              </p>
-            </div>
+      <main className="container mx-auto px-4 py-4 md:py-8 max-w-7xl">
+        {/* Breadcrumb & Header */}
+        <div className="mb-6 md:mb-8">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/carrinho')}
+            className="mb-4 p-2"
+            size="sm"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Voltar ao Carrinho</span>
+            <span className="sm:hidden">Voltar</span>
+          </Button>
+          
+          <div className="text-center mb-6">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
+              Finalizar Compra
+            </h1>
+            <p className="text-sm md:text-base text-muted-foreground">
+              Complete seus dados para finalizar o pedido
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Progress Steps */}
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <div className="flex items-center">
+              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
+                ✓
+              </div>
+              <span className="ml-2 text-sm hidden sm:inline">Carrinho</span>
+            </div>
+            <div className="w-8 h-1 bg-primary"></div>
+            <div className="flex items-center">
+              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
+                2
+              </div>
+              <span className="ml-2 text-sm hidden sm:inline">Dados</span>
+            </div>
+            <div className="w-8 h-1 bg-muted"></div>
+            <div className="flex items-center">
+              <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-sm font-medium">
+                3
+              </div>
+              <span className="ml-2 text-sm hidden sm:inline">Pagamento</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Shipping Address Form */}
           <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
+            <Card className="shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <MapPin className="w-5 h-5 text-primary" />
+                  </div>
                   Endereço de Entrega
                 </CardTitle>
-                <CardDescription>
-                  Informe o endereço completo para entrega
+                <CardDescription className="text-sm">
+                  Informe o endereço completo para entrega dos produtos
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
-                    <Label htmlFor="full_name">Nome Completo *</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Label htmlFor="full_name" className="text-sm font-medium">
+                      Nome Completo <span className="text-destructive">*</span>
+                    </Label>
+                    <div className="relative mt-1">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="full_name"
                         value={shippingAddress.full_name}
                         onChange={(e) => handleInputChange('full_name', e.target.value)}
-                        className="pl-10"
-                        placeholder="Seu nome completo"
+                        className="pl-10 h-11"
+                        placeholder="Digite seu nome completo"
                       />
                     </div>
                   </div>
 
                   <div className="md:col-span-2">
-                    <Label htmlFor="phone">Telefone *</Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Label htmlFor="phone" className="text-sm font-medium">
+                      Telefone <span className="text-destructive">*</span>
+                    </Label>
+                    <div className="relative mt-1">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="phone"
                         value={shippingAddress.phone}
                         onChange={(e) => handleInputChange('phone', e.target.value)}
-                        className="pl-10"
+                        className="pl-10 h-11"
                         placeholder="(11) 99999-9999"
                       />
                     </div>
                   </div>
 
                   <div className="md:col-span-1">
-                    <Label htmlFor="street">Rua/Avenida *</Label>
+                    <Label htmlFor="street" className="text-sm font-medium">
+                      Rua/Avenida <span className="text-destructive">*</span>
+                    </Label>
                     <Input
                       id="street"
                       value={shippingAddress.street}
                       onChange={(e) => handleInputChange('street', e.target.value)}
-                      placeholder="Nome da rua"
+                      className="mt-1 h-11"
+                      placeholder="Nome da rua ou avenida"
                     />
                   </div>
 
                   <div className="md:col-span-1">
-                    <Label htmlFor="number">Número *</Label>
+                    <Label htmlFor="number" className="text-sm font-medium">
+                      Número <span className="text-destructive">*</span>
+                    </Label>
                     <Input
                       id="number"
                       value={shippingAddress.number}
                       onChange={(e) => handleInputChange('number', e.target.value)}
+                      className="mt-1 h-11"
                       placeholder="123"
                     />
                   </div>
 
                   <div className="md:col-span-2">
-                    <Label htmlFor="complement">Complemento</Label>
+                    <Label htmlFor="complement" className="text-sm font-medium">
+                      Complemento
+                    </Label>
                     <Input
                       id="complement"
                       value={shippingAddress.complement}
                       onChange={(e) => handleInputChange('complement', e.target.value)}
-                      placeholder="Apto 45, Bloco B, etc..."
+                      className="mt-1 h-11"
+                      placeholder="Apto, bloco, casa, etc... (opcional)"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="city">Cidade *</Label>
+                    <Label htmlFor="city" className="text-sm font-medium">
+                      Cidade <span className="text-destructive">*</span>
+                    </Label>
                     <Input
                       id="city"
                       value={shippingAddress.city}
                       onChange={(e) => handleInputChange('city', e.target.value)}
-                      placeholder="São Paulo"
+                      className="mt-1 h-11"
+                      placeholder="Nome da cidade"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="state">Estado *</Label>
+                    <Label htmlFor="state" className="text-sm font-medium">
+                      Estado <span className="text-destructive">*</span>
+                    </Label>
                     <Input
                       id="state"
                       value={shippingAddress.state}
                       onChange={(e) => handleInputChange('state', e.target.value)}
+                      className="mt-1 h-11"
                       placeholder="SP"
                       maxLength={2}
                     />
                   </div>
 
                   <div className="md:col-span-2">
-                    <Label htmlFor="zip_code">CEP *</Label>
+                    <Label htmlFor="zip_code" className="text-sm font-medium">
+                      CEP <span className="text-destructive">*</span>
+                    </Label>
                     <Input
                       id="zip_code"
                       value={shippingAddress.zip_code}
                       onChange={(e) => handleInputChange('zip_code', e.target.value)}
+                      className="mt-1 h-11"
                       placeholder="00000-000"
                     />
                   </div>
@@ -450,81 +501,132 @@ export default function Checkout() {
             </Card>
           </div>
 
-          {/* Order Summary */}
+          {/* Order Summary Sidebar */}
           <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ShoppingCart className="w-5 h-5" />
+            {/* Order Items */}
+            <Card className="shadow-sm sticky top-4">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Package className="w-5 h-5 text-primary" />
+                  </div>
                   Resumo do Pedido
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-sm">{item.name}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {item.quantity}x {formatCurrency(item.price)}
-                      </p>
+                <div className="space-y-3">
+                  {items.map((item) => (
+                    <div key={item.id} className="flex gap-3 p-3 rounded-lg bg-muted/50">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-12 h-12 object-cover rounded-md flex-shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm leading-tight truncate">
+                          {item.name}
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {item.quantity}x {formatCurrency(item.price)}
+                        </p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <span className="font-medium text-sm">
+                          {formatCurrency(item.price * item.quantity)}
+                        </span>
+                      </div>
                     </div>
-                    <span className="font-medium">
-                      {formatCurrency(item.price * item.quantity)}
-                    </span>
+                  ))}
+                </div>
+                
+                <Separator />
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Subtotal ({items.length} {items.length === 1 ? 'item' : 'itens'})</span>
+                    <span>{formatCurrency(getTotalPrice())}</span>
                   </div>
-                ))}
+                  <div className="flex justify-between text-sm">
+                    <span>Frete</span>
+                    <span className="text-green-600 font-medium">Grátis</span>
+                  </div>
+                </div>
                 
                 <Separator />
                 
                 <div className="flex justify-between items-center font-bold text-lg">
-                  <span>Total:</span>
-                  <span className="text-primary">{formatCurrency(getTotalPrice())}</span>
+                  <span>Total</span>
+                  <span className="text-primary text-xl">
+                    {formatCurrency(getTotalPrice())}
+                  </span>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageCircle className="w-5 h-5" />
-                  Pagamento via WhatsApp
+            {/* Payment Method */}
+            <Card className="shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <MessageCircle className="w-5 h-5 text-green-600" />
+                  </div>
+                  Método de Pagamento
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <Badge variant="secondary" className="w-full justify-center py-2">
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Método Selecionado
-                  </Badge>
-                  <p className="text-sm text-muted-foreground text-center">
-                    Após finalizar, você será redirecionado para o WhatsApp com os detalhes do seu pedido para confirmação do pagamento.
+              <CardContent className="space-y-4">
+                <div className="p-4 rounded-lg border border-green-200 bg-green-50">
+                  <div className="flex items-center gap-3 mb-2">
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    <span className="font-medium text-green-900">WhatsApp</span>
+                  </div>
+                  <p className="text-sm text-green-700">
+                    Finalize via WhatsApp para maior facilidade e suporte personalizado
                   </p>
+                </div>
+                
+                <div className="space-y-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                    <span>Atendimento em tempo real</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                    <span>Múltiplas formas de pagamento</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                    <span>Confirmação imediata</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
+            {/* Final Button */}
             <Button 
               onClick={handleFinishOrder}
               disabled={submitting}
-              className="w-full"
+              className="w-full h-12 text-base font-medium"
               size="lg"
             >
               {submitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Criando pedido...
-                </>
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Criando pedido...</span>
+                </div>
               ) : (
-                <>
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Finalizar no WhatsApp
-                </>
+                <div className="flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5" />
+                  <span>Finalizar no WhatsApp</span>
+                </div>
               )}
             </Button>
+            
+            <p className="text-xs text-center text-muted-foreground px-2">
+              Ao finalizar, você será redirecionado para o WhatsApp com todos os detalhes do seu pedido
+            </p>
           </div>
         </div>
-      </div>
-      </div>
+      </main>
       
       <Footer />
     </div>
