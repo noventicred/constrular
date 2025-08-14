@@ -8,9 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { User, MapPin, Phone, Mail, Calendar, Save, Package, Eye, ShoppingCart, CreditCard, Truck, CheckCircle, Clock, XCircle, TrendingUp, Star, Home, ArrowLeft, LogOut } from 'lucide-react';
+import { User, MapPin, Phone, Mail, Calendar, Save, Package, Eye, ShoppingCart, CreditCard, Truck, CheckCircle, Clock, XCircle, TrendingUp, Star, Home, ArrowLeft, LogOut, X } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -207,6 +208,26 @@ export default function MinhaConta() {
       case 'delivered': return 'Entregue';
       case 'cancelled': return 'Cancelado';
       default: return status;
+    }
+  };
+
+  const getPaymentStatusText = (status: string) => {
+    switch (status) {
+      case 'pending': return 'Aguardando Pagamento';
+      case 'paid': return 'Pago';
+      case 'cancelled': return 'Cancelado';
+      case 'refunded': return 'Reembolsado';
+      default: return status;
+    }
+  };
+
+  const getPaymentStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'paid': return 'bg-green-100 text-green-800 border-green-200';
+      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
+      case 'refunded': return 'bg-blue-100 text-blue-800 border-blue-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -761,6 +782,186 @@ export default function MinhaConta() {
           </Tabs>
         </div>
       </div>
+      
+      {/* Order Details Modal */}
+      <Dialog open={selectedOrder !== null} onOpenChange={() => setSelectedOrder(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              Detalhes do Pedido #{selectedOrder?.id.slice(0, 8)}
+            </DialogTitle>
+            <DialogDescription>
+              Informações completas sobre seu pedido
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedOrder && (
+            <div className="space-y-6">
+              {/* Order Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-muted/30 rounded-lg">
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-background rounded-lg shadow-sm">
+                    {getStatusIcon(selectedOrder.status)}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">Pedido #{selectedOrder.id.slice(0, 8)}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Realizado em {new Date(selectedOrder.created_at).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-left sm:text-right">
+                  <p className="text-2xl font-bold text-primary">{formatCurrency(selectedOrder.total_amount)}</p>
+                  <div className="flex gap-2 mt-2">
+                    <Badge variant="outline" className={getStatusColor(selectedOrder.status)}>
+                      {getStatusText(selectedOrder.status)}
+                    </Badge>
+                    <Badge variant="outline" className={getPaymentStatusColor(selectedOrder.payment_status)}>
+                      {getPaymentStatusText(selectedOrder.payment_status)}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Timeline */}
+              <div className="space-y-4">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Status do Pedido
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div className={`p-3 rounded-lg border-2 ${
+                    ['pending', 'confirmed', 'shipped', 'delivered'].includes(selectedOrder.status) 
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-muted bg-muted/30'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Clock className="h-4 w-4" />
+                      <span className="text-sm font-medium">Pendente</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Aguardando confirmação</p>
+                  </div>
+                  
+                  <div className={`p-3 rounded-lg border-2 ${
+                    ['confirmed', 'shipped', 'delivered'].includes(selectedOrder.status) 
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-muted bg-muted/30'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <CheckCircle className="h-4 w-4" />
+                      <span className="text-sm font-medium">Confirmado</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Pedido confirmado</p>
+                  </div>
+                  
+                  <div className={`p-3 rounded-lg border-2 ${
+                    ['shipped', 'delivered'].includes(selectedOrder.status) 
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-muted bg-muted/30'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Truck className="h-4 w-4" />
+                      <span className="text-sm font-medium">Enviado</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Em transporte</p>
+                  </div>
+                  
+                  <div className={`p-3 rounded-lg border-2 ${
+                    selectedOrder.status === 'delivered' 
+                      ? 'border-green-500 bg-green-50' 
+                      : 'border-muted bg-muted/30'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <CheckCircle className="h-4 w-4" />
+                      <span className="text-sm font-medium">Entregue</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Pedido entregue</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Information */}
+              <div className="space-y-4">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <CreditCard className="h-4 w-4" />
+                  Informações de Pagamento
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Status do Pagamento</p>
+                    <Badge variant="outline" className={getPaymentStatusColor(selectedOrder.payment_status)}>
+                      {getPaymentStatusText(selectedOrder.payment_status)}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Método de Pagamento</p>
+                    <p className="text-sm capitalize">{selectedOrder.payment_method || 'WhatsApp'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div className="space-y-4">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <ShoppingCart className="h-4 w-4" />
+                  Itens do Pedido
+                </h4>
+                <div className="space-y-2">
+                  {selectedOrder.order_items?.map((item) => (
+                    <div key={item.id} className="flex justify-between items-center p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <h5 className="font-medium">{item.product_name}</h5>
+                        <p className="text-sm text-muted-foreground">
+                          Quantidade: {item.quantity} × {formatCurrency(item.unit_price)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">{formatCurrency(item.total_price)}</p>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <Separator />
+                  
+                  <div className="flex justify-between items-center font-bold text-lg p-4">
+                    <span>Total do Pedido:</span>
+                    <span className="text-primary">{formatCurrency(selectedOrder.total_amount)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shipping Information */}
+              {selectedOrder.shipping_address && (
+                <div className="space-y-4">
+                  <h4 className="font-semibold flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    Endereço de Entrega
+                  </h4>
+                  <div className="p-4 bg-muted/30 rounded-lg">
+                    <p className="text-sm">{selectedOrder.shipping_address}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex justify-end pt-4 border-t">
+                <Button variant="outline" onClick={() => setSelectedOrder(null)}>
+                  <X className="mr-2 h-4 w-4" />
+                  Fechar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );
