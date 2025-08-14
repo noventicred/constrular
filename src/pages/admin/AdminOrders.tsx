@@ -430,85 +430,130 @@ export default function AdminOrders() {
       const pdf = new jsPDF();
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      let yPosition = 20;
+      const margin = 20;
+      let yPosition = 30;
 
-      // Header with company info
-      pdf.setFontSize(20);
-      pdf.setTextColor(40, 116, 240); // Primary blue color
-      pdf.text(settings.store_name || 'Minha Loja', 20, yPosition);
+      // Helper functions
+      const drawSection = (title: string, yPos: number) => {
+        pdf.setFillColor(248, 250, 252); // Light gray background
+        pdf.rect(margin, yPos - 5, pageWidth - 2 * margin, 15, 'F');
+        pdf.setFontSize(12);
+        pdf.setTextColor(30, 58, 138); // Dark blue
+        pdf.text(title, margin + 5, yPos + 5);
+        return yPos + 20;
+      };
+
+      const addField = (label: string, value: string, x: number, y: number, maxWidth = 80) => {
+        pdf.setFontSize(9);
+        pdf.setTextColor(75, 85, 99); // Gray-600
+        pdf.text(`${label}:`, x, y);
+        pdf.setTextColor(17, 24, 39); // Gray-900
+        const wrappedText = pdf.splitTextToSize(value || 'Não informado', maxWidth);
+        pdf.text(wrappedText, x, y + 5);
+        return Array.isArray(wrappedText) ? wrappedText.length * 5 + 5 : 10;
+      };
+
+      // Company header with branding
+      pdf.setFillColor(59, 130, 246); // Blue gradient start
+      pdf.rect(0, 0, pageWidth, 35, 'F');
       
-      yPosition += 15;
-      pdf.setFontSize(12);
-      pdf.setTextColor(100, 100, 100);
-      pdf.text(`Email: ${settings.store_email || 'contato@minhaloja.com'}`, 20, yPosition);
+      pdf.setFontSize(24);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text(settings.store_name || 'Minha Loja', margin, 22);
       
-      // Order title
-      yPosition += 20;
+      pdf.setFontSize(10);
+      pdf.setTextColor(239, 246, 255); // Light blue
+      pdf.text(settings.store_email || 'contato@minhaloja.com', margin, 30);
+      
+      // Order header section
+      yPosition = drawSection('INFORMAÇÕES DO PEDIDO', yPosition + 15);
+      
+      // Order ID and date in a nice box
+      pdf.setFillColor(240, 249, 255); // Very light blue
+      pdf.setDrawColor(219, 234, 254); // Light blue border
+      pdf.rect(margin, yPosition - 5, pageWidth - 2 * margin, 25, 'FD');
+      
       pdf.setFontSize(16);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(`Pedido #${order.id.slice(0, 8)}`, 20, yPosition);
+      pdf.setTextColor(30, 58, 138);
+      pdf.text(`Pedido #${order.id.slice(0, 8).toUpperCase()}`, margin + 10, yPosition + 8);
       
-      // Order info
-      yPosition += 15;
       pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
-      pdf.text(`Data: ${new Date(order.created_at).toLocaleDateString('pt-BR')}`, 20, yPosition);
-      pdf.text(`Status: ${statusOptions.find(s => s.value === order.status)?.label || order.status}`, 120, yPosition);
+      pdf.setTextColor(75, 85, 99);
+      pdf.text(`Emitido em: ${new Date(order.created_at).toLocaleDateString('pt-BR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })}`, margin + 10, yPosition + 17);
       
-      yPosition += 10;
-      pdf.text(`Pagamento: ${paymentStatusOptions.find(s => s.value === order.payment_status)?.label || order.payment_status}`, 20, yPosition);
+      yPosition += 35;
       
-      // Customer info
-      yPosition += 20;
-      pdf.setFontSize(14);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text('Dados do Cliente', 20, yPosition);
+      // Status badges
+      const statusConfig = statusOptions.find(s => s.value === order.status);
+      const paymentConfig = paymentStatusOptions.find(s => s.value === order.payment_status);
       
-      yPosition += 10;
-      pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
-      pdf.text(`Nome: ${order.profiles?.full_name || 'Não informado'}`, 20, yPosition);
+      pdf.setFontSize(9);
+      pdf.setTextColor(255, 255, 255);
       
-      yPosition += 7;
-      pdf.text(`Email: ${order.profiles?.email || 'Não informado'}`, 20, yPosition);
+      // Order status badge
+      if (order.status === 'delivered') {
+        pdf.setFillColor(34, 197, 94); // Green
+      } else if (order.status === 'cancelled') {
+        pdf.setFillColor(239, 68, 68); // Red
+      } else if (order.status === 'shipped') {
+        pdf.setFillColor(168, 85, 247); // Purple
+      } else {
+        pdf.setFillColor(251, 191, 36); // Yellow
+      }
+      pdf.rect(margin, yPosition, 50, 12, 'F');
+      pdf.text(statusConfig?.label || order.status, margin + 3, yPosition + 8);
+      
+      // Payment status badge
+      if (order.payment_status === 'paid') {
+        pdf.setFillColor(34, 197, 94); // Green
+      } else if (order.payment_status === 'cancelled') {
+        pdf.setFillColor(239, 68, 68); // Red
+      } else {
+        pdf.setFillColor(251, 191, 36); // Yellow
+      }
+      pdf.rect(margin + 60, yPosition, 60, 12, 'F');
+      pdf.text(paymentConfig?.label || order.payment_status, margin + 63, yPosition + 8);
+      
+      yPosition += 25;
+      
+      // Customer information section
+      yPosition = drawSection('DADOS DO CLIENTE', yPosition);
+      
+      let customerYPos = yPosition;
+      customerYPos += addField('Nome Completo', order.profiles?.full_name || '', margin + 5, customerYPos);
+      customerYPos += addField('E-mail', order.profiles?.email || '', margin + 5, customerYPos);
       
       if ((order.profiles as any)?.phone) {
-        yPosition += 7;
-        pdf.text(`Telefone: ${(order.profiles as any).phone}`, 20, yPosition);
+        customerYPos += addField('Telefone', (order.profiles as any).phone, margin + 5, customerYPos);
       }
       
-      // Shipping address
+      yPosition = customerYPos + 10;
+      
+      // Shipping address section
       if (order.shipping_address || (order.profiles as any)?.street) {
-        yPosition += 15;
-        pdf.setFontSize(14);
-        pdf.setTextColor(0, 0, 0);
-        pdf.text('Endereço de Entrega', 20, yPosition);
+        yPosition = drawSection('ENDEREÇO DE ENTREGA', yPosition);
         
-        yPosition += 10;
-        pdf.setFontSize(10);
-        pdf.setTextColor(100, 100, 100);
-        
+        let addressYPos = yPosition;
         if (order.shipping_address) {
-          const addressLines = pdf.splitTextToSize(order.shipping_address, pageWidth - 40);
-          addressLines.forEach((line: string) => {
-            pdf.text(line, 20, yPosition);
-            yPosition += 7;
-          });
+          addressYPos += addField('Endereço', order.shipping_address, margin + 5, addressYPos, pageWidth - 50);
         } else {
           const profile = order.profiles as any;
           if (profile?.street) {
-            pdf.text(`${profile.street}, ${profile.number || 'S/N'}`, 20, yPosition);
-            yPosition += 7;
+            addressYPos += addField('Rua', `${profile.street}, ${profile.number || 'S/N'}`, margin + 5, addressYPos);
           }
           if (profile?.city) {
-            pdf.text(`${profile.city} - ${profile.state || ''}`, 20, yPosition);
-            yPosition += 7;
+            addressYPos += addField('Cidade', `${profile.city} - ${profile.state || ''}`, margin + 5, addressYPos);
           }
           if (profile?.zip_code) {
-            pdf.text(`CEP: ${profile.zip_code}`, 20, yPosition);
-            yPosition += 7;
+            addressYPos += addField('CEP', profile.zip_code, margin + 5, addressYPos);
           }
         }
+        yPosition = addressYPos + 15;
       }
       
       // Get order items for PDF
@@ -517,75 +562,102 @@ export default function AdminOrders() {
         .select('*')
         .eq('order_id', order.id);
       
-      // Order items
-      yPosition += 15;
-      pdf.setFontSize(14);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text('Itens do Pedido', 20, yPosition);
+      // Order items section
+      yPosition = drawSection('ITENS DO PEDIDO', yPosition);
       
-      yPosition += 15;
+      // Table header with styling
+      pdf.setFillColor(229, 231, 235); // Gray-200
+      pdf.rect(margin, yPosition, pageWidth - 2 * margin, 15, 'F');
+      
       pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
+      pdf.setTextColor(55, 65, 81); // Gray-700
+      pdf.text('PRODUTO', margin + 5, yPosition + 10);
+      pdf.text('QTD', pageWidth - 120, yPosition + 10);
+      pdf.text('VALOR UNIT.', pageWidth - 90, yPosition + 10);
+      pdf.text('TOTAL', pageWidth - 45, yPosition + 10);
       
-      // Table header
-      pdf.text('Produto', 20, yPosition);
-      pdf.text('Qtd', 120, yPosition);
-      pdf.text('Valor Unit.', 140, yPosition);
-      pdf.text('Total', 170, yPosition);
-      
-      yPosition += 5;
-      pdf.line(20, yPosition, pageWidth - 20, yPosition);
-      yPosition += 10;
+      yPosition += 20;
       
       let subtotal = 0;
-      items?.forEach((item) => {
-        pdf.setTextColor(0, 0, 0);
-        const productName = pdf.splitTextToSize(item.product_name, 90);
-        pdf.text(productName[0], 20, yPosition);
-        pdf.text(item.quantity.toString(), 120, yPosition);
-        pdf.text(formatCurrency(item.unit_price), 140, yPosition);
-        pdf.text(formatCurrency(item.total_price), 170, yPosition);
+      items?.forEach((item, index) => {
+        // Zebra striping for better readability
+        if (index % 2 === 0) {
+          pdf.setFillColor(249, 250, 251); // Very light gray
+          pdf.rect(margin, yPosition - 3, pageWidth - 2 * margin, 15, 'F');
+        }
+        
+        pdf.setFontSize(9);
+        pdf.setTextColor(17, 24, 39); // Gray-900
+        
+        const productName = pdf.splitTextToSize(item.product_name, pageWidth - 150);
+        pdf.text(productName[0] + (productName.length > 1 ? '...' : ''), margin + 5, yPosition + 8);
+        
+        pdf.text(item.quantity.toString(), pageWidth - 115, yPosition + 8);
+        pdf.text(formatCurrency(item.unit_price), pageWidth - 90, yPosition + 8);
+        
+        pdf.setTextColor(59, 130, 246); // Blue for prices
+        pdf.text(formatCurrency(item.total_price), pageWidth - 45, yPosition + 8);
         
         subtotal += item.total_price;
-        yPosition += 10;
+        yPosition += 15;
         
-        if (yPosition > pageHeight - 40) {
+        // Check if we need a new page
+        if (yPosition > pageHeight - 80) {
           pdf.addPage();
-          yPosition = 20;
+          yPosition = 30;
         }
       });
       
-      // Total
+      // Total section with emphasis
       yPosition += 10;
-      pdf.line(140, yPosition, pageWidth - 20, yPosition);
-      yPosition += 10;
+      pdf.setDrawColor(229, 231, 235);
+      pdf.line(pageWidth - 120, yPosition, pageWidth - margin, yPosition);
+      
+      yPosition += 15;
+      pdf.setFillColor(30, 58, 138); // Dark blue background
+      pdf.rect(pageWidth - 120, yPosition - 8, 100, 20, 'F');
       
       pdf.setFontSize(12);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text('TOTAL:', 140, yPosition);
-      pdf.setFontSize(14);
-      pdf.text(formatCurrency(order.total_amount), 170, yPosition);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text('VALOR TOTAL:', pageWidth - 115, yPosition + 3);
       
-      // Footer
-      yPosition = pageHeight - 30;
+      pdf.setFontSize(16);
+      pdf.text(formatCurrency(order.total_amount), pageWidth - 60, yPosition + 3);
+      
+      // Payment method
+      yPosition += 30;
+      pdf.setFontSize(10);
+      pdf.setTextColor(75, 85, 99);
+      pdf.text(`Método de Pagamento: ${order.payment_method || 'Não informado'}`, margin, yPosition);
+      
+      // Footer with modern styling
+      const footerY = pageHeight - 25;
+      pdf.setDrawColor(229, 231, 235);
+      pdf.line(margin, footerY - 5, pageWidth - margin, footerY - 5);
+      
       pdf.setFontSize(8);
-      pdf.setTextColor(150, 150, 150);
-      pdf.text('Documento gerado automaticamente pelo sistema', 20, yPosition);
-      pdf.text(new Date().toLocaleString('pt-BR'), pageWidth - 60, yPosition);
+      pdf.setTextColor(156, 163, 175); // Gray-400
+      pdf.text('Este documento foi gerado automaticamente pelo sistema', margin, footerY);
+      pdf.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, pageWidth - 80, footerY);
       
-      // Save PDF
-      pdf.save(`pedido-${order.id.slice(0, 8)}.pdf`);
+      // Confidentiality notice
+      pdf.text('Este documento contém informações confidenciais e deve ser tratado com sigilo.', margin, footerY + 8);
+      
+      // Save PDF with better naming
+      const orderDate = new Date(order.created_at).toLocaleDateString('pt-BR').replace(/\//g, '-');
+      const customerName = order.profiles?.full_name?.replace(/[^a-zA-Z0-9]/g, '_') || 'Cliente';
+      pdf.save(`Pedido_${order.id.slice(0, 8)}_${customerName}_${orderDate}.pdf`);
       
       toast({
-        title: 'PDF Gerado',
-        description: 'PDF do pedido foi gerado com sucesso!',
+        title: 'PDF Gerado com Sucesso',
+        description: `PDF do pedido #${order.id.slice(0, 8)} foi criado e baixado.`,
       });
       
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
       toast({
-        title: 'Erro',
-        description: 'Não foi possível gerar o PDF do pedido',
+        title: 'Erro ao Gerar PDF',
+        description: 'Não foi possível gerar o PDF do pedido. Tente novamente.',
         variant: 'destructive',
       });
     } finally {
