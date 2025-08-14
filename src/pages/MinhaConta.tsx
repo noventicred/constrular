@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,8 +10,10 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { User, MapPin, Phone, Mail, Calendar, Save, Package, Eye, ShoppingCart, CreditCard, Truck, CheckCircle, Clock, XCircle, TrendingUp, Star } from 'lucide-react';
+import { User, MapPin, Phone, Mail, Calendar, Save, Package, Eye, ShoppingCart, CreditCard, Truck, CheckCircle, Clock, XCircle, TrendingUp, Star, Home, ArrowLeft, LogOut } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 interface OrderItem {
   id: string;
@@ -207,128 +210,210 @@ export default function MinhaConta() {
     }
   };
 
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      // Redirect will be handled by AuthRedirect component
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-96">
-          <CardHeader className="text-center">
-            <CardTitle>Acesso Negado</CardTitle>
-            <CardDescription>Você precisa estar logado para acessar sua conta.</CardDescription>
-          </CardHeader>
-        </Card>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center bg-background">
+          <Card className="w-full max-w-md mx-4">
+            <CardHeader className="text-center">
+              <CardTitle>Acesso Negado</CardTitle>
+              <CardDescription>Você precisa estar logado para acessar sua conta.</CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Link to="/auth">
+                <Button>Fazer Login</Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-3 mb-8">
-            <User className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Minha Conta</h1>
+    <div className="min-h-screen bg-background flex flex-col">
+      <Header />
+      
+      {/* Breadcrumb Navigation */}
+      <div className="bg-muted/30 border-b">
+        <div className="container mx-auto px-4 py-3">
+          <nav className="flex items-center space-x-2 text-sm">
+            <Link to="/" className="flex items-center text-muted-foreground hover:text-foreground transition-colors">
+              <Home className="h-4 w-4 mr-1" />
+              Início
+            </Link>
+            <span className="text-muted-foreground">/</span>
+            <span className="text-foreground font-medium">Minha Conta</span>
+          </nav>
+        </div>
+      </div>
+
+      <div className="flex-1 container mx-auto px-4 py-6 lg:py-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Header with user info */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <User className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-2xl lg:text-3xl font-bold">Minha Conta</h1>
+                  <p className="text-muted-foreground">
+                    Olá, {profileData.full_name || user.email?.split('@')[0] || 'usuário'}!
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Link to="/">
+                <Button variant="outline" size="sm">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Voltar à loja
+                </Button>
+              </Link>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Sair
+              </Button>
+            </div>
           </div>
 
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="dashboard" className="flex items-center gap-2">
+            <TabsList className="grid w-full grid-cols-3 h-auto p-1">
+              <TabsTrigger value="dashboard" className="flex items-center gap-2 py-3">
                 <TrendingUp className="h-4 w-4" />
-                Dashboard
+                <span className="hidden sm:inline">Dashboard</span>
               </TabsTrigger>
-              <TabsTrigger value="profile" className="flex items-center gap-2">
+              <TabsTrigger value="profile" className="flex items-center gap-2 py-3">
                 <User className="h-4 w-4" />
-                Perfil
+                <span className="hidden sm:inline">Perfil</span>
               </TabsTrigger>
-              <TabsTrigger value="orders" className="flex items-center gap-2">
+              <TabsTrigger value="orders" className="flex items-center gap-2 py-3">
                 <Package className="h-4 w-4" />
-                Pedidos
+                <span className="hidden sm:inline">Pedidos</span>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard">
               <div className="grid gap-6">
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Card>
-                    <CardContent className="p-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4 lg:p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Total de Pedidos</p>
-                          <p className="text-2xl font-bold">{orderStats.total_orders}</p>
+                          <p className="text-xs lg:text-sm font-medium text-muted-foreground">Total de Pedidos</p>
+                          <p className="text-xl lg:text-2xl font-bold">{orderStats.total_orders}</p>
                         </div>
-                        <ShoppingCart className="h-8 w-8 text-primary" />
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <ShoppingCart className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
                   
-                  <Card>
-                    <CardContent className="p-6">
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4 lg:p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Total Gasto</p>
-                          <p className="text-2xl font-bold">{formatCurrency(orderStats.total_spent)}</p>
+                          <p className="text-xs lg:text-sm font-medium text-muted-foreground">Total Gasto</p>
+                          <p className="text-xl lg:text-2xl font-bold">{formatCurrency(orderStats.total_spent)}</p>
                         </div>
-                        <CreditCard className="h-8 w-8 text-green-600" />
+                        <div className="p-2 bg-green-100 rounded-lg">
+                          <CreditCard className="h-5 w-5 lg:h-6 lg:w-6 text-green-600" />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
                   
-                  <Card>
-                    <CardContent className="p-6">
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4 lg:p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Pendentes</p>
-                          <p className="text-2xl font-bold">{orderStats.pending_orders}</p>
+                          <p className="text-xs lg:text-sm font-medium text-muted-foreground">Pendentes</p>
+                          <p className="text-xl lg:text-2xl font-bold">{orderStats.pending_orders}</p>
                         </div>
-                        <Clock className="h-8 w-8 text-yellow-600" />
+                        <div className="p-2 bg-yellow-100 rounded-lg">
+                          <Clock className="h-5 w-5 lg:h-6 lg:w-6 text-yellow-600" />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
                   
-                  <Card>
-                    <CardContent className="p-6">
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4 lg:p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Concluídos</p>
-                          <p className="text-2xl font-bold">{orderStats.completed_orders}</p>
+                          <p className="text-xs lg:text-sm font-medium text-muted-foreground">Concluídos</p>
+                          <p className="text-xl lg:text-2xl font-bold">{orderStats.completed_orders}</p>
                         </div>
-                        <CheckCircle className="h-8 w-8 text-green-600" />
+                        <div className="p-2 bg-green-100 rounded-lg">
+                          <CheckCircle className="h-5 w-5 lg:h-6 lg:w-6 text-green-600" />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
 
                 {/* Profile Summary */}
-                <Card>
+                <Card className="hover:shadow-md transition-shadow">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <User className="h-5 w-5" />
+                      <div className="p-1 bg-primary/10 rounded">
+                        <User className="h-4 w-4 text-primary" />
+                      </div>
                       Resumo do Perfil
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <div className="flex items-center gap-3">
-                        <Mail className="h-5 w-5 text-muted-foreground" />
-                        <div>
+                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                        <div className="p-2 bg-background rounded-lg shadow-sm">
+                          <Mail className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium">Email</p>
-                          <p className="text-sm text-muted-foreground">{profileData.email || 'Não informado'}</p>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {profileData.email || 'Não informado'}
+                          </p>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-3">
-                        <Phone className="h-5 w-5 text-muted-foreground" />
-                        <div>
+                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                        <div className="p-2 bg-background rounded-lg shadow-sm">
+                          <Phone className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium">Telefone</p>
-                          <p className="text-sm text-muted-foreground">{profileData.phone || 'Não informado'}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {profileData.phone || 'Não informado'}
+                          </p>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-3">
-                        <MapPin className="h-5 w-5 text-muted-foreground" />
-                        <div>
+                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                        <div className="p-2 bg-background rounded-lg shadow-sm">
+                          <MapPin className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium">Cidade</p>
-                          <p className="text-sm text-muted-foreground">{profileData.city || 'Não informado'}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {profileData.city || 'Não informado'}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -336,49 +421,62 @@ export default function MinhaConta() {
                 </Card>
 
                 {/* Recent Orders */}
-                <Card>
+                <Card className="hover:shadow-md transition-shadow">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Package className="h-5 w-5" />
+                      <div className="p-1 bg-primary/10 rounded">
+                        <Package className="h-4 w-4 text-primary" />
+                      </div>
                       Pedidos Recentes
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     {orders.length === 0 ? (
                       <div className="text-center py-8">
-                        <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                        <div className="p-4 bg-muted/30 rounded-full w-fit mx-auto mb-4">
+                          <Package className="h-12 w-12 text-muted-foreground" />
+                        </div>
                         <h3 className="text-lg font-semibold mb-2">Nenhum pedido encontrado</h3>
-                        <p className="text-muted-foreground">Você ainda não fez nenhum pedido.</p>
+                        <p className="text-muted-foreground mb-4">Você ainda não fez nenhum pedido.</p>
+                        <Link to="/produtos">
+                          <Button>
+                            <ShoppingCart className="mr-2 h-4 w-4" />
+                            Começar a comprar
+                          </Button>
+                        </Link>
                       </div>
                     ) : (
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         {orders.slice(0, 3).map((order) => (
-                          <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
-                            <div className="flex items-center gap-4">
-                              <div className="flex items-center gap-2">
+                          <div key={order.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors">
+                            <div className="flex items-center gap-4 mb-3 sm:mb-0">
+                              <div className="p-2 bg-primary/10 rounded-lg">
                                 {getStatusIcon(order.status)}
-                                <div>
-                                  <p className="font-medium">Pedido #{order.id.slice(0, 8)}</p>
-                                  <p className="text-sm text-muted-foreground">
-                                    {new Date(order.created_at).toLocaleDateString('pt-BR')}
-                                  </p>
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="font-medium">Pedido #{order.id.slice(0, 8)}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {new Date(order.created_at).toLocaleDateString('pt-BR')}
+                                </p>
+                                <div className="mt-1">
+                                  <Badge variant="outline" className={getStatusColor(order.status)}>
+                                    {getStatusText(order.status)}
+                                  </Badge>
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-4">
-                              <div className="text-right">
-                                <p className="font-bold">{formatCurrency(order.total_amount)}</p>
-                                <Badge variant="outline" className={getStatusColor(order.status)}>
-                                  {getStatusText(order.status)}
-                                </Badge>
+                            <div className="flex items-center justify-between sm:justify-end gap-4">
+                              <div className="text-left sm:text-right">
+                                <p className="font-bold text-lg">{formatCurrency(order.total_amount)}</p>
                               </div>
                               <Button 
                                 variant="outline" 
                                 size="sm"
                                 onClick={() => setSelectedOrder(order)}
+                                className="shrink-0"
                               >
                                 <Eye className="mr-2 h-4 w-4" />
-                                Ver
+                                <span className="hidden sm:inline">Ver</span>
                               </Button>
                             </div>
                           </div>
@@ -386,7 +484,7 @@ export default function MinhaConta() {
                         
                         {orders.length > 3 && (
                           <div className="text-center pt-4">
-                            <Button variant="outline" onClick={() => {}}>
+                            <Button variant="outline">
                               Ver todos os pedidos
                             </Button>
                           </div>
@@ -399,10 +497,12 @@ export default function MinhaConta() {
             </TabsContent>
 
             <TabsContent value="profile">
-              <Card>
+              <Card className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
+                    <div className="p-1 bg-primary/10 rounded">
+                      <User className="h-4 w-4 text-primary" />
+                    </div>
                     Informações Pessoais
                   </CardTitle>
                   <CardDescription>
@@ -661,6 +761,7 @@ export default function MinhaConta() {
           </Tabs>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
