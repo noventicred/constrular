@@ -47,7 +47,7 @@ const SpecialOffers = () => {
         .select('*')
         .eq('is_special_offer', true)
         .eq('in_stock', true)
-        .limit(6)
+        .limit(20)
         .order('discount', { ascending: false });
 
       if (error) throw error;

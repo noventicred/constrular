@@ -40,7 +40,7 @@ const FeaturedProducts = () => {
         .select('*')
         .eq('is_featured', true)
         .eq('in_stock', true)
-        .limit(6)
+        .limit(12)
         .order('rating', { ascending: false });
 
       if (error) throw error;
