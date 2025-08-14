@@ -220,111 +220,111 @@ const Auth = () => {
       <div className="min-h-screen flex flex-col">
         <Header />
         
-        <main className="flex-1 flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 p-4">
+        <main className="flex-1 flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 px-4 py-8 md:py-12">
           <div className="w-full max-w-2xl">
-            <div className="mb-6">
+            <div className="mb-8">
               <nav className="text-sm text-muted-foreground">
                 <span>Início</span> / <span className="text-foreground">Autenticação</span>
               </nav>
             </div>
 
-          <Card className="shadow-2xl border-muted/20 bg-card/50 backdrop-blur-sm">
-            <CardHeader className="text-center space-y-4 pb-8">
-              <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <User className="h-8 w-8 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                  Bem-vindo
-                </CardTitle>
-                <CardDescription className="text-lg mt-2">
-                  Acesse sua conta ou crie uma nova para continuar
-                </CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <Tabs defaultValue="signin" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-8">
-                  <TabsTrigger value="signin" className="text-sm font-medium">
-                    Entrar
-                  </TabsTrigger>
-                  <TabsTrigger value="signup" className="text-sm font-medium">
-                    Criar Conta
-                  </TabsTrigger>
-                </TabsList>
+            <Card className="shadow-2xl border-muted/20 bg-card/50 backdrop-blur-sm">
+              <CardHeader className="text-center space-y-6 pb-10 px-6 md:px-8 pt-8">
+                <div className="mx-auto w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User className="h-10 w-10 text-primary" />
+                </div>
+                <div className="space-y-3">
+                  <CardTitle className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                    Bem-vindo
+                  </CardTitle>
+                  <CardDescription className="text-lg mt-3 max-w-md mx-auto leading-relaxed">
+                    Acesse sua conta ou crie uma nova para continuar
+                  </CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0 px-6 md:px-8 pb-8">
+                <Tabs defaultValue="signin" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-10 h-12">
+                    <TabsTrigger value="signin" className="text-sm font-medium h-10">
+                      Entrar
+                    </TabsTrigger>
+                    <TabsTrigger value="signup" className="text-sm font-medium h-10">
+                      Criar Conta
+                    </TabsTrigger>
+                  </TabsList>
 
-                <TabsContent value="signin" className="space-y-6 mt-8">
-                  <form onSubmit={handleSignIn} className="space-y-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="signin-email" className="text-sm font-medium flex items-center gap-2">
-                          <Mail className="h-4 w-4" />
-                          Email
-                        </Label>
-                        <Input
-                          id="signin-email"
-                          type="email"
-                          placeholder="seu@email.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          className="h-12 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="signin-password" className="text-sm font-medium flex items-center gap-2">
-                          <Lock className="h-4 w-4" />
-                          Senha
-                        </Label>
-                        <div className="relative">
+                  <TabsContent value="signin" className="space-y-8 mt-10">
+                    <form onSubmit={handleSignIn} className="space-y-8">
+                      <div className="space-y-6">
+                        <div className="space-y-3">
+                          <Label htmlFor="signin-email" className="text-sm font-medium flex items-center gap-2">
+                            <Mail className="h-4 w-4" />
+                            Email
+                          </Label>
                           <Input
-                            id="signin-password"
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Sua senha"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            id="signin-email"
+                            type="email"
+                            placeholder="seu@email.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             required
-                            className="h-12 pr-12 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                            className="h-14 text-base transition-all duration-200 focus:ring-2 focus:ring-primary/20"
                           />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </Button>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <Label htmlFor="signin-password" className="text-sm font-medium flex items-center gap-2">
+                            <Lock className="h-4 w-4" />
+                            Senha
+                          </Label>
+                          <div className="relative">
+                            <Input
+                              id="signin-password"
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Sua senha"
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              required
+                              className="h-14 pr-12 text-base transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    
-                    <Button
-                      type="submit"
-                      className="w-full h-12 text-base font-medium"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? 'Entrando...' : 'Entrar'}
-                    </Button>
+                      
+                      <Button
+                        type="submit"
+                        className="w-full h-14 text-base font-medium mt-8"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? 'Entrando...' : 'Entrar'}
+                      </Button>
                   </form>
                 </TabsContent>
 
-                <TabsContent value="signup" className="space-y-6 mt-8">
-                  <form onSubmit={handleSignUp} className="space-y-6">
+                <TabsContent value="signup" className="space-y-8 mt-10">
+                  <form onSubmit={handleSignUp} className="space-y-8">
                     {/* Informações Pessoais */}
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-                        <User className="h-4 w-4" />
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-3 text-base font-semibold text-primary border-b border-muted pb-3">
+                        <User className="h-5 w-5" />
                         Informações Pessoais
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-3">
                           <Label htmlFor="fullName" className="text-sm font-medium">
                             Nome completo *
                           </Label>
@@ -334,10 +334,10 @@ const Auth = () => {
                             placeholder="Seu nome completo"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
-                            className={`h-11 transition-all duration-200 ${errors.fullName ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
+                            className={`h-12 text-base transition-all duration-200 ${errors.fullName ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
                           />
                           {errors.fullName && (
-                            <p className="text-sm text-destructive">{errors.fullName}</p>
+                            <p className="text-sm text-destructive mt-1">{errors.fullName}</p>
                           )}
                         </div>
                         
