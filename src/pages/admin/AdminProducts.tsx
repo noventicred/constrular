@@ -5,9 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit2, Trash2, Search, Star, Percent } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Star, Percent, AlertTriangle, TrendingUp } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
 
 interface Product {
@@ -38,6 +39,8 @@ const AdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [featuredCount, setFeaturedCount] = useState(0);
+  const [specialOfferCount, setSpecialOfferCount] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -56,6 +59,12 @@ const AdminProducts = () => {
 
       if (error) throw error;
       setProducts(data || []);
+      
+      // Count featured and special offer products
+      const featured = data?.filter(p => p.is_featured).length || 0;
+      const specialOffers = data?.filter(p => p.is_special_offer).length || 0;
+      setFeaturedCount(featured);
+      setSpecialOfferCount(specialOffers);
     } catch (error) {
       console.error('Error fetching products:', error);
       toast({
@@ -122,110 +131,228 @@ const AdminProducts = () => {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Header Section */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Produtos</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Produtos</h1>
           <p className="text-muted-foreground">Gerencie os produtos do seu e-commerce</p>
         </div>
-        <Button onClick={() => navigate('/admin/produtos/novo')}>
-          <Plus className="mr-2 h-4 w-4" />
+        <Button onClick={() => navigate('/admin/produtos/novo')} size="lg" className="gap-2">
+          <Plus className="h-4 w-4" />
           Novo Produto
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Lista de Produtos</CardTitle>
-          <CardDescription>
-            Total: {filteredProducts.length} produtos
-          </CardDescription>
-          <div className="flex items-center space-x-2">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar produtos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
-            />
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-blue-500" />
+              <span className="text-sm font-medium text-muted-foreground">Total</span>
+            </div>
+            <div className="text-2xl font-bold">{products.length}</div>
+            <p className="text-xs text-muted-foreground">produtos cadastrados</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-yellow-500" />
+              <span className="text-sm font-medium text-muted-foreground">Em Destaque</span>
+            </div>
+            <div className="text-2xl font-bold text-yellow-600">{featuredCount}/12</div>
+            <p className="text-xs text-muted-foreground">limite máximo</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2">
+              <Percent className="h-4 w-4 text-orange-500" />
+              <span className="text-sm font-medium text-muted-foreground">Ofertas</span>
+            </div>
+            <div className="text-2xl font-bold text-orange-600">{specialOfferCount}/20</div>
+            <p className="text-xs text-muted-foreground">limite máximo</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="h-4 w-4 rounded-full p-0 bg-green-500" />
+              <span className="text-sm font-medium text-muted-foreground">Em Estoque</span>
+            </div>
+            <div className="text-2xl font-bold text-green-600">
+              {products.filter(p => p.in_stock).length}
+            </div>
+            <p className="text-xs text-muted-foreground">produtos disponíveis</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Limit Warnings */}
+      {featuredCount >= 12 && (
+        <Alert className="border-yellow-200 bg-yellow-50 dark:bg-yellow-950/20">
+          <AlertTriangle className="h-4 w-4 text-yellow-600" />
+          <AlertDescription className="text-yellow-800 dark:text-yellow-200">
+            <strong>Limite atingido:</strong> Você já tem {featuredCount} produtos em destaque (máximo: 12). 
+            Remova alguns para adicionar novos produtos em destaque.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {specialOfferCount >= 20 && (
+        <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
+          <AlertTriangle className="h-4 w-4 text-orange-600" />
+          <AlertDescription className="text-orange-800 dark:text-orange-200">
+            <strong>Limite atingido:</strong> Você já tem {specialOfferCount} ofertas especiais (máximo: 20). 
+            Remova algumas para adicionar novas ofertas.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Products Table */}
+      <Card className="shadow-sm">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl">Lista de Produtos</CardTitle>
+              <CardDescription>
+                Mostrando {filteredProducts.length} de {products.length} produtos
+              </CardDescription>
+            </div>
+            <div className="flex items-center space-x-2 bg-muted/30 rounded-lg px-3 py-2">
+              <Search className="h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar produtos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 w-64"
+              />
+            </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead>Preço</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Destacado</TableHead>
-                <TableHead>Oferta</TableHead>
-                <TableHead>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredProducts.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      {product.image_url && (
-                        <img 
-                          src={product.image_url} 
-                          alt={product.name} 
-                          className="w-10 h-10 rounded object-cover"
-                        />
-                      )}
-                      <span>{product.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{product.categories?.name || 'Sem categoria'}</TableCell>
-                  <TableCell>{formatPrice(product.price)}</TableCell>
-                  <TableCell>
-                    <Badge variant={product.in_stock ? 'default' : 'secondary'}>
-                      {product.in_stock ? 'Em estoque' : 'Fora de estoque'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {product.is_featured ? (
-                      <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
-                        <Star className="h-3 w-3 mr-1" />
-                        Destaque
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {product.is_special_offer ? (
-                      <Badge variant="default" className="bg-orange-500 hover:bg-orange-600">
-                        <Percent className="h-3 w-3 mr-1" />
-                        Oferta
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEdit(product.id)}
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDelete(product.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+        <CardContent className="p-0">
+          <div className="rounded-lg border border-border">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent border-border">
+                  <TableHead className="font-semibold text-foreground">Produto</TableHead>
+                  <TableHead className="font-semibold text-foreground">Categoria</TableHead>
+                  <TableHead className="font-semibold text-foreground">Preço</TableHead>
+                  <TableHead className="font-semibold text-foreground">Status</TableHead>
+                  <TableHead className="font-semibold text-foreground text-center">Destacado</TableHead>
+                  <TableHead className="font-semibold text-foreground text-center">Oferta</TableHead>
+                  <TableHead className="font-semibold text-foreground text-center">Ações</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredProducts.map((product) => (
+                  <TableRow 
+                    key={product.id} 
+                    className="group hover:bg-muted/50 transition-colors"
+                  >
+                    <TableCell className="py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          {product.image_url ? (
+                            <img 
+                              src={product.image_url} 
+                              alt={product.name} 
+                              className="w-12 h-12 rounded-lg object-cover border shadow-sm"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-lg bg-muted border flex items-center justify-center">
+                              <div className="w-6 h-6 bg-muted-foreground/20 rounded" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium text-foreground truncate">
+                            {product.name}
+                          </div>
+                          <div className="text-sm text-muted-foreground truncate">
+                            ID: {product.id.slice(0, 8)}...
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell className="py-4">
+                      <Badge variant="outline" className="font-normal">
+                        {product.categories?.name || 'Sem categoria'}
+                      </Badge>
+                    </TableCell>
+                    
+                    <TableCell className="py-4">
+                      <div className="font-semibold text-foreground">
+                        {formatPrice(product.price)}
+                      </div>
+                      {product.original_price && product.original_price > product.price && (
+                        <div className="text-sm text-muted-foreground line-through">
+                          {formatPrice(product.original_price)}
+                        </div>
+                      )}
+                    </TableCell>
+                    
+                    <TableCell className="py-4">
+                      <Badge 
+                        variant={product.in_stock ? 'default' : 'secondary'}
+                        className={product.in_stock ? 'bg-green-100 text-green-800 hover:bg-green-100' : ''}
+                      >
+                        {product.in_stock ? 'Em estoque' : 'Fora de estoque'}
+                      </Badge>
+                    </TableCell>
+                    
+                    <TableCell className="py-4 text-center">
+                      {product.is_featured ? (
+                        <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 gap-1">
+                          <Star className="h-3 w-3 fill-current" />
+                          Destaque
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">-</span>
+                      )}
+                    </TableCell>
+                    
+                    <TableCell className="py-4 text-center">
+                      {product.is_special_offer ? (
+                        <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100 gap-1">
+                          <Percent className="h-3 w-3" />
+                          Oferta
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">-</span>
+                      )}
+                    </TableCell>
+                    
+                    <TableCell className="py-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEdit(product.id)}
+                          className="h-8 w-8 p-0 opacity-60 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDelete(product.id)}
+                          className="h-8 w-8 p-0 opacity-60 group-hover:opacity-100 transition-opacity hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
