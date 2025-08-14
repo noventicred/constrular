@@ -267,7 +267,12 @@ const SpecialOffers = () => {
         </div>
         
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg" className="group">
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="group"
+            onClick={() => navigate("/produtos?filter=ofertas")}
+          >
             Ver Todas as Ofertas
             <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </Button>

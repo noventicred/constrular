@@ -52,11 +52,17 @@ const Produtos = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("relevancia");
+  const [offerFilter, setOfferFilter] = useState(false);
   const { toast } = useToast();
   const { addItem } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const filterParam = urlParams.get('filter');
+    if (filterParam === 'ofertas') {
+      setOfferFilter(true);
+    }
     fetchData();
   }, []);
 
@@ -97,7 +103,7 @@ const Produtos = () => {
     }
   };
 
-  // Filter products based on category and search term
+  // Filter products based on category, search term, and offers
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === "todas" || 
       (product.categories?.id === selectedCategory);
@@ -106,7 +112,10 @@ const Produtos = () => {
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    return matchesCategory && matchesSearch;
+    const matchesOffer = !offerFilter || 
+      (product.original_price && product.original_price > product.price);
+    
+    return matchesCategory && matchesSearch && matchesOffer;
   });
 
   // Sort products
@@ -200,6 +209,16 @@ const Produtos = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+            
+            {/* Offer Filter */}
+            <Button
+              variant={offerFilter ? "default" : "outline"}
+              onClick={() => setOfferFilter(!offerFilter)}
+              className="whitespace-nowrap"
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              {offerFilter ? "Mostrar Todos" : "Só Ofertas"}
+            </Button>
           </div>
 
           <div className="flex items-center gap-4">
