@@ -276,7 +276,7 @@ const Produto = () => {
                 {renderStars(product.rating)}
               </div>
               <span className="text-sm font-medium">{product.rating}</span>
-              <span className="text-sm text-muted-foreground">({product.reviews_count || 0} avaliações)</span>
+              <span className="text-sm text-muted-foreground">({comments.length} avaliações)</span>
             </div>
 
             {/* Price */}
@@ -411,7 +411,6 @@ const Produto = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
           
           <TabsContent value="reviews" className="mt-6">
             <div className="space-y-6">
