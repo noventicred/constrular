@@ -55,10 +55,8 @@ const AdminCategories = () => {
   };
 
   const handleNew = () => {
-    console.log('handleNew called - setting activeTab to form');
     setEditingCategory(null);
     setActiveTab('form');
-    console.log('activeTab set to:', 'form');
   };
 
   const handleDelete = async (id: string) => {
@@ -122,10 +120,7 @@ const AdminCategories = () => {
         </Button>
       </div>
 
-      <Tabs value={activeTab} onValueChange={(value) => {
-        console.log('Tab changing to:', value);
-        setActiveTab(value);
-      }}>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="list">Lista de Categorias</TabsTrigger>
           <TabsTrigger value="form">
@@ -144,15 +139,12 @@ const AdminCategories = () => {
         </TabsContent>
 
         <TabsContent value="form">
-          <div>
-            <p>Form tab is active - activeTab: {activeTab}</p>
-            <CategoryForm
-              categories={categories}
-              editingCategory={editingCategory}
-              onSave={handleSave}
-              onCancel={handleCancel}
-            />
-          </div>
+          <CategoryForm
+            categories={categories}
+            editingCategory={editingCategory}
+            onSave={handleSave}
+            onCancel={handleCancel}
+          />
         </TabsContent>
       </Tabs>
     </div>

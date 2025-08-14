@@ -32,7 +32,7 @@ export const CategoryForm = ({ categories, editingCategory, onSave, onCancel }: 
   const [formData, setFormData] = useState({
     name: editingCategory?.name || '',
     description: editingCategory?.description || '',
-    parent_id: editingCategory?.parent_id || '',
+    parent_id: editingCategory?.parent_id || "none",
     image_url: editingCategory?.image_url || '',
   });
   const { toast } = useToast();
@@ -90,7 +90,7 @@ export const CategoryForm = ({ categories, editingCategory, onSave, onCancel }: 
       const categoryData = {
         name: formData.name,
         description: formData.description || null,
-        parent_id: formData.parent_id || null,
+        parent_id: formData.parent_id === "none" ? null : formData.parent_id || null,
         image_url: imageUrl || null,
       };
 
@@ -161,7 +161,7 @@ export const CategoryForm = ({ categories, editingCategory, onSave, onCancel }: 
                 <SelectValue placeholder="Selecione uma categoria pai (opcional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Nenhuma (Categoria Principal)</SelectItem>
+                <SelectItem value="none">Nenhuma (Categoria Principal)</SelectItem>
                 {parentOptions.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
