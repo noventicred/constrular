@@ -197,7 +197,7 @@ const Footer = () => {
             <p>&copy; 2024 ConstrutorPro. Todos os direitos reservados.</p>
           </div>
           <div className="flex flex-wrap gap-4 md:gap-6 justify-center md:justify-end">
-            <a href="#" className="hover:text-primary transition-colors">Termos de Uso</a>
+            <a href="/termos-uso" className="hover:text-primary transition-colors">Termos de Uso</a>
             <a href="/politica-privacidade" className="hover:text-primary transition-colors">Política de Privacidade</a>
             <a href="/cookies" className="hover:text-primary transition-colors">Cookies</a>
           </div>
