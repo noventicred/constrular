@@ -25,31 +25,31 @@ const Entrega = () => {
         {/* Hero Section */}
         <div className="text-center mb-12 md:mb-16">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-foreground">
-            Entrega Expressa
+            Entrega em Todo o Brasil
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Receba seus materiais no mesmo dia ou próximo dia útil
+            Entrega expressa em SP e entrega nacional para todo o país
           </p>
         </div>
 
         {/* National Coverage Banner */}
         <div className="bg-primary rounded-lg p-6 md:p-8 text-white text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Clock className="h-8 w-8" />
-            <h2 className="text-2xl md:text-3xl font-bold">Entrega Rápida</h2>
+            <Truck className="h-8 w-8" />
+            <h2 className="text-2xl md:text-3xl font-bold">Entrega Nacional</h2>
           </div>
           <p className="text-lg md:text-xl mb-2">
-            <span className="font-bold">Mesmo dia</span> ou <span className="font-bold">próximo dia útil</span>
+            Atendemos <span className="font-bold">todo o Brasil</span>
           </p>
           <p className="text-primary-foreground/90">
-            Para região metropolitana de São Paulo
+            Entrega expressa em SP e nacional via transportadoras
           </p>
         </div>
 
         {/* Delivery Zones */}
         <div className="mb-12 md:mb-16">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Opções de Entrega</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="p-6 border-2 border-primary hover:shadow-lg transition-shadow">
               <CardHeader className="px-0 pt-0">
                 <div className="flex items-center justify-between">
@@ -106,6 +106,37 @@ const Entrega = () => {
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-primary" />
                       Frete grátis acima de R$ 200
+                    </li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6 border hover:shadow-lg transition-shadow">
+              <CardHeader className="px-0 pt-0">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-xl text-foreground flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    Entrega Nacional
+                  </CardTitle>
+                  <Badge variant="outline">Brasil</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="px-0 pb-0">
+                <div className="space-y-4">
+                  <p className="text-lg font-semibold text-primary">3 a 10 dias úteis</p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-primary" />
+                      Todo o território nacional
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-primary" />
+                      Frete calculado por região
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-primary" />
+                      Rastreamento completo
                     </li>
                   </ul>
                 </div>
