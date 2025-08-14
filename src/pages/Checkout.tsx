@@ -41,6 +41,7 @@ export default function Checkout() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [redirectingToWhatsApp, setRedirectingToWhatsApp] = useState(false);
   const [orderData, setOrderData] = useState<any>(null);
   const [whatsappUrl, setWhatsappUrl] = useState('');
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -288,18 +289,26 @@ export default function Checkout() {
         const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
         console.log('🔗 URL WHATSAPP:', whatsappUrl);
         
-        // Set success state with order data
-        setOrderData(order);
-        setWhatsappUrl(whatsappUrl);
-        setOrderSuccess(true);
-        
-        // Clear cart
+        // Clear cart first
         clearCart();
         
-        // Auto-open WhatsApp after 3 seconds
+        // Change to redirecting state
+        setSubmitting(false);
+        setRedirectingToWhatsApp(true);
+        
+        // Toast notification
+        toast({
+          title: 'Pedido criado com sucesso!',
+          description: 'Redirecionando para o WhatsApp...',
+          duration: 4000,
+        });
+        
+        // Redirect after 2 seconds
         setTimeout(() => {
           window.open(whatsappUrl, '_blank');
-        }, 3000);
+          setRedirectingToWhatsApp(false);
+          navigate('/minha-conta');
+        }, 2000);
       }
     } catch (error) {
       toast({
@@ -307,8 +316,8 @@ export default function Checkout() {
         description: 'Tente novamente em alguns instantes.',
         variant: 'destructive',
       });
-    } finally {
       setSubmitting(false);
+      setRedirectingToWhatsApp(false);
     }
   };
 
@@ -740,7 +749,7 @@ export default function Checkout() {
             {/* Final Button */}
             <Button 
               onClick={handleFinishOrder}
-              disabled={submitting}
+              disabled={submitting || redirectingToWhatsApp}
               className="w-full h-12 text-base font-medium"
               size="lg"
             >
@@ -748,6 +757,11 @@ export default function Checkout() {
                 <div className="flex items-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
                   <span>Criando pedido...</span>
+                </div>
+              ) : redirectingToWhatsApp ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-white animate-pulse"></div>
+                  <span>Abrindo WhatsApp...</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
