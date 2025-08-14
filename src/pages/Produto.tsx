@@ -12,15 +12,14 @@ import PromoBanner from "@/components/PromoBanner";
 import { 
   Star, 
   ShoppingCart, 
-  Heart, 
-  Share2, 
   Truck, 
   Shield, 
   ArrowLeft,
   Plus,
   Minus,
   ThumbsUp,
-  ThumbsDown
+  ThumbsDown,
+  CheckCircle
 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
@@ -215,43 +214,6 @@ const Produto = () => {
         description: "Não foi possível adicionar o produto ao carrinho.",
         variant: "destructive",
       });
-    }
-  };
-
-  const handleShare = async () => {
-    const shareData = {
-      title: product.name,
-      text: `Confira este produto: ${product.name} - ${formatCurrency(product.price)}`,
-      url: window.location.href,
-    };
-
-    try {
-      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-      } else {
-        // Fallback para copiar o link
-        await navigator.clipboard.writeText(window.location.href);
-        toast({
-          title: "Link copiado!",
-          description: "O link do produto foi copiado para a área de transferência.",
-        });
-      }
-    } catch (error) {
-      console.error('Erro ao compartilhar:', error);
-      // Fallback para copiar o link
-      try {
-        await navigator.clipboard.writeText(window.location.href);
-        toast({
-          title: "Link copiado!",
-          description: "O link do produto foi copiado para a área de transferência.",
-        });
-      } catch (clipboardError) {
-        toast({
-          title: "Erro ao compartilhar",
-          description: "Não foi possível compartilhar o produto.",
-          variant: "destructive",
-        });
-      }
     }
   };
 
@@ -451,26 +413,40 @@ const Produto = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="space-y-4">
                 <Button 
-                  className="flex-1 order-1 sm:order-1" 
+                  className="w-full text-lg font-bold py-6 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 rounded-xl" 
                   size="lg"
                   onClick={handleAddToCart}
                   disabled={!product.in_stock}
                 >
-                  <ShoppingCart className="h-5 w-5 mr-2" />
-                  Adicionar ao Carrinho
+                  {product.in_stock ? (
+                    <>
+                      <ShoppingCart className="h-6 w-6 mr-3" />
+                      Adicionar ao Carrinho
+                      <div className="ml-3 px-3 py-1 bg-white/20 rounded-lg text-sm font-semibold">
+                        {formatCurrency(product.price * quantity)}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Shield className="h-6 w-6 mr-3" />
+                      Produto Indisponível
+                    </>
+                  )}
                 </Button>
-                <div className="flex gap-3 order-2 sm:order-2">
-                  <Button variant="outline" size="lg" className="flex-1 sm:flex-initial">
-                    <Heart className="h-5 w-5" />
-                    <span className="ml-2 sm:hidden">Favoritos</span>
-                  </Button>
-                  <Button variant="outline" size="lg" className="flex-1 sm:flex-initial" onClick={handleShare}>
-                    <Share2 className="h-5 w-5" />
-                    <span className="ml-2 sm:hidden">Compartilhar</span>
-                  </Button>
-                </div>
+                
+                {product.in_stock && (
+                  <div className="text-center space-y-2">
+                    <div className="flex items-center justify-center gap-2 text-sm text-green-600 font-semibold">
+                      <CheckCircle className="h-4 w-4" />
+                      Compra 100% Segura e Protegida
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Entrega rápida • Garantia • Suporte especializado
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
