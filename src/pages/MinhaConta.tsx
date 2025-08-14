@@ -947,9 +947,19 @@ export default function MinhaConta() {
                       <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                         {item.products?.image_url ? (
                           <img
-                            src={item.products.image_url}
+                            src={(() => {
+                              try {
+                                const parsed = JSON.parse(item.products.image_url);
+                                return Array.isArray(parsed) ? parsed[0] : item.products.image_url;
+                              } catch {
+                                return item.products.image_url;
+                              }
+                            })()}
                             alt={item.product_name}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = "/placeholder.svg";
+                            }}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
