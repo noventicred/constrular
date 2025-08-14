@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, User, Mail, Phone, MapPin, Eye, EyeOff, Lock } from 'lucide-react';
 import { AuthRedirect } from '@/components/auth/AuthRedirect';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,10 +16,14 @@ const Auth = () => {
   const [isLoadingCep, setIsLoadingCep] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
+  const [street, setStreet] = useState('');
+  const [number, setNumber] = useState('');
+  const [complement, setComplement] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [zipCode, setZipCode] = useState('');
@@ -61,7 +65,7 @@ const Auth = () => {
         return;
       }
 
-      setAddress(data.logradouro || '');
+      setStreet(data.logradouro || '');
       setCity(data.localidade || '');
       setState(data.uf || '');
       
@@ -96,12 +100,15 @@ const Auth = () => {
     else if (!validateEmail(email)) newErrors.email = 'Email inválido';
     if (!password.trim()) newErrors.password = 'Senha é obrigatória';
     else if (password.length < 6) newErrors.password = 'Senha deve ter pelo menos 6 caracteres';
+    if (!confirmPassword.trim()) newErrors.confirmPassword = 'Confirmação de senha é obrigatória';
+    else if (password !== confirmPassword) newErrors.confirmPassword = 'As senhas não coincidem';
     
     // Campos de endereço obrigatórios
     if (!zipCode.trim()) newErrors.zipCode = 'CEP é obrigatório';
     else if (zipCode.replace(/\D/g, '').length !== 8) newErrors.zipCode = 'CEP deve ter 8 dígitos';
     
-    if (!address.trim()) newErrors.address = 'Endereço é obrigatório';
+    if (!street.trim()) newErrors.street = 'Rua é obrigatória';
+    if (!number.trim()) newErrors.number = 'Número é obrigatório';
     if (!city.trim()) newErrors.city = 'Cidade é obrigatória';
     if (!state.trim()) newErrors.state = 'Estado é obrigatório';
     
@@ -161,7 +168,9 @@ const Auth = () => {
           data: {
             full_name: fullName,
             phone,
-            address,
+            street,
+            number,
+            complement,
             city,
             state,
             zip_code: zipCode,
@@ -184,8 +193,11 @@ const Auth = () => {
         setFullName('');
         setEmail('');
         setPassword('');
+        setConfirmPassword('');
         setPhone('');
-        setAddress('');
+        setStreet('');
+        setNumber('');
+        setComplement('');
         setCity('');
         setState('');
         setZipCode('');
@@ -401,6 +413,38 @@ const Auth = () => {
                           )}
                         </div>
                       </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmPassword" className="text-sm font-medium">
+                          Confirmar Senha *
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            id="confirmPassword"
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="Digite a senha novamente"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className={`h-11 pr-12 transition-all duration-200 ${errors.confirmPassword ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                        {errors.confirmPassword && (
+                          <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+                        )}
+                      </div>
                     </div>
 
                     {/* Informações de Endereço */}
@@ -444,42 +488,56 @@ const Auth = () => {
                         </div>
                         
                         <div className="space-y-2">
-                          <Label htmlFor="address" className="text-sm font-medium">
-                            Endereço *
+                          <Label htmlFor="street" className="text-sm font-medium">
+                            Rua *
                           </Label>
                           <Input
-                            id="address"
+                            id="street"
                             type="text"
-                            placeholder="Rua, número, complemento"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            className={`h-11 transition-all duration-200 ${errors.address ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
+                            placeholder="Nome da rua"
+                            value={street}
+                            onChange={(e) => setStreet(e.target.value)}
+                            className={`h-11 transition-all duration-200 ${errors.street ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
                           />
-                          {errors.address && (
-                            <p className="text-sm text-destructive">{errors.address}</p>
+                          {errors.street && (
+                            <p className="text-sm text-destructive">{errors.street}</p>
                           )}
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="city" className="text-sm font-medium">
-                            Cidade *
+                          <Label htmlFor="number" className="text-sm font-medium">
+                            Número *
                           </Label>
                           <Input
-                            id="city"
+                            id="number"
                             type="text"
-                            placeholder="Sua cidade"
-                            value={city}
-                            onChange={(e) => setCity(e.target.value)}
-                            className={`h-11 transition-all duration-200 ${errors.city ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
+                            placeholder="123"
+                            value={number}
+                            onChange={(e) => setNumber(e.target.value)}
+                            className={`h-11 transition-all duration-200 ${errors.number ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
                           />
-                          {errors.city && (
-                            <p className="text-sm text-destructive">{errors.city}</p>
+                          {errors.number && (
+                            <p className="text-sm text-destructive">{errors.number}</p>
                           )}
                         </div>
                         
                         <div className="space-y-2">
+                          <Label htmlFor="complement" className="text-sm font-medium">
+                            Complemento
+                          </Label>
+                          <Input
+                            id="complement"
+                            type="text"
+                            placeholder="Apto, casa, etc."
+                            value={complement}
+                            onChange={(e) => setComplement(e.target.value)}
+                            className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2 md:col-span-1">
                           <Label htmlFor="state" className="text-sm font-medium">
                             Estado *
                           </Label>
@@ -495,6 +553,23 @@ const Auth = () => {
                             <p className="text-sm text-destructive">{errors.state}</p>
                           )}
                         </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="city" className="text-sm font-medium">
+                          Cidade *
+                        </Label>
+                        <Input
+                          id="city"
+                          type="text"
+                          placeholder="Sua cidade"
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          className={`h-11 transition-all duration-200 ${errors.city ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
+                        />
+                        {errors.city && (
+                          <p className="text-sm text-destructive">{errors.city}</p>
+                        )}
                       </div>
                     </div>
 
