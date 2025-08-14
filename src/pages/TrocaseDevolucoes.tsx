@@ -101,40 +101,6 @@ const TrocaseDevolucoes = () => {
         </div>
 
         {/* How to Request */}
-        <div className="mb-12 md:mb-16">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Como Solicitar</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">
-                1
-              </div>
-              <h3 className="font-semibold mb-2">Entre em Contato</h3>
-              <p className="text-sm text-muted-foreground">
-                Ligue ou envie WhatsApp
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">
-                2
-              </div>
-              <h3 className="font-semibold mb-2">Análise</h3>
-              <p className="text-sm text-muted-foreground">
-                Verificamos sua solicitação
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">
-                3
-              </div>
-              <h3 className="font-semibold mb-2">Resolução</h3>
-              <p className="text-sm text-muted-foreground">
-                Coleta ou troca do produto
-              </p>
-            </div>
-          </div>
-        </div>
 
         {/* Contact for Returns */}
         <Card className="p-6 md:p-8 bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
