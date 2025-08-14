@@ -74,7 +74,7 @@ const Entrega = () => {
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-primary" />
-                      Taxa: R$ 25,00
+                      Frete fixo de R$ 60,00
                     </li>
                   </ul>
                 </div>
