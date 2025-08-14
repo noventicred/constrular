@@ -9,7 +9,7 @@ const Hero = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${heroImage})`
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url(${heroImage})`
         }}
       />
       
@@ -19,13 +19,13 @@ const Hero = () => {
           {/* Left content */}
           <div className="space-y-6 md:space-y-8 lg:col-span-2">
             <div className="space-y-4 text-center lg:text-left">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-white">
-                Tudo para sua
-                <span className="block text-transparent bg-gradient-to-r from-primary to-secondary bg-clip-text">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-white drop-shadow-lg">
+                <span className="drop-shadow-md">Tudo para sua</span>
+                <span className="block text-transparent bg-gradient-to-r from-primary to-secondary bg-clip-text drop-shadow-none">
                   Construção
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-white/90 max-w-lg mx-auto lg:mx-0">
+              <p className="text-lg md:text-xl text-white/95 max-w-lg mx-auto lg:mx-0 drop-shadow-md font-medium leading-relaxed">
                 Os melhores materiais de construção com preços imbatíveis. 
                 Qualidade garantida e entrega rápida para toda São Paulo.
               </p>
@@ -48,8 +48,8 @@ const Hero = () => {
                   <Truck className="h-5 w-5 md:h-6 md:w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm md:text-base text-white">Entrega Rápida</h3>
-                  <p className="text-xs md:text-sm text-white/80">Em até 24h</p>
+                  <h3 className="font-semibold text-sm md:text-base text-white drop-shadow-sm">Entrega Rápida</h3>
+                  <p className="text-xs md:text-sm text-white/90 drop-shadow-sm">Em até 24h</p>
                 </div>
               </div>
               
@@ -58,8 +58,8 @@ const Hero = () => {
                   <Shield className="h-5 w-5 md:h-6 md:w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm md:text-base text-white">Garantia Total</h3>
-                  <p className="text-xs md:text-sm text-white/80">Produtos certificados</p>
+                  <h3 className="font-semibold text-sm md:text-base text-white drop-shadow-sm">Garantia Total</h3>
+                  <p className="text-xs md:text-sm text-white/90 drop-shadow-sm">Produtos certificados</p>
                 </div>
               </div>
               
@@ -68,8 +68,8 @@ const Hero = () => {
                   <CreditCard className="h-5 w-5 md:h-6 md:w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm md:text-base text-white">Pagamento Fácil</h3>
-                  <p className="text-xs md:text-sm text-white/80">Até 12x sem juros</p>
+                  <h3 className="font-semibold text-sm md:text-base text-white drop-shadow-sm">Pagamento Fácil</h3>
+                  <p className="text-xs md:text-sm text-white/90 drop-shadow-sm">Até 12x sem juros</p>
                 </div>
               </div>
             </div>
