@@ -109,6 +109,15 @@ export default function Checkout() {
     setShippingAddress(prev => ({ ...prev, [field]: value }));
   };
 
+  const getProductImageUrl = (imageUrl: string) => {
+    try {
+      const parsed = JSON.parse(imageUrl);
+      return Array.isArray(parsed) ? parsed[0] : imageUrl;
+    } catch {
+      return imageUrl || "/placeholder.svg";
+    }
+  };
+
   const validateForm = () => {
     const required = ['full_name', 'phone', 'street', 'number', 'city', 'state', 'zip_code'];
     const missing = required.filter(field => !shippingAddress[field as keyof ShippingAddress]);
@@ -638,11 +647,17 @@ export default function Checkout() {
                 <div className="space-y-3">
                   {items.map((item) => (
                     <div key={item.id} className="flex gap-3 p-3 rounded-lg bg-muted/50">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-12 h-12 object-cover rounded-md flex-shrink-0"
-                      />
+                      <div className="w-12 h-12 bg-muted rounded-md flex-shrink-0 overflow-hidden">
+                        <img
+                          src={getProductImageUrl(item.image)}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/placeholder.svg';
+                          }}
+                        />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm leading-tight truncate">
                           {item.name}
