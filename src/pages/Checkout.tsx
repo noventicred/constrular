@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/formatters';
+import { useSettings } from '@/hooks/useSettings';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { 
@@ -35,6 +36,7 @@ export default function Checkout() {
   const { user } = useAuth();
   const { items, getTotalPrice, clearCart } = useCart();
   const { toast } = useToast();
+  const { getWhatsAppNumber } = useSettings();
   
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -218,8 +220,7 @@ export default function Checkout() {
         
         // Generate WhatsApp message
         const whatsappMessage = generateWhatsAppMessage(order.id);
-        const whatsappNumber = "5511999999999"; // TODO: Fazer isso configurável no admin
-        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+        const whatsappUrl = `https://wa.me/${getWhatsAppNumber()}?text=${whatsappMessage}`;
         
         toast({
           title: 'Pedido criado com sucesso!',

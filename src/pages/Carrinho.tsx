@@ -7,6 +7,7 @@ import { useCart } from "@/contexts/CartContext";
 import { Plus, Minus, Trash2, MessageCircle, ShoppingBag, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/formatters";
+import { useSettings } from "@/hooks/useSettings";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -14,15 +15,18 @@ import { Separator } from "@/components/ui/separator";
 
 const Carrinho = () => {
   const { items, removeItem, updateQuantity, clearCart, total, itemCount, sendToWhatsApp } = useCart();
+  const { getFreeShippingThreshold, getDefaultShippingCost } = useSettings();
   const [phoneNumber, setPhoneNumber] = useState('5511999999999');
   const navigate = useNavigate();
+
+  const freeShippingThreshold = getFreeShippingThreshold();
+  const defaultShippingCost = getDefaultShippingCost();
+  const shipping = total >= freeShippingThreshold ? 0 : defaultShippingCost;
 
   const handleWhatsAppRedirect = () => {
     sendToWhatsApp(phoneNumber);
     clearCart();
   };
-
-  const shipping = total >= 199 ? 0 : 29.90;
   const finalTotal = total + shipping;
 
   return (
@@ -192,7 +196,7 @@ const Carrinho = () => {
                           <div>
                             <span className="font-medium">{formatCurrency(shipping)}</span>
                             <p className="text-xs text-muted-foreground">
-                              Grátis acima de R$ 199
+                              Grátis acima de {formatCurrency(freeShippingThreshold)}
                             </p>
                           </div>
                         )}

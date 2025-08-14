@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminRoute } from '@/components/auth/AdminRoute';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Store, 
   Bell, 
@@ -22,22 +23,79 @@ import {
   Users,
   Settings,
   Save,
-  RefreshCw
+  RefreshCw,
+  MessageCircle,
+  Phone,
+  Truck
 } from 'lucide-react';
 
 const AdminConfiguracoes = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [settings, setSettings] = useState<Record<string, string>>({});
 
-  const handleSave = async (section: string) => {
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('settings')
+        .select('key, value');
+
+      if (error) throw error;
+
+      const settingsMap = data.reduce((acc, setting) => {
+        acc[setting.key] = setting.value || '';
+        return acc;
+      }, {} as Record<string, string>);
+
+      setSettings(settingsMap);
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+      toast({
+        title: "Erro ao carregar configurações",
+        description: "Não foi possível carregar as configurações.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updateSetting = async (key: string, value: string) => {
+    try {
+      const { error } = await supabase
+        .from('settings')
+        .upsert({ key, value }, { onConflict: 'key' });
+
+      if (error) throw error;
+
+      setSettings(prev => ({ ...prev, [key]: value }));
+      return true;
+    } catch (error) {
+      console.error('Error updating setting:', error);
+      return false;
+    }
+  };
+
+  const handleSave = async (section: string, settingsToUpdate: Record<string, string>) => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast({
-        title: "Configurações salvas",
-        description: `As configurações de ${section} foram atualizadas com sucesso.`,
-      });
+      const updatePromises = Object.entries(settingsToUpdate).map(([key, value]) =>
+        updateSetting(key, value)
+      );
+      
+      const results = await Promise.all(updatePromises);
+      const success = results.every(result => result === true);
+
+      if (success) {
+        toast({
+          title: "Configurações salvas",
+          description: `As configurações de ${section} foram atualizadas com sucesso.`,
+        });
+      } else {
+        throw new Error('Falha ao salvar algumas configurações');
+      }
     } catch (error) {
       toast({
         title: "Erro ao salvar",
@@ -67,10 +125,14 @@ const AdminConfiguracoes = () => {
           </div>
 
           <Tabs defaultValue="geral" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="geral" className="flex items-center gap-2">
                 <Store className="h-4 w-4" />
                 Geral
+              </TabsTrigger>
+              <TabsTrigger value="whatsapp" className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4" />
+                WhatsApp
               </TabsTrigger>
               <TabsTrigger value="notificacoes" className="flex items-center gap-2">
                 <Bell className="h-4 w-4" />
@@ -106,11 +168,22 @@ const AdminConfiguracoes = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="store-name">Nome da Loja</Label>
-                      <Input id="store-name" placeholder="Nome da sua loja" defaultValue="Minha Loja" />
+                      <Input 
+                        id="store-name" 
+                        placeholder="Nome da sua loja" 
+                        value={settings.store_name || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, store_name: e.target.value }))}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="store-email">E-mail de Contato</Label>
-                      <Input id="store-email" type="email" placeholder="contato@minhaloja.com" />
+                      <Input 
+                        id="store-email" 
+                        type="email" 
+                        placeholder="contato@minhaloja.com"
+                        value={settings.store_email || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, store_email: e.target.value }))}
+                      />
                     </div>
                   </div>
                   
@@ -147,7 +220,10 @@ const AdminConfiguracoes = () => {
                   </div>
 
                   <Button 
-                    onClick={() => handleSave('geral')} 
+                    onClick={() => handleSave('geral', {
+                      store_name: settings.store_name || '',
+                      store_email: settings.store_email || ''
+                    })} 
                     disabled={isLoading}
                     className="w-full sm:w-auto"
                   >
@@ -162,7 +238,120 @@ const AdminConfiguracoes = () => {
               </Card>
             </TabsContent>
 
-            {/* Notificações */}
+            {/* Configurações WhatsApp */}
+            <TabsContent value="whatsapp" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageCircle className="h-5 w-5" />
+                    Configurações do WhatsApp
+                  </CardTitle>
+                  <CardDescription>
+                    Configure o número do WhatsApp para receber pedidos
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="whatsapp-number">Número do WhatsApp</Label>
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          id="whatsapp-number" 
+                          placeholder="5511999999999" 
+                          value={settings.whatsapp_number || ''}
+                          onChange={(e) => setSettings(prev => ({ ...prev, whatsapp_number: e.target.value }))}
+                          className="font-mono"
+                        />
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Formato: <code>55DDNNNNNNNNN</code> (Ex: 5511987654321)
+                      </p>
+                    </div>
+
+                    <div className="bg-muted/30 p-4 rounded-lg space-y-2">
+                      <h4 className="font-medium flex items-center gap-2">
+                        <MessageCircle className="h-4 w-4" />
+                        Como funciona?
+                      </h4>
+                      <ul className="text-sm text-muted-foreground space-y-1">
+                        <li>• Clientes fazem pedidos no site</li>
+                        <li>• O pedido é salvo no sistema</li>
+                        <li>• Cliente é redirecionado para WhatsApp com detalhes do pedido</li>
+                        <li>• Você recebe a mensagem com todos os dados</li>
+                      </ul>
+                    </div>
+
+                    {settings.whatsapp_number && (
+                      <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
+                        <h4 className="font-medium text-green-800 mb-2">
+                          ✅ WhatsApp Configurado
+                        </h4>
+                        <p className="text-sm text-green-700">
+                          Número atual: <span className="font-mono">{settings.whatsapp_number}</span>
+                        </p>
+                        <p className="text-sm text-green-700 mt-1">
+                          Os pedidos serão enviados para este número.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Configurações de Frete</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="free-shipping">Frete Grátis a partir de</Label>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">R$</span>
+                          <Input 
+                            id="free-shipping" 
+                            type="number" 
+                            step="0.01"
+                            placeholder="199.00"
+                            value={settings.free_shipping_threshold || ''}
+                            onChange={(e) => setSettings(prev => ({ ...prev, free_shipping_threshold: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="default-shipping">Custo Padrão do Frete</Label>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">R$</span>
+                          <Input 
+                            id="default-shipping" 
+                            type="number" 
+                            step="0.01"
+                            placeholder="29.90"
+                            value={settings.default_shipping_cost || ''}
+                            onChange={(e) => setSettings(prev => ({ ...prev, default_shipping_cost: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={() => handleSave('WhatsApp', {
+                      whatsapp_number: settings.whatsapp_number || '',
+                      free_shipping_threshold: settings.free_shipping_threshold || '',
+                      default_shipping_cost: settings.default_shipping_cost || ''
+                    })} 
+                    disabled={isLoading}
+                    className="w-full sm:w-auto"
+                  >
+                    {isLoading ? (
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Save className="mr-2 h-4 w-4" />
+                    )}
+                    Salvar Configurações do WhatsApp
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
             <TabsContent value="notificacoes" className="space-y-6">
               <Card>
                 <CardHeader>
@@ -234,7 +423,7 @@ const AdminConfiguracoes = () => {
                   </div>
 
                   <Button 
-                    onClick={() => handleSave('notificações')} 
+                    onClick={() => handleSave('notificações', {})} 
                     disabled={isLoading}
                     className="w-full sm:w-auto"
                   >
@@ -316,7 +505,7 @@ const AdminConfiguracoes = () => {
                   </div>
 
                   <Button 
-                    onClick={() => handleSave('segurança')} 
+                    onClick={() => handleSave('segurança', {})} 
                     disabled={isLoading}
                     className="w-full sm:w-auto"
                   >
@@ -381,7 +570,7 @@ const AdminConfiguracoes = () => {
                   </div>
 
                   <Button 
-                    onClick={() => handleSave('aparência')} 
+                    onClick={() => handleSave('aparência', {})} 
                     disabled={isLoading}
                     className="w-full sm:w-auto"
                   >
@@ -468,7 +657,7 @@ const AdminConfiguracoes = () => {
                   </div>
 
                   <Button 
-                    onClick={() => handleSave('pagamentos')} 
+                    onClick={() => handleSave('pagamentos', {})} 
                     disabled={isLoading}
                     className="w-full sm:w-auto"
                   >
