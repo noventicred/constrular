@@ -146,65 +146,6 @@ const Entrega = () => {
         </div>
 
         {/* Delivery Process */}
-        <div className="mb-12 md:mb-16">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Como Funciona</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">
-                1
-              </div>
-              <h3 className="font-semibold mb-2">Faça o Pedido</h3>
-              <p className="text-sm text-muted-foreground">
-                Confirme seu pedido até o horário limite
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">
-                2
-              </div>
-              <h3 className="font-semibold mb-2">Preparamos</h3>
-              <p className="text-sm text-muted-foreground">
-                Separamos e embalamos seus produtos
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">
-                3
-              </div>
-              <h3 className="font-semibold mb-2">Entregamos</h3>
-              <p className="text-sm text-muted-foreground">
-                Receba em casa no prazo combinado
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-12 md:mb-16">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">O que está Incluído</h2>
-          <Card className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-semibold mb-4 text-primary">✅ Incluído na Entrega</h3>
-                <ul className="space-y-2 text-sm">
-                  <li>• Entrega até o portão</li>
-                  <li>• Rastreamento por WhatsApp</li>
-                  <li>• Embalagem segura</li>
-                  <li>• Equipe uniformizada</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-4 text-destructive">💰 Taxas Extras</h3>
-                <ul className="space-y-2 text-sm">
-                  <li>• Subir escadas: R$ 10/andar</li>
-                  <li>• Reagendamento: R$ 15</li>
-                  <li>• Entrega noturna: R$ 30</li>
-                </ul>
-              </div>
-            </div>
-          </Card>
-        </div>
 
         {/* Contact for Delivery */}
         <Card className="p-6 md:p-8 bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
