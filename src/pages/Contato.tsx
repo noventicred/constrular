@@ -110,35 +110,33 @@ const Contato = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-0 pb-0 space-y-4">
-                <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200">
-                  <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
-                    <MessageCircle className="h-5 w-5 text-white" />
+                <div className="flex items-center gap-3 p-4 bg-accent/10 rounded-lg border">
+                  <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                    <MessageCircle className="h-5 w-5 text-primary-foreground" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-green-800">WhatsApp</p>
-                    <p className="text-sm text-green-600">Resposta imediata</p>
+                    <p className="font-semibold">WhatsApp</p>
+                    <p className="text-sm text-muted-foreground">Resposta imediata</p>
                   </div>
                   <Button 
                     size="sm" 
-                    className="bg-green-600 hover:bg-green-700"
                     onClick={() => window.open('https://wa.me/5511999999999', '_blank')}
                   >
                     Conversar
                   </Button>
                 </div>
 
-                <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                    <Phone className="h-5 w-5 text-white" />
+                <div className="flex items-center gap-3 p-4 bg-secondary rounded-lg border">
+                  <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
+                    <Phone className="h-5 w-5 text-foreground" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-blue-800">Telefone</p>
-                    <p className="text-sm text-blue-600">(11) 4002-8922</p>
+                    <p className="font-semibold">Telefone</p>
+                    <p className="text-sm text-muted-foreground">(11) 4002-8922</p>
                   </div>
                   <Button 
                     size="sm" 
                     variant="outline"
-                    className="border-blue-200 text-blue-600 hover:bg-blue-50"
                     onClick={() => window.open('tel:1140028922')}
                   >
                     Ligar
@@ -204,25 +202,25 @@ const Contato = () => {
             </Card>
 
             {/* Emergency Contact */}
-            <Card className="p-6 bg-red-50 border-red-200">
+            <Card className="p-6 bg-destructive/10 border-destructive/20">
               <CardHeader className="px-0 pt-0">
-                <CardTitle className="text-xl flex items-center gap-2 text-red-800">
-                  <Phone className="h-5 w-5 text-red-600" />
+                <CardTitle className="text-xl flex items-center gap-2 text-destructive">
+                  <Phone className="h-5 w-5 text-destructive" />
                   Atendimento de Urgência
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-0 pb-0">
-                <p className="text-red-700 mb-3">
+                <p className="text-destructive/80 mb-3">
                   Para emergências fora do horário comercial:
                 </p>
-                <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-red-200">
+                <div className="flex items-center justify-between bg-card p-3 rounded-lg border">
                   <div>
-                    <p className="font-bold text-red-800">(11) 9 8888-7777</p>
-                    <p className="text-sm text-red-600">Disponível 24h</p>
+                    <p className="font-bold text-destructive">(11) 9 8888-7777</p>
+                    <p className="text-sm text-destructive/70">Disponível 24h</p>
                   </div>
                   <Button 
                     size="sm" 
-                    className="bg-red-600 hover:bg-red-700"
+                    variant="destructive"
                     onClick={() => window.open('tel:11988887777')}
                   >
                     Ligar
@@ -253,8 +251,8 @@ const Contato = () => {
 
             <Card className="p-6 text-center hover:shadow-lg transition-shadow">
               <CardContent className="p-0">
-                <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Headphones className="h-8 w-8 text-green-600" />
+                <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Headphones className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="font-bold text-lg mb-2">Suporte Técnico</h3>
                 <p className="text-muted-foreground text-sm mb-3">
@@ -267,8 +265,8 @@ const Contato = () => {
 
             <Card className="p-6 text-center hover:shadow-lg transition-shadow">
               <CardContent className="p-0">
-                <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Mail className="h-8 w-8 text-blue-600" />
+                <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Mail className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="font-bold text-lg mb-2">Financeiro</h3>
                 <p className="text-muted-foreground text-sm mb-3">
