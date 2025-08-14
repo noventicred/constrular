@@ -24,6 +24,7 @@ import AdminProducts from "./pages/admin/AdminProducts";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminClients from "./pages/admin/AdminClients";
 import AdminOrders from "./pages/admin/AdminOrders";
+import AdminConfiguracoes from "./pages/admin/AdminConfiguracoes";
 import ProductForm from "./pages/admin/ProductForm";
 import ScrollToTop from "./components/ScrollToTop";
 import CookieConsent from "./components/CookieConsent";
@@ -63,6 +64,7 @@ const App = () => (
               <Route path="categorias" element={<AdminCategories />} />
               <Route path="clientes" element={<AdminClients />} />
               <Route path="pedidos" element={<AdminOrders />} />
+              <Route path="configuracoes" element={<AdminConfiguracoes />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
