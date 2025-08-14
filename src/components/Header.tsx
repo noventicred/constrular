@@ -171,7 +171,7 @@ const Header = () => {
     navigate(`/produtos?categoria=${categoryId}`);
   };
   return (
-    <header className="bg-background border-b shadow-sm sticky top-0 z-40">
+    <header className="bg-background border-b shadow-sm z-40">
 
       {/* Main header */}
       <div className="container mx-auto px-4 py-4">
