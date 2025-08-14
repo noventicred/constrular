@@ -75,7 +75,14 @@ const SpecialOffers = () => {
         name: product.name,
         brand: '',
         price: product.price,
-        image: product.image_url || "/placeholder.svg"
+        image: (() => {
+          try {
+            const parsed = JSON.parse(product.image_url || '""');
+            return Array.isArray(parsed) ? parsed[0] : (product.image_url || "/placeholder.svg");
+          } catch {
+            return product.image_url || "/placeholder.svg";
+          }
+        })()
       };
       
       addItem(cartItem);
@@ -196,9 +203,19 @@ const SpecialOffers = () => {
                     <CardContent className="p-0 h-full flex flex-col">
                       <div className="relative h-48 md:h-56 overflow-hidden rounded-t-2xl">
                         <img
-                          src={product.image_url || "/placeholder.svg"}
+                          src={(() => {
+                            try {
+                              const parsed = JSON.parse(product.image_url || '""');
+                              return Array.isArray(parsed) ? parsed[0] : (product.image_url || "/placeholder.svg");
+                            } catch {
+                              return product.image_url || "/placeholder.svg";
+                            }
+                          })()}
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          onError={(e) => {
+                            e.currentTarget.src = "/placeholder.svg";
+                          }}
                         />
                         
                         {/* Gradient Overlay */}

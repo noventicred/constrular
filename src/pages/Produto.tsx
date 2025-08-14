@@ -451,9 +451,9 @@ const Produto = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button 
-                  className="flex-1" 
+                  className="flex-1 order-1 sm:order-1" 
                   size="lg"
                   onClick={handleAddToCart}
                   disabled={!product.in_stock}
@@ -461,12 +461,16 @@ const Produto = () => {
                   <ShoppingCart className="h-5 w-5 mr-2" />
                   Adicionar ao Carrinho
                 </Button>
-                <Button variant="outline" size="lg" className="shrink-0">
-                  <Heart className="h-5 w-5" />
-                </Button>
-                <Button variant="outline" size="lg" className="shrink-0" onClick={handleShare}>
-                  <Share2 className="h-5 w-5" />
-                </Button>
+                <div className="flex gap-3 order-2 sm:order-2">
+                  <Button variant="outline" size="lg" className="flex-1 sm:flex-initial">
+                    <Heart className="h-5 w-5" />
+                    <span className="ml-2 sm:hidden">Favoritos</span>
+                  </Button>
+                  <Button variant="outline" size="lg" className="flex-1 sm:flex-initial" onClick={handleShare}>
+                    <Share2 className="h-5 w-5" />
+                    <span className="ml-2 sm:hidden">Compartilhar</span>
+                  </Button>
+                </div>
               </div>
             </div>
 
