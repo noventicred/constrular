@@ -109,13 +109,19 @@ const TrocaseDevolucoes = () => {
             <p className="text-muted-foreground mb-6">
               Entre em contato para solicitar sua troca ou devolução
             </p>
-            <div className="flex justify-center">
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
               <Button 
                 className="flex items-center gap-2"
                 onClick={() => window.open('https://wa.me/5511999999999', '_blank')}
               >
                 <MessageCircle className="h-5 w-5" />
                 WhatsApp: (11) 9 9999-9999
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => window.location.href = '/termos-uso'}
+              >
+                Ver Termos de Uso
               </Button>
             </div>
           </div>
