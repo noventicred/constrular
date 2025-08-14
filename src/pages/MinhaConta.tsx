@@ -82,23 +82,84 @@ export default function MinhaConta() {
   });
 
   useEffect(() => {
-    if (profile && user) {
-      setProfileData({
-        full_name: profile.full_name || '',
-        email: profile.email || user.email || '',
-        phone: profile.phone || '',
-        birth_date: profile.birth_date || '',
-        street: profile.street || '',
-        number: profile.number || '',
-        complement: profile.complement || '',
-        city: profile.city || '',
-        state: profile.state || '',
-        zip_code: profile.zip_code || '',
-        document_number: profile.document_number || '',
-      });
-    }
+    const loadProfileData = async () => {
+      if (user) {
+        console.log('Loading profile for user:', user.id);
+        
+        // Primeiro, tentar buscar o perfil
+        let currentProfile = profile;
+        
+        // Se não temos perfil, tentar criar um
+        if (!currentProfile) {
+          console.log('No profile found, creating one...');
+          try {
+            const { data: existingProfile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', user.id)
+              .single();
+            
+            if (existingProfile) {
+              currentProfile = existingProfile;
+              console.log('Found existing profile:', existingProfile);
+            } else {
+              // Criar perfil se não existir
+              const { data: newProfile, error } = await supabase
+                .from('profiles')
+                .insert([{
+                  id: user.id,
+                  email: user.email,
+                  full_name: user.user_metadata?.full_name || '',
+                  phone: user.user_metadata?.phone || '',
+                  street: user.user_metadata?.street || '',
+                  number: user.user_metadata?.number || '',
+                  complement: user.user_metadata?.complement || '',
+                  city: user.user_metadata?.city || '',
+                  state: user.user_metadata?.state || '',
+                  zip_code: user.user_metadata?.zip_code || '',
+                  is_admin: false
+                }])
+                .select()
+                .single();
+              
+              if (!error && newProfile) {
+                currentProfile = newProfile;
+                console.log('Created new profile:', newProfile);
+                // Refresh do profile no contexto
+                await refreshProfile();
+              }
+            }
+          } catch (error) {
+            console.error('Error handling profile:', error);
+          }
+        }
+
+        // Atualizar os dados do formulário
+        setProfileData({
+          full_name: currentProfile?.full_name || '',
+          email: currentProfile?.email || user.email || '',
+          phone: currentProfile?.phone || '',
+          birth_date: currentProfile?.birth_date || '',
+          street: currentProfile?.street || '',
+          number: currentProfile?.number || '',
+          complement: currentProfile?.complement || '',
+          city: currentProfile?.city || '',
+          state: currentProfile?.state || '',
+          zip_code: currentProfile?.zip_code || '',
+          document_number: currentProfile?.document_number || '',
+        });
+        
+        console.log('Profile data set:', {
+          full_name: currentProfile?.full_name || '',
+          email: currentProfile?.email || user.email || '',
+          phone: currentProfile?.phone || '',
+        });
+      }
+    };
+
+    loadProfileData();
     fetchOrders();
-  }, [profile, user]);
+  }, [profile, user, refreshProfile]);
 
   const fetchOrders = async () => {
     if (!user) return;
