@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatCurrency } from '@/lib/formatters';
 
 export interface CartItem {
   id: number;
@@ -62,8 +63,8 @@ export const useCart = () => {
 
   const generateWhatsAppMessage = () => {
     const message = `Olá! Gostaria de fazer um pedido:\n\n${items.map(item => 
-      `${item.quantity}x ${item.name} - ${item.brand}\nR$ ${item.price.toFixed(2)} cada`
-    ).join('\n\n')}\n\n*Total: R$ ${total.toFixed(2)}*\n\nAguardo retorno para finalizar o pedido!`;
+      `${item.quantity}x ${item.name} - ${item.brand}\n${formatCurrency(item.price)} cada`
+    ).join('\n\n')}\n\n*Total: ${formatCurrency(total)}*\n\nAguardo retorno para finalizar o pedido!`;
     
     return encodeURIComponent(message);
   };

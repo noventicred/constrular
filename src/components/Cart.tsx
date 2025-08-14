@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useCart } from "@/hooks/useCart";
 import { ShoppingCart, Plus, Minus, Trash2, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/formatters";
 
 const Cart = () => {
   const { items, removeItem, updateQuantity, clearCart, total, itemCount, sendToWhatsApp } = useCart();
@@ -53,7 +54,7 @@ const Cart = () => {
                       <div className="flex-1">
                         <h4 className="font-semibold text-sm">{item.name}</h4>
                         <p className="text-xs text-muted-foreground">{item.brand}</p>
-                        <p className="font-bold text-primary">R$ {item.price.toFixed(2)}</p>
+                        <p className="font-bold text-primary">{formatCurrency(item.price)}</p>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Button
@@ -87,7 +88,7 @@ const Cart = () => {
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center text-lg font-bold">
                   <span>Total:</span>
-                  <span className="text-primary">R$ {total.toFixed(2)}</span>
+                  <span className="text-primary">{formatCurrency(total)}</span>
                 </div>
               </div>
               

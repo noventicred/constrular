@@ -16,6 +16,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/hooks/useCart";
+import { formatCurrency } from "@/lib/formatters";
 
 interface Product {
   id: string;
@@ -287,11 +288,11 @@ const Produtos = () => {
                   <div className="space-y-1">
                     {product.original_price && product.original_price > product.price && (
                       <p className="text-sm text-muted-foreground line-through">
-                        R$ {product.original_price.toFixed(2)}
+                        {formatCurrency(product.original_price)}
                       </p>
                     )}
                     <p className="text-xl font-bold text-primary">
-                      R$ {product.price.toFixed(2)}
+                      {formatCurrency(product.price)}
                     </p>
                   </div>
                 </div>

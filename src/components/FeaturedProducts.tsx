@@ -7,6 +7,7 @@ import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { formatCurrency } from "@/lib/formatters";
 
 interface Product {
   id: string;
@@ -174,11 +175,11 @@ const FeaturedProducts = () => {
                   {/* Price */}
                   <div className="flex items-center gap-2 mb-4">
                     <span className="text-2xl font-bold text-primary">
-                      R$ {product.price.toFixed(2)}
+                      {formatCurrency(product.price)}
                     </span>
                     {product.original_price && product.original_price > product.price && (
                       <span className="text-sm text-muted-foreground line-through">
-                        R$ {product.original_price.toFixed(2)}
+                        {formatCurrency(product.original_price)}
                       </span>
                     )}
                   </div>
