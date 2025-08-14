@@ -52,52 +52,15 @@ interface Product {
   is_special_offer?: boolean;
 }
 
-const productReviews = [
-  {
-    id: 1,
-    user: "João Silva",
-    avatar: "/placeholder.svg",
-    rating: 5,
-    date: "15/01/2024",
-    title: "Excelente qualidade",
-    comment: "Cimento de primeira qualidade, usei na minha obra e o resultado foi excepcional. Muito boa aderência e secagem uniforme.",
-    helpful: 12,
-    notHelpful: 1
-  },
-  {
-    id: 2,
-    user: "Maria Santos",
-    avatar: "/placeholder.svg",
-    rating: 4,
-    date: "10/01/2024",
-    title: "Bom custo-benefício",
-    comment: "Produto chegou bem embalado e dentro do prazo. A qualidade está dentro do esperado para o preço pago.",
-    helpful: 8,
-    notHelpful: 0
-  },
-  {
-    id: 3,
-    user: "Carlos Mendes",
-    avatar: "/placeholder.svg",
-    rating: 5,
-    date: "05/01/2024",
-    title: "Recomendo!",
-    comment: "Já comprei várias vezes e sempre com a mesma qualidade. Entrega rápida e produto bem conservado.",
-    helpful: 15,
-    notHelpful: 2
-  },
-  {
-    id: 4,
-    user: "Ana Costa",
-    avatar: "/placeholder.svg",
-    rating: 4,
-    date: "02/01/2024",
-    title: "Produto conforme descrito",
-    comment: "Cimento chegou conforme a descrição, bem embalado. Usei para fazer uma laje e ficou perfeito.",
-    helpful: 6,
-    notHelpful: 0
-  }
-];
+interface ProductComment {
+  id: string;
+  author_name: string;
+  comment_text: string;
+  rating: number;
+  likes: number;
+  dislikes: number;
+  created_at: string;
+}
 
 const Produto = () => {
   const { id } = useParams();
@@ -108,22 +71,24 @@ const Produto = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [product, setProduct] = useState<Product | null>(null);
+  const [comments, setComments] = useState<ProductComment[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchData = async () => {
       if (!id) return;
       
       setLoading(true);
       try {
-        const { data, error } = await supabase
+        // Buscar produto
+        const { data: productData, error: productError } = await supabase
           .from('products')
           .select('*')
           .eq('id', id)
           .single();
 
-        if (error) {
-          console.error('Erro ao carregar produto:', error);
+        if (productError) {
+          console.error('Erro ao carregar produto:', productError);
           toast({
             title: "Erro",
             description: "Não foi possível carregar o produto.",
@@ -132,12 +97,26 @@ const Produto = () => {
           return;
         }
 
-        setProduct(data);
+        setProduct(productData);
+
+        // Buscar comentários
+        const { data: commentsData, error: commentsError } = await supabase
+          .from('product_comments')
+          .select('*')
+          .eq('product_id', id)
+          .order('created_at', { ascending: false });
+
+        if (commentsError) {
+          console.error('Erro ao carregar comentários:', commentsError);
+        } else {
+          setComments(commentsData || []);
+        }
+
       } catch (error) {
-        console.error('Erro ao carregar produto:', error);
+        console.error('Erro ao carregar dados:', error);
         toast({
           title: "Erro",
-          description: "Não foi possível carregar o produto.",
+          description: "Não foi possível carregar os dados.",
           variant: "destructive",
         });
       } finally {
@@ -145,7 +124,7 @@ const Produto = () => {
       }
     };
 
-    fetchProduct();
+    fetchData();
   }, [id, toast]);
   
   if (loading) {
@@ -403,7 +382,7 @@ const Produto = () => {
         <Tabs defaultValue="description" className="mb-12">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="description">Descrição</TabsTrigger>
-            <TabsTrigger value="reviews">Avaliações ({product.reviews_count || 0})</TabsTrigger>
+            <TabsTrigger value="reviews">Avaliações ({comments.length})</TabsTrigger>
           </TabsList>
           
           <TabsContent value="description" className="mt-6">
@@ -442,84 +421,101 @@ const Produto = () => {
                   <CardTitle>Avaliações dos Clientes</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center gap-6 mb-6">
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-primary mb-1">
-                        {product.rating}
-                      </div>
-                      <div className="flex justify-center mb-1">
-                        {renderStars(product.rating)}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {product.reviews_count || 0} avaliações
-                      </div>
-                    </div>
-                    
-                    <div className="flex-1">
-                      {[5, 4, 3, 2, 1].map((stars) => (
-                        <div key={stars} className="flex items-center gap-2 mb-1">
-                          <span className="text-sm w-8">{stars}</span>
-                          <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                          <div className="flex-1 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-yellow-400 rounded-full h-2" 
-                              style={{ 
-                                width: `${stars === 5 ? 70 : stars === 4 ? 20 : stars === 3 ? 5 : stars === 2 ? 3 : 2}%` 
-                              }}
-                            ></div>
-                          </div>
-                          <span className="text-sm text-muted-foreground w-8">
-                            {stars === 5 ? 70 : stars === 4 ? 20 : stars === 3 ? 5 : stars === 2 ? 3 : 2}%
-                          </span>
+                  {comments.length > 0 ? (
+                    <div className="flex items-center gap-6 mb-6">
+                      <div className="text-center">
+                        <div className="text-4xl font-bold text-primary mb-1">
+                          {(comments.reduce((acc, comment) => acc + comment.rating, 0) / comments.length).toFixed(1)}
                         </div>
-                      ))}
+                        <div className="flex justify-center mb-1">
+                          {renderStars(comments.reduce((acc, comment) => acc + comment.rating, 0) / comments.length)}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {comments.length} avaliação{comments.length !== 1 ? 'ões' : ''}
+                        </div>
+                      </div>
+                      
+                      <div className="flex-1">
+                        {[5, 4, 3, 2, 1].map((stars) => {
+                          const count = comments.filter(comment => comment.rating === stars).length;
+                          const percentage = comments.length > 0 ? (count / comments.length) * 100 : 0;
+                          
+                          return (
+                            <div key={stars} className="flex items-center gap-2 mb-1">
+                              <span className="text-sm w-8">{stars}</span>
+                              <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                              <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className="bg-yellow-400 rounded-full h-2" 
+                                  style={{ width: `${percentage}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-sm text-muted-foreground w-8">
+                                {Math.round(percentage)}%
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <p className="text-muted-foreground text-center py-8">
+                      Este produto ainda não possui avaliações.
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 
               {/* Individual Reviews */}
-              <div className="space-y-4">
-                {productReviews.map((review) => (
-                  <Card key={review.id}>
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
-                        <Avatar>
-                          <AvatarImage src={review.avatar} alt={review.user} />
-                          <AvatarFallback>{review.user.charAt(0)}</AvatarFallback>
-                        </Avatar>
+              {comments.length > 0 && (
+                <div className="space-y-4">
+                  {comments.map((comment) => (
+                    <Card key={comment.id}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <Avatar>
+                              <AvatarFallback>
+                                {comment.author_name.charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium">{comment.author_name}</p>
+                              <div className="flex items-center gap-2">
+                                <div className="flex">
+                                  {renderStars(comment.rating, "h-3 w-3")}
+                                </div>
+                                <span className="text-sm text-muted-foreground">
+                                  {new Date(comment.created_at).toLocaleDateString('pt-BR')}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                         
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="font-semibold">{review.user}</span>
-                            <span className="text-sm text-muted-foreground">{review.date}</span>
-                          </div>
-                          
-                          <div className="flex items-center gap-2 mb-2">
-                            {renderStars(review.rating)}
-                            <span className="font-semibold">{review.title}</span>
-                          </div>
-                          
-                          <p className="text-muted-foreground mb-3">
-                            {review.comment}
-                          </p>
-                          
-                          <div className="flex items-center gap-4">
-                            <Button variant="ghost" size="sm">
-                              <ThumbsUp className="h-4 w-4 mr-1" />
-                              Útil ({review.helpful})
+                        <p className="text-muted-foreground mb-4 leading-relaxed">
+                          {comment.comment_text}
+                        </p>
+                        
+                        <div className="flex items-center gap-6">
+                          <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="sm" className="h-8 px-2">
+                              <ThumbsUp className="h-3 w-3 mr-1" />
+                              <span className="text-sm">{comment.likes}</span>
                             </Button>
-                            <Button variant="ghost" size="sm">
-                              <ThumbsDown className="h-4 w-4 mr-1" />
-                              ({review.notHelpful})
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="sm" className="h-8 px-2">
+                              <ThumbsDown className="h-3 w-3 mr-1" />
+                              <span className="text-sm">{comment.dislikes}</span>
                             </Button>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>
