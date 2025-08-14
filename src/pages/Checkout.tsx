@@ -210,29 +210,48 @@ export default function Checkout() {
     const total = getTotalPrice();
     const orderNumber = orderId.slice(0, 8).toUpperCase();
     
-    let message = `🛒 *NOVA COMPRA - Pedido #${orderNumber}*\n\n`;
-    message += `Olá! Gostaria de pagar esta compra:\n\n`;
+    let message = `🎯 *NOVO PEDIDO* 🎯\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+    message += `📋 *Pedido:* #${orderNumber}\n`;
+    message += `📅 *Data:* ${new Date().toLocaleDateString('pt-BR', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}\n\n`;
     
-    message += `📦 *PRODUTOS:*\n`;
+    message += `👋 Olá! Gostaria de finalizar esta compra:\n\n`;
+    
+    message += `🛍️ *PRODUTOS SELECIONADOS*\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
     items.forEach((item, index) => {
-      message += `${index + 1}. ${item.name}\n`;
-      message += `   Qtd: ${item.quantity}x | Valor: ${formatCurrency(item.price)}\n`;
-      message += `   Subtotal: ${formatCurrency(item.price * item.quantity)}\n\n`;
+      message += `${index + 1}️⃣ *${item.name}*\n`;
+      message += `   📊 Qtd: ${item.quantity} unidade${item.quantity > 1 ? 's' : ''}\n`;
+      message += `   💰 Valor unitário: ${formatCurrency(item.price)}\n`;
+      message += `   💵 Subtotal: *${formatCurrency(item.price * item.quantity)}*\n\n`;
     });
     
-    message += `💰 *TOTAL: ${formatCurrency(total)}*\n\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+    message += `💸 *TOTAL GERAL: ${formatCurrency(total)}*\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━━━\n\n`;
     
-    message += `🚚 *ENTREGA:*\n`;
-    message += `${shippingAddress.full_name}\n`;
-    message += `📱 ${shippingAddress.phone}\n`;
-    message += `📍 ${shippingAddress.street}, ${shippingAddress.number}`;
+    message += `🚚 *DADOS PARA ENTREGA*\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+    message += `👤 *Nome:* ${shippingAddress.full_name}\n`;
+    message += `📱 *Telefone:* ${shippingAddress.phone}\n`;
+    message += `📍 *Endereço:* ${shippingAddress.street}, ${shippingAddress.number}`;
     if (shippingAddress.complement) {
-      message += `, ${shippingAddress.complement}`;
+      message += ` - ${shippingAddress.complement}`;
     }
-    message += `\n${shippingAddress.city} - ${shippingAddress.state}\n`;
-    message += `CEP: ${shippingAddress.zip_code}\n\n`;
+    message += `\n🏙️ *Cidade:* ${shippingAddress.city} - ${shippingAddress.state}\n`;
+    message += `📮 *CEP:* ${shippingAddress.zip_code}\n\n`;
     
-    message += `Aguardo confirmação do pagamento! 😊`;
+    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+    message += `✅ *Aguardando confirmação de pagamento*\n`;
+    message += `💬 Responda este WhatsApp para prosseguir!\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    message += `🙏 Obrigado pela preferência! 😊`;
     
     console.log('📱 MENSAGEM GERADA:', message);
     return encodeURIComponent(message);

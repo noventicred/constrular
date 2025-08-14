@@ -104,9 +104,41 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     console.log('📦 Items no carrinho:', items);
     console.log('💰 Total:', total);
     
-    const message = `Olá! Gostaria de fazer um pedido:\n\n${items.map(item => 
-      `${item.quantity}x ${item.name} - ${item.brand}\n${formatCurrency(item.price)} cada`
-    ).join('\n\n')}\n\n*Total: ${formatCurrency(total)}*\n\nAguardo retorno para finalizar o pedido!`;
+    let message = `🛒 *ORÇAMENTO RÁPIDO* 🛒\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+    message += `📅 *Data:* ${new Date().toLocaleDateString('pt-BR', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}\n\n`;
+    
+    message += `👋 Olá! Tenho interesse nos seguintes produtos:\n\n`;
+    
+    message += `🛍️ *PRODUTOS DE INTERESSE*\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+    
+    items.forEach((item, index) => {
+      message += `${index + 1}️⃣ *${item.name}*\n`;
+      if (item.brand) {
+        message += `   🏷️ Marca: ${item.brand}\n`;
+      }
+      message += `   📊 Quantidade: ${item.quantity} unidade${item.quantity > 1 ? 's' : ''}\n`;
+      message += `   💰 Valor unitário: ${formatCurrency(item.price)}\n`;
+      message += `   💵 Subtotal: *${formatCurrency(item.price * item.quantity)}*\n\n`;
+    });
+    
+    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+    message += `💸 *TOTAL ESTIMADO: ${formatCurrency(total)}*\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    
+    message += `❓ *Gostaria de saber:*\n`;
+    message += `• 🚚 Condições de entrega\n`;
+    message += `• 💳 Formas de pagamento\n`;
+    message += `• ⏰ Prazo de entrega\n\n`;
+    
+    message += `🙏 Aguardo retorno para finalizar! 😊`;
     
     console.log('📱 MENSAGEM RÁPIDA GERADA:', message);
     return encodeURIComponent(message);
