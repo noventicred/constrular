@@ -218,6 +218,43 @@ const Produto = () => {
     }
   };
 
+  const handleShare = async () => {
+    const shareData = {
+      title: product.name,
+      text: `Confira este produto: ${product.name} - ${formatCurrency(product.price)}`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback para copiar o link
+        await navigator.clipboard.writeText(window.location.href);
+        toast({
+          title: "Link copiado!",
+          description: "O link do produto foi copiado para a área de transferência.",
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao compartilhar:', error);
+      // Fallback para copiar o link
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        toast({
+          title: "Link copiado!",
+          description: "O link do produto foi copiado para a área de transferência.",
+        });
+      } catch (clipboardError) {
+        toast({
+          title: "Erro ao compartilhar",
+          description: "Não foi possível compartilhar o produto.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
   const renderStars = (rating: number, size: string = "h-4 w-4") => {
     return [...Array(5)].map((_, i) => (
       <Star 
@@ -427,7 +464,7 @@ const Produto = () => {
                 <Button variant="outline" size="lg" className="shrink-0">
                   <Heart className="h-5 w-5" />
                 </Button>
-                <Button variant="outline" size="lg" className="shrink-0">
+                <Button variant="outline" size="lg" className="shrink-0" onClick={handleShare}>
                   <Share2 className="h-5 w-5" />
                 </Button>
               </div>
