@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, ShoppingCart, Heart } from "lucide-react";
+import { Star, ShoppingCart } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -57,7 +57,8 @@ const FeaturedProducts = () => {
     }
   };
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
+    e.stopPropagation();
     addItem({
       id: parseInt(product.id),
       name: product.name,
@@ -84,8 +85,8 @@ const FeaturedProducts = () => {
               Carregando produtos...
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
               <div key={i} className="h-96 bg-muted rounded-lg animate-pulse" />
             ))}
           </div>
@@ -106,114 +107,116 @@ const FeaturedProducts = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {products.map((product, index) => (
-            <Card key={product.id} className="group relative overflow-hidden bg-white dark:bg-gray-900 border-0 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 animate-fade-in cursor-pointer" style={{ animationDelay: `${index * 100}ms` }} onClick={() => navigate(`/produto/${product.id}`)}>
-              <CardContent className="p-0">
-                <div className="relative aspect-square h-48 overflow-hidden rounded-t-2xl">
-                  <img 
-                    src={product.image_url || "/placeholder.svg"} 
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  
-                  {/* Discount Badge */}
-                  {product.discount && product.discount > 0 && (
-                    <Badge className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-red-600 text-white border-0 px-3 py-1 text-sm font-bold shadow-lg">
-                      -{product.discount}%
-                    </Badge>
-                  )}
-                  
-                  {/* Stock Status */}
-                  <Badge 
-                    className={`absolute top-3 right-3 border-0 px-3 py-1 text-sm font-medium shadow-lg ${
-                      product.in_stock 
-                        ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
-                        : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white'
-                    }`}
-                  >
-                    {product.in_stock ? 'Em Estoque' : 'Indisponível'}
-                  </Badge>
-                  
-                  {/* Wishlist Button */}
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="absolute bottom-3 right-3 bg-white/90 hover:bg-white shadow-lg rounded-full h-9 w-9 p-0 opacity-0 group-hover:opacity-100 transition-all duration-300"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Heart className="h-4 w-4 text-gray-700" />
-                  </Button>
-                </div>
-                
-                <div className="p-4">
-                  <div className="space-y-2">
-                    <div>
-                      <h3 className="font-bold text-base text-gray-900 dark:text-white line-clamp-2 group-hover:text-primary transition-colors duration-300 leading-tight">
-                        {product.name}
-                      </h3>
-                    </div>
+            <div 
+              key={product.id} 
+              className="animate-fade-in"
+              style={{ animationDelay: `${index * 150}ms` }}
+            >
+              <Card 
+                className="group relative overflow-hidden bg-white dark:bg-gray-900 border-0 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 h-full cursor-pointer"
+                onClick={() => navigate(`/produto/${product.id}`)}
+              >
+                <CardContent className="p-0 h-full flex flex-col">
+                  <div className="relative h-56 overflow-hidden rounded-t-2xl">
+                    <img
+                      src={product.image_url || "/placeholder.svg"}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
                     
-                    {/* Rating */}
-                    {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 && (
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <Star 
-                              key={i} 
-                              className={`h-3 w-3 ${
-                                i < Math.floor(product.rating!) 
-                                  ? 'text-yellow-400 fill-current' 
-                                  : 'text-gray-300'
-                              }`} 
-                            />
-                          ))}
-                        </div>
-                        <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                          {product.rating} ({product.reviews} avaliações)
-                        </span>
-                      </div>
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    
+                    {/* Discount Badge */}
+                    {product.discount && product.discount > 0 && (
+                      <Badge className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-base px-4 py-2 shadow-xl border-0 rounded-xl">
+                        -{product.discount}%
+                      </Badge>
                     )}
                     
-                    {/* Price */}
-                    <div className="space-y-1">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-xl font-bold text-gray-900 dark:text-white">
-                          {formatCurrency(product.price)}
-                        </span>
-                        {product.original_price && product.original_price > product.price && (
-                          <span className="text-sm text-gray-500 line-through">
-                            {formatCurrency(product.original_price)}
-                          </span>
-                        )}
-                      </div>
-                      {product.original_price && product.original_price > product.price && (
-                        <p className="text-xs text-green-600 font-medium">
-                          Economia de {formatCurrency(product.original_price - product.price)}
-                        </p>
-                      )}
+                    {/* Stock Badge */}
+                    <Badge 
+                      className={`absolute top-4 right-4 text-sm font-semibold px-3 py-1 border-0 rounded-xl shadow-lg ${
+                        product.in_stock
+                          ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
+                          : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white'
+                      }`}
+                    >
+                      {product.in_stock ? 'Em Estoque' : 'Indisponível'}
+                    </Badge>
+                    
+                    {/* Featured Label */}
+                    <div className="absolute bottom-4 left-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                      DESTAQUE
                     </div>
                   </div>
-                </div>
-              </CardContent>
-              
-              <CardFooter className="p-4 pt-0">
-                <Button 
-                  className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold py-2 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg" 
-                  disabled={!product.in_stock}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddToCart(product);
-                  }}
-                >
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
-                </Button>
-              </CardFooter>
-            </Card>
+                  
+                  <div className="p-5 flex-1 flex flex-col">
+                    <div className="space-y-2 flex-1">
+                      <div>
+                        <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
+                          {product.name}
+                        </h3>
+                      </div>
+                      
+                      {/* Rating */}
+                      {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 && (
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <Star 
+                                key={i} 
+                                className={`h-3 w-3 ${
+                                  i < Math.floor(product.rating!)
+                                    ? 'text-yellow-400 fill-current' 
+                                    : 'text-gray-300'
+                                }`} 
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                            {product.rating} ({product.reviews} avaliações)
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Price */}
+                      <div className="space-y-1">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl font-bold text-primary">
+                            {formatCurrency(product.price)}
+                          </span>
+                          {product.original_price && product.original_price > product.price && (
+                            <span className="text-sm text-gray-500 line-through">
+                              {formatCurrency(product.original_price)}
+                            </span>
+                          )}
+                        </div>
+                        {product.original_price && (
+                          <div className="bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-lg">
+                            <p className="text-xs text-green-600 dark:text-green-400 font-bold">
+                              🎉 Economia de {formatCurrency(product.original_price - product.price)}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Action Button */}
+                    <Button 
+                      className="w-full mt-4 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl"
+                      disabled={!product.in_stock}
+                      onClick={(e) => handleAddToCart(e, product)}
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           ))}
         </div>
         
