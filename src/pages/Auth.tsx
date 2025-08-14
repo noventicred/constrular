@@ -186,7 +186,7 @@ const Auth = () => {
       } else {
         toast({
           title: 'Conta criada com sucesso!',
-          description: 'Verifique seu email para confirmar a conta.',
+          description: 'Sua conta foi criada e você já pode fazer login.',
         });
         // Reset form
         setFullName('');

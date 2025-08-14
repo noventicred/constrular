@@ -4,6 +4,15 @@ export interface UserProfile {
   id: string;
   email: string | null;
   full_name: string | null;
+  phone: string | null;
+  birth_date: string | null;
+  street: string | null;
+  number: string | null;
+  complement: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  document_number: string | null;
   is_admin: boolean;
   created_at: string;
   updated_at: string;

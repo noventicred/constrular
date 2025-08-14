@@ -10,6 +10,7 @@ import Produtos from "./pages/Produtos";
 import Produto from "./pages/Produto";
 import Carrinho from "./pages/Carrinho";
 import Auth from "./pages/Auth";
+import MinhaConta from "./pages/MinhaConta";
 import SobreNos from "./pages/SobreNos";
 import Contato from "./pages/Contato";
 import Entrega from "./pages/Entrega";
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
             <Route path="/cookies" element={<Cookies />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/minha-conta" element={<MinhaConta />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="produtos" element={<AdminProducts />} />
