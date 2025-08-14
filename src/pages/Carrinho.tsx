@@ -100,7 +100,7 @@ const Carrinho = () => {
                               <p className="text-sm text-muted-foreground">{item.brand}</p>
                             )}
                           </div>
-                          <Button
+                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => removeItem(item.id)}

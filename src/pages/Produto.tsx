@@ -174,7 +174,7 @@ const Produto = () => {
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
       addItem({
-        id: parseInt(product.id),
+        id: product.id,
         name: product.name,
         brand: product.brand || 'Marca não informada',
         price: product.price,

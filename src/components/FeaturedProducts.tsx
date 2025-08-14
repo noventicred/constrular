@@ -63,7 +63,7 @@ const FeaturedProducts = () => {
     
     try {
       addItem({
-        id: parseInt(product.id),
+        id: product.id,
         name: product.name,
         brand: product.brand || '',
         price: product.price,

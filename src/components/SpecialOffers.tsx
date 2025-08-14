@@ -69,7 +69,7 @@ const SpecialOffers = () => {
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.stopPropagation(); // Prevent navigation when clicking the button
     addItem({
-      id: parseInt(product.id),
+      id: product.id,
       name: product.name,
       brand: '',
       price: product.price,

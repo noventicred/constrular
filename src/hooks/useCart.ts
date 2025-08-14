@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { formatCurrency } from '@/lib/formatters';
 
 export interface CartItem {
-  id: number;
+  id: string;
   name: string;
   brand: string;
   price: number;
@@ -38,11 +38,11 @@ export const useCart = () => {
     });
   };
 
-  const removeItem = (id: number) => {
+  const removeItem = (id: string) => {
     setItems(prev => prev.filter(item => item.id !== id));
   };
 
-  const updateQuantity = (id: number, quantity: number) => {
+  const updateQuantity = (id: string, quantity: number) => {
     if (quantity <= 0) {
       removeItem(id);
       return;
