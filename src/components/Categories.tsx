@@ -64,7 +64,8 @@ const Categories = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: false,
     dragFree: true,
-    containScroll: 'trimSnaps'
+    containScroll: 'trimSnaps',
+    align: 'start'
   });
 
   useEffect(() => {
@@ -107,20 +108,22 @@ const Categories = () => {
 
   if (loading) {
     return (
-      <section className="py-16 animate-fade-in">
+      <section className="py-12 md:py-20 bg-gradient-to-b from-background via-muted/10 to-background">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold mb-3">
-              Categorias
-            </h2>
-            <p className="text-muted-foreground">
-              Carregando categorias...
-            </p>
+          <div className="text-center mb-12">
+            <div className="w-48 h-8 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg mx-auto mb-4 animate-pulse" />
+            <div className="w-80 h-4 bg-muted/70 rounded mx-auto animate-pulse" />
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-28 bg-muted rounded-lg animate-pulse" />
-            ))}
+          
+          <div className="relative overflow-hidden">
+            <div className="flex gap-6 px-2">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="flex-none">
+                  <div className="w-40 h-48 bg-gradient-to-br from-muted via-muted/70 to-muted rounded-2xl animate-pulse" 
+                       style={{ animationDelay: `${i * 100}ms` }} />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -128,87 +131,111 @@ const Categories = () => {
   }
 
   return (
-    <section className="py-8 md:py-16 animate-fade-in bg-gradient-to-b from-background to-muted/20">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-6 md:mb-12">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 md:mb-3 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+    <section className="py-12 md:py-20 bg-gradient-to-b from-background via-muted/10 to-background relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
+      
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="text-center mb-12 md:mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium mb-4">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+            Explore nossas categorias
+          </div>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
             Categorias
           </h2>
-          <p className="text-muted-foreground text-sm md:text-base max-w-2xl mx-auto">
+          <p className="text-muted-foreground/80 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
             Encontre o que precisa para sua obra com facilidade
           </p>
         </div>
 
-        <div className="relative">
-          {/* Navigation Buttons - Only visible on desktop */}
+        <div className="relative group">
+          {/* Enhanced Navigation Buttons */}
           <Button
             variant="outline"
             size="sm"
-            className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-white/90 backdrop-blur-sm shadow-xl border-2 hover:bg-white hover:scale-110 transition-all duration-300 hidden lg:flex items-center justify-center"
+            className="absolute -left-6 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-xl bg-background/95 backdrop-blur-sm shadow-2xl border border-border hover:border-primary/50 hover:bg-primary/5 hover:scale-110 transition-all duration-300 hidden lg:flex items-center justify-center group-hover:opacity-100 opacity-80"
             onClick={scrollPrev}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-5 w-5 text-foreground" />
           </Button>
 
           <Button
             variant="outline"
             size="sm"
-            className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-white/90 backdrop-blur-sm shadow-xl border-2 hover:bg-white hover:scale-110 transition-all duration-300 hidden lg:flex items-center justify-center"
+            className="absolute -right-6 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-xl bg-background/95 backdrop-blur-sm shadow-2xl border border-border hover:border-primary/50 hover:bg-primary/5 hover:scale-110 transition-all duration-300 hidden lg:flex items-center justify-center group-hover:opacity-100 opacity-80"
             onClick={scrollNext}
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-5 w-5 text-foreground" />
           </Button>
 
-          {/* Carousel Container */}
-          <div className="overflow-hidden py-2" ref={emblaRef}>
-            <div className="flex gap-3 md:gap-4 lg:gap-6 px-2">
+          {/* Modern Carousel Container */}
+          <div className="overflow-hidden py-4" ref={emblaRef}>
+            <div className="flex gap-4 md:gap-6 lg:gap-8 px-2">
               {categories.map((category, index) => {
                 const Icon = iconMap[category.name] || Settings;
                 const colorClass = colorMap[category.name] || "bg-primary";
                 return (
                   <div
                     key={category.id}
-                    className="flex-none w-[120px] sm:w-[140px] md:w-36 lg:w-40 animate-fade-in"
-                    style={{ animationDelay: `${index * 100}ms` }}
+                    className="flex-none w-[160px] md:w-[180px] lg:w-[200px] animate-fade-in"
+                    style={{ animationDelay: `${index * 80}ms` }}
                   >
                     <Card 
-                      className="group hover:shadow-2xl transition-all duration-500 cursor-pointer hover:-translate-y-2 border-2 hover:border-primary/40 h-[140px] sm:h-[150px] md:h-36 lg:h-40 bg-gradient-to-br from-white to-gray-50/50 hover:from-primary/5 hover:to-primary/10 backdrop-blur-sm"
+                      className="group/card hover:shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-700 cursor-pointer hover:-translate-y-3 border border-border/50 hover:border-primary/30 h-[200px] md:h-[220px] lg:h-[240px] bg-gradient-to-br from-background via-background/95 to-muted/20 hover:from-primary/5 hover:via-primary/3 hover:to-primary/8 backdrop-blur-sm relative overflow-hidden"
                       onClick={() => handleCategoryClick(category.id, category.name)}
                     >
-                      <CardContent className="p-3 md:p-4 lg:p-5 text-center h-full flex flex-col justify-center items-center relative overflow-hidden">
-                        {/* Background decoration */}
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <CardContent className="p-6 text-center h-full flex flex-col justify-center items-center relative">
+                        {/* Animated background patterns */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-700" />
+                        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-3xl opacity-0 group-hover/card:opacity-100 transition-all duration-500 transform group-hover/card:scale-110" />
+                        <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-secondary/10 to-transparent rounded-tr-3xl opacity-0 group-hover/card:opacity-100 transition-all duration-500 delay-100" />
                         
-                        {/* Icon/Image container */}
-                        <div className="relative mb-3 md:mb-4">
+                        {/* Icon/Image container with enhanced styling */}
+                        <div className="relative mb-5 group-hover/card:mb-4 transition-all duration-500">
                           {category.image_url ? (
                             <div className="relative">
-                              <img 
-                                src={category.image_url} 
-                                alt={category.name}
-                                className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-18 lg:h-18 rounded-2xl object-cover mx-auto group-hover:scale-110 transition-all duration-500 shadow-lg ring-2 ring-primary/20 group-hover:ring-primary/40"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                              <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 p-1">
+                                <img 
+                                  src={category.image_url} 
+                                  alt={category.name}
+                                  className="w-full h-full rounded-xl object-cover group-hover/card:scale-105 transition-all duration-500 shadow-lg"
+                                />
+                              </div>
+                              <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent rounded-2xl opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
+                              <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 via-transparent to-secondary/20 rounded-3xl opacity-0 group-hover/card:opacity-100 transition-all duration-700 blur-lg" />
                             </div>
                           ) : (
-                            <div className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-18 lg:h-18 ${colorClass} rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-all duration-500 shadow-lg ring-2 ring-white/50 group-hover:shadow-xl relative overflow-hidden`}>
-                              {/* Shimmer effect */}
-                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                              <Icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 lg:h-8 lg:w-8 text-white relative z-10" />
+                            <div className="relative">
+                              <div className={`w-20 h-20 md:w-24 md:h-24 ${colorClass} rounded-2xl flex items-center justify-center group-hover/card:scale-105 transition-all duration-500 shadow-lg relative overflow-hidden`}>
+                                {/* Enhanced shimmer effect */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/card:translate-x-full transition-transform duration-1000 delay-200" />
+                                <Icon className="h-9 w-9 md:h-11 md:w-11 text-white relative z-10 drop-shadow-sm" />
+                              </div>
+                              <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 via-transparent to-secondary/20 rounded-3xl opacity-0 group-hover/card:opacity-100 transition-all duration-700 blur-lg" />
                             </div>
                           )}
                           
-                          {/* Pulse ring */}
-                          <div className="absolute inset-0 rounded-2xl border-2 border-primary/30 scale-0 group-hover:scale-125 opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                          {/* Enhanced pulse rings */}
+                          <div className="absolute inset-0 rounded-2xl ring-2 ring-primary/20 scale-100 group-hover/card:scale-125 group-hover/card:ring-primary/40 opacity-0 group-hover/card:opacity-100 transition-all duration-700" />
+                          <div className="absolute inset-0 rounded-2xl ring-1 ring-primary/30 scale-100 group-hover/card:scale-150 opacity-0 group-hover/card:opacity-60 transition-all duration-1000 delay-200" />
                         </div>
                         
-                        {/* Category name */}
-                        <h3 className="font-bold text-xs sm:text-sm md:text-base text-center leading-tight line-clamp-2 text-gray-800 group-hover:text-primary transition-colors duration-300 relative z-10">
+                        {/* Enhanced category name */}
+                        <h3 className="font-bold text-sm md:text-base lg:text-lg text-center leading-tight line-clamp-2 text-foreground/90 group-hover/card:text-primary transition-colors duration-500 relative z-10 mb-2">
                           {category.name}
                         </h3>
                         
-                        {/* Bottom accent line */}
-                        <div className="absolute bottom-0 left-1/2 w-0 h-1 bg-gradient-to-r from-primary to-primary/60 group-hover:w-full group-hover:left-0 transition-all duration-500 rounded-t-full" />
+                        {/* Subtitle effect */}
+                        <p className="text-xs text-muted-foreground/60 opacity-0 group-hover/card:opacity-100 transition-all duration-500 delay-100 transform translate-y-2 group-hover/card:translate-y-0">
+                          Explorar produtos
+                        </p>
+                        
+                        {/* Enhanced bottom accent */}
+                        <div className="absolute bottom-0 left-1/2 w-0 h-1.5 bg-gradient-to-r from-primary via-primary/80 to-secondary group-hover/card:w-full group-hover/card:left-0 transition-all duration-700 rounded-t-full" />
+                        <div className="absolute bottom-0 left-1/2 w-0 h-px bg-gradient-to-r from-primary/60 to-secondary/60 group-hover/card:w-full group-hover/card:left-0 transition-all duration-700 delay-100" />
                       </CardContent>
                     </Card>
                   </div>
@@ -217,12 +244,16 @@ const Categories = () => {
             </div>
           </div>
 
-          {/* Mobile scroll indicator */}
-          <div className="flex justify-center mt-6 lg:hidden">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full border border-primary/20">
-              <div className="w-2 h-2 bg-primary/60 rounded-full animate-pulse" />
-              Deslize para ver mais categorias
-              <div className="w-2 h-2 bg-primary/60 rounded-full animate-pulse" />
+          {/* Enhanced mobile scroll indicator */}
+          <div className="flex justify-center mt-8 lg:hidden">
+            <div className="flex items-center gap-3 text-sm text-muted-foreground/80 bg-background/80 backdrop-blur-sm px-6 py-3 rounded-full border border-border/50 shadow-lg">
+              <div className="flex gap-1">
+                <div className="w-2 h-2 bg-primary/70 rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-primary/50 rounded-full animate-pulse" style={{ animationDelay: '200ms' }} />
+                <div className="w-2 h-2 bg-primary/30 rounded-full animate-pulse" style={{ animationDelay: '400ms' }} />
+              </div>
+              <span className="font-medium">Deslize para ver mais</span>
+              <ChevronRight className="h-4 w-4 text-primary/60" />
             </div>
           </div>
         </div>
