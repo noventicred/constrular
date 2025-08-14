@@ -488,7 +488,7 @@ const Header = () => {
                           className="w-full gap-3 h-12 text-lg font-semibold"
                           onClick={() => {
                             setIsMobileMenuOpen(false);
-                            navigate(isAdmin ? '/admin' : '/');
+                            navigate('/minha-conta');
                           }}
                         >
                           <User className="h-5 w-5" />
