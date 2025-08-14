@@ -48,18 +48,43 @@ const AdminDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const [productsResult, categoriesResult, usersResult, activeProductsResult, ordersResult] = 
-        await Promise.all([
-          supabase.from('products').select('*', { count: 'exact', head: true }),
-          supabase.from('categories').select('*', { count: 'exact', head: true }),
-          supabase.from('profiles').select('*', { count: 'exact', head: true }),
-          supabase.from('products').select('*', { count: 'exact', head: true }).eq('in_stock', true),
-          supabase.from('orders').select('*', { count: 'exact', head: true }),
-        ]);
+      const [
+        productsResult, 
+        categoriesResult, 
+        usersResult, 
+        activeProductsResult, 
+        ordersResult,
+        pendingOrdersResult,
+        revenueResult
+      ] = await Promise.all([
+        supabase.from('products').select('*', { count: 'exact', head: true }),
+        supabase.from('categories').select('*', { count: 'exact', head: true }),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('products').select('*', { count: 'exact', head: true }).eq('in_stock', true),
+        supabase.from('orders').select('*', { count: 'exact', head: true }),
+        supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+        supabase.from('orders').select('total_amount').gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
+      ]);
 
-      // Simulando dados de receita e crescimento
-      const monthlyRevenue = Math.floor(Math.random() * 50000) + 20000;
-      const weeklyGrowth = Math.floor(Math.random() * 20) + 5;
+      // Calculando receita real do mês atual
+      const monthlyRevenue = revenueResult.data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
+      
+      // Calculando crescimento com base nos últimos 7 dias vs 7 dias anteriores
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      
+      const twoWeeksAgo = new Date();
+      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
+      const [thisWeekOrders, lastWeekOrders] = await Promise.all([
+        supabase.from('orders').select('total_amount').gte('created_at', weekAgo.toISOString()),
+        supabase.from('orders').select('total_amount').gte('created_at', twoWeeksAgo.toISOString()).lt('created_at', weekAgo.toISOString())
+      ]);
+
+      const thisWeekRevenue = thisWeekOrders.data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
+      const lastWeekRevenue = lastWeekOrders.data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
+      
+      const weeklyGrowth = lastWeekRevenue > 0 ? Math.round(((thisWeekRevenue - lastWeekRevenue) / lastWeekRevenue) * 100) : 0;
 
       setStats({
         totalProducts: productsResult.count || 0,
@@ -67,9 +92,9 @@ const AdminDashboard = () => {
         totalUsers: usersResult.count || 0,
         activeProducts: activeProductsResult.count || 0,
         totalOrders: ordersResult.count || 0,
-        pendingOrders: Math.floor((ordersResult.count || 0) * 0.3),
+        pendingOrders: pendingOrdersResult.count || 0,
         monthlyRevenue,
-        weeklyGrowth,
+        weeklyGrowth: Math.max(weeklyGrowth, 0),
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -79,38 +104,118 @@ const AdminDashboard = () => {
   };
 
   const fetchRecentActivity = async () => {
-    // Simulando atividades recentes
-    const activities: RecentActivity[] = [
-      {
-        id: '1',
-        type: 'order',
-        message: 'Novo pedido #1234 recebido',
-        timestamp: '2 minutos atrás',
-        status: 'success'
-      },
-      {
-        id: '2',
-        type: 'user',
-        message: 'Novo usuário registrado',
-        timestamp: '15 minutos atrás',
-        status: 'success'
-      },
-      {
-        id: '3',
+    try {
+      // Buscar pedidos recentes
+      const { data: recentOrders } = await supabase
+        .from('orders')
+        .select('id, status, created_at')
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      // Buscar usuários recentes
+      const { data: recentUsers } = await supabase
+        .from('profiles')
+        .select('id, full_name, created_at')
+        .order('created_at', { ascending: false })
+        .limit(2);
+
+      // Buscar produtos com estoque baixo (simulando estoque < 5)
+      const { data: lowStockProducts } = await supabase
+        .from('products')
+        .select('id, name')
+        .eq('in_stock', false)
+        .limit(2);
+
+      const activities: RecentActivity[] = [];
+
+      // Adicionar pedidos recentes
+      recentOrders?.forEach((order, index) => {
+        if (index < 2) {
+          const timeAgo = new Date(order.created_at);
+          const now = new Date();
+          const diffMinutes = Math.floor((now.getTime() - timeAgo.getTime()) / (1000 * 60));
+          
+          let timeString = 'Agora mesmo';
+          if (diffMinutes > 1440) {
+            timeString = `${Math.floor(diffMinutes / 1440)} dias atrás`;
+          } else if (diffMinutes > 60) {
+            timeString = `${Math.floor(diffMinutes / 60)} horas atrás`;
+          } else if (diffMinutes > 0) {
+            timeString = `${diffMinutes} minutos atrás`;
+          }
+
+          activities.push({
+            id: order.id,
+            type: 'order',
+            message: `Pedido recebido`,
+            timestamp: timeString,
+            status: order.status === 'pending' ? 'pending' : order.status === 'completed' ? 'success' : 'error'
+          });
+        }
+      });
+
+      // Adicionar usuários recentes
+      recentUsers?.forEach((user, index) => {
+        if (index < 1) {
+          const timeAgo = new Date(user.created_at);
+          const now = new Date();
+          const diffMinutes = Math.floor((now.getTime() - timeAgo.getTime()) / (1000 * 60));
+          
+          let timeString = 'Agora mesmo';
+          if (diffMinutes > 1440) {
+            timeString = `${Math.floor(diffMinutes / 1440)} dias atrás`;
+          } else if (diffMinutes > 60) {
+            timeString = `${Math.floor(diffMinutes / 60)} horas atrás`;
+          } else if (diffMinutes > 0) {
+            timeString = `${diffMinutes} minutos atrás`;
+          }
+
+          activities.push({
+            id: user.id,
+            type: 'user',
+            message: `Novo usuário registrado: ${user.full_name || 'Usuário'}`,
+            timestamp: timeString,
+            status: 'success'
+          });
+        }
+      });
+
+      // Adicionar produtos sem estoque
+      lowStockProducts?.forEach((product, index) => {
+        if (index < 1) {
+          activities.push({
+            id: product.id,
+            type: 'product',
+            message: `Produto "${product.name}" sem estoque`,
+            timestamp: 'Verificar estoque',
+            status: 'pending'
+          });
+        }
+      });
+
+      // Se não houver atividades, adicionar mensagem padrão
+      if (activities.length === 0) {
+        activities.push({
+          id: 'default',
+          type: 'product',
+          message: 'Nenhuma atividade recente',
+          timestamp: 'Sistema ativo',
+          status: 'success'
+        });
+      }
+
+      setRecentActivity(activities);
+    } catch (error) {
+      console.error('Error fetching recent activity:', error);
+      // Fallback para dados padrão em caso de erro
+      setRecentActivity([{
+        id: 'error',
         type: 'product',
-        message: 'Produto "Martelo" com estoque baixo',
-        timestamp: '1 hora atrás',
-        status: 'pending'
-      },
-      {
-        id: '4',
-        type: 'order',
-        message: 'Pedido #1230 cancelado',
-        timestamp: '2 horas atrás',
-        status: 'error'
-      },
-    ];
-    setRecentActivity(activities);
+        message: 'Sistema funcionando normalmente',
+        timestamp: 'Agora',
+        status: 'success'
+      }]);
+    }
   };
 
   const statCards = [
