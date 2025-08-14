@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Search, Filter, Grid, List, ShoppingCart, Star } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,7 @@ const Produtos = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("todas");
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("relevancia");
   const [offerFilter, setOfferFilter] = useState(false);
@@ -60,6 +61,7 @@ const Produtos = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const filterParam = urlParams.get('filter');
     const categoryParam = urlParams.get('categoria');
+    const searchParam = urlParams.get('search');
     
     if (filterParam === 'ofertas') {
       setOfferFilter(true);
@@ -67,6 +69,10 @@ const Produtos = () => {
     
     if (categoryParam) {
       setSelectedCategory(categoryParam);
+    }
+    
+    if (searchParam) {
+      setSearchTerm(decodeURIComponent(searchParam));
     }
     
     fetchData();
@@ -346,9 +352,19 @@ const Produtos = () => {
                 {/* Product Image */}
                 <div className="aspect-square mb-4 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden relative">
                   <img
-                    src={product.image_url || "/placeholder.svg"}
+                    src={(() => {
+                      try {
+                        const parsed = JSON.parse(product.image_url || '""');
+                        return Array.isArray(parsed) ? parsed[0] : (product.image_url || "/placeholder.svg");
+                      } catch {
+                        return product.image_url || "/placeholder.svg";
+                      }
+                    })()}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.svg";
+                    }}
                   />
                   
                   {/* Gradient Overlay */}

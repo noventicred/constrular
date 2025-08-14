@@ -15,12 +15,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from "@/integrations/supabase/client";
-
+import { formatCurrency } from "@/lib/formatters";
 
 interface Category {
   id: string;
@@ -29,17 +29,45 @@ interface Category {
   image_url: string | null;
 }
 
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image_url: string | null;
+}
+
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [mobileSearchTerm, setMobileSearchTerm] = useState('');
+  const [mobileSearchResults, setMobileSearchResults] = useState<Product[]>([]);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const { user, isAdmin, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const searchRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchCategories();
+    
+    // Close search dropdown when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchOpen(false);
+      }
+      if (mobileSearchRef.current && !mobileSearchRef.current.contains(event.target as Node)) {
+        setIsMobileSearchOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const fetchCategories = async () => {
@@ -54,6 +82,80 @@ const Header = () => {
       setCategories(data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
+    }
+  };
+
+  // Search products function
+  const searchProducts = async (query: string) => {
+    if (!query || query.length < 2) {
+      return [];
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, name, price, image_url')
+        .or(`name.ilike.%${query}%, description.ilike.%${query}%`)
+        .eq('in_stock', true)
+        .limit(5);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error searching products:', error);
+      return [];
+    }
+  };
+
+  // Handle desktop search
+  useEffect(() => {
+    const delayedSearch = setTimeout(async () => {
+      if (searchTerm.length >= 2) {
+        const results = await searchProducts(searchTerm);
+        setSearchResults(results);
+        setIsSearchOpen(true);
+      } else {
+        setSearchResults([]);
+        setIsSearchOpen(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayedSearch);
+  }, [searchTerm]);
+
+  // Handle mobile search
+  useEffect(() => {
+    const delayedSearch = setTimeout(async () => {
+      if (mobileSearchTerm.length >= 2) {
+        const results = await searchProducts(mobileSearchTerm);
+        setMobileSearchResults(results);
+        setIsMobileSearchOpen(true);
+      } else {
+        setMobileSearchResults([]);
+        setIsMobileSearchOpen(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayedSearch);
+  }, [mobileSearchTerm]);
+
+  const handleProductClick = (productId: string) => {
+    setSearchTerm('');
+    setMobileSearchTerm('');
+    setIsSearchOpen(false);
+    setIsMobileSearchOpen(false);
+    setIsMobileMenuOpen(false);
+    navigate(`/produto/${productId}`);
+  };
+
+  const getProductImage = (imageUrl: string | null) => {
+    if (!imageUrl) return "/placeholder.svg";
+    
+    try {
+      const parsed = JSON.parse(imageUrl);
+      return Array.isArray(parsed) ? parsed[0] : imageUrl;
+    } catch {
+      return imageUrl;
     }
   };
 
@@ -85,12 +187,59 @@ const Header = () => {
 
           {/* Search bar */}
           <div className="flex-1 max-w-2xl mx-8 hidden md:block">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <div className="relative" ref={searchRef}>
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 z-10" />
               <Input
                 placeholder="Busque por cimento, tijolo, tinta..."
                 className="pl-10 h-12 text-base"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={() => {
+                  if (searchResults.length > 0) {
+                    setIsSearchOpen(true);
+                  }
+                }}
               />
+              
+              {/* Search Results Dropdown */}
+              {isSearchOpen && searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 bg-background border rounded-lg shadow-lg z-50 mt-1 max-h-80 overflow-y-auto">
+                  {searchResults.map((product) => (
+                    <button
+                      key={product.id}
+                      className="w-full flex items-center gap-3 p-3 hover:bg-muted transition-colors border-b last:border-b-0"
+                      onClick={() => handleProductClick(product.id)}
+                    >
+                      <img
+                        src={getProductImage(product.image_url)}
+                        alt={product.name}
+                        className="w-12 h-12 object-cover rounded-lg"
+                        onError={(e) => {
+                          e.currentTarget.src = "/placeholder.svg";
+                        }}
+                      />
+                      <div className="flex-1 text-left">
+                        <div className="font-medium text-sm">{product.name}</div>
+                        <div className="text-primary font-bold text-sm">{formatCurrency(product.price)}</div>
+                      </div>
+                      <Search className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  ))}
+                  
+                  {searchTerm.length >= 2 && (
+                    <button
+                      className="w-full p-3 text-center text-sm text-primary hover:bg-muted transition-colors border-t"
+                      onClick={() => {
+                        navigate(`/produtos?search=${encodeURIComponent(searchTerm)}`);
+                        setSearchTerm('');
+                        setIsSearchOpen(false);
+                      }}
+                    >
+                      Ver todos os resultados para "{searchTerm}"
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -198,12 +347,59 @@ const Header = () => {
                 <div className="p-0">
                   {/* Mobile Search */}
                   <div className="p-6 border-b bg-muted/30">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                    <div className="relative" ref={mobileSearchRef}>
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 z-10" />
                       <Input
                         placeholder="Buscar produtos..."
                         className="pl-10 bg-background/80 border-primary/20 focus:border-primary"
+                        value={mobileSearchTerm}
+                        onChange={(e) => setMobileSearchTerm(e.target.value)}
+                        onFocus={() => {
+                          if (mobileSearchResults.length > 0) {
+                            setIsMobileSearchOpen(true);
+                          }
+                        }}
                       />
+                      
+                      {/* Mobile Search Results */}
+                      {isMobileSearchOpen && mobileSearchResults.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 bg-background border rounded-lg shadow-lg z-50 mt-1 max-h-60 overflow-y-auto">
+                          {mobileSearchResults.map((product) => (
+                            <button
+                              key={product.id}
+                              className="w-full flex items-center gap-3 p-3 hover:bg-muted transition-colors border-b last:border-b-0"
+                              onClick={() => handleProductClick(product.id)}
+                            >
+                              <img
+                                src={getProductImage(product.image_url)}
+                                alt={product.name}
+                                className="w-10 h-10 object-cover rounded-lg"
+                                onError={(e) => {
+                                  e.currentTarget.src = "/placeholder.svg";
+                                }}
+                              />
+                              <div className="flex-1 text-left">
+                                <div className="font-medium text-sm">{product.name}</div>
+                                <div className="text-primary font-bold text-sm">{formatCurrency(product.price)}</div>
+                              </div>
+                            </button>
+                          ))}
+                          
+                          {mobileSearchTerm.length >= 2 && (
+                            <button
+                              className="w-full p-3 text-center text-sm text-primary hover:bg-muted transition-colors border-t"
+                              onClick={() => {
+                                navigate(`/produtos?search=${encodeURIComponent(mobileSearchTerm)}`);
+                                setMobileSearchTerm('');
+                                setIsMobileSearchOpen(false);
+                                setIsMobileMenuOpen(false);
+                              }}
+                            >
+                              Ver todos os resultados
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
