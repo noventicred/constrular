@@ -47,7 +47,7 @@ const FloatingCart = () => {
           </Button>
         </SheetTrigger>
         
-        <SheetContent className="w-[400px] sm:w-[540px] flex flex-col">
+        <SheetContent className="w-full sm:w-[540px] flex flex-col p-4 sm:p-6">
           <SheetHeader className="pb-4">
             <SheetTitle className="flex items-center gap-2">
               <ShoppingBag className="h-5 w-5" />
