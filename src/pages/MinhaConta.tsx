@@ -182,6 +182,7 @@ export default function MinhaConta() {
     switch (status) {
       case 'pending': return <Clock className="h-4 w-4" />;
       case 'confirmed': return <CheckCircle className="h-4 w-4" />;
+      case 'processing': return <Package className="h-4 w-4" />;
       case 'shipped': return <Truck className="h-4 w-4" />;
       case 'delivered': return <CheckCircle className="h-4 w-4" />;
       case 'cancelled': return <XCircle className="h-4 w-4" />;
@@ -193,6 +194,7 @@ export default function MinhaConta() {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'confirmed': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'processing': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'shipped': return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'delivered': return 'bg-green-100 text-green-800 border-green-200';
       case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
@@ -204,6 +206,7 @@ export default function MinhaConta() {
     switch (status) {
       case 'pending': return 'Pendente';
       case 'confirmed': return 'Confirmado';
+      case 'processing': return 'Processando';
       case 'shipped': return 'Enviado';
       case 'delivered': return 'Entregue';
       case 'cancelled': return 'Cancelado';
@@ -836,9 +839,9 @@ export default function MinhaConta() {
                   <Clock className="h-4 w-4" />
                   Status do Pedido
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                   <div className={`p-3 rounded-lg border-2 ${
-                    ['pending', 'confirmed', 'shipped', 'delivered'].includes(selectedOrder.status) 
+                    ['pending', 'confirmed', 'processing', 'shipped', 'delivered'].includes(selectedOrder.status) 
                       ? 'border-primary bg-primary/5' 
                       : 'border-muted bg-muted/30'
                   }`}>
@@ -850,7 +853,7 @@ export default function MinhaConta() {
                   </div>
                   
                   <div className={`p-3 rounded-lg border-2 ${
-                    ['confirmed', 'shipped', 'delivered'].includes(selectedOrder.status) 
+                    ['confirmed', 'processing', 'shipped', 'delivered'].includes(selectedOrder.status) 
                       ? 'border-primary bg-primary/5' 
                       : 'border-muted bg-muted/30'
                   }`}>
@@ -859,6 +862,18 @@ export default function MinhaConta() {
                       <span className="text-sm font-medium">Confirmado</span>
                     </div>
                     <p className="text-xs text-muted-foreground">Pedido confirmado</p>
+                  </div>
+
+                  <div className={`p-3 rounded-lg border-2 ${
+                    ['processing', 'shipped', 'delivered'].includes(selectedOrder.status) 
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-muted bg-muted/30'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Package className="h-4 w-4" />
+                      <span className="text-sm font-medium">Processando</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Preparando pedido</p>
                   </div>
                   
                   <div className={`p-3 rounded-lg border-2 ${

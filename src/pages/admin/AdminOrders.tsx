@@ -45,16 +45,17 @@ interface OrderItem {
 
 const statusOptions = [
   { value: 'pending', label: 'Pendente', icon: Clock, color: 'bg-yellow-500' },
-  { value: 'processing', label: 'Processando', icon: Package, color: 'bg-blue-500' },
+  { value: 'confirmed', label: 'Confirmado', icon: CheckCircle2, color: 'bg-blue-500' },
+  { value: 'processing', label: 'Processando', icon: Package, color: 'bg-blue-600' },
   { value: 'shipped', label: 'Enviado', icon: Truck, color: 'bg-purple-500' },
   { value: 'delivered', label: 'Entregue', icon: CheckCircle2, color: 'bg-green-500' },
   { value: 'cancelled', label: 'Cancelado', icon: XCircle, color: 'bg-red-500' },
 ];
 
 const paymentStatusOptions = [
-  { value: 'pending', label: 'Pendente', color: 'secondary' },
+  { value: 'pending', label: 'Aguardando Pagamento', color: 'secondary' },
   { value: 'paid', label: 'Pago', color: 'default' },
-  { value: 'failed', label: 'Falhou', color: 'destructive' },
+  { value: 'cancelled', label: 'Cancelado', color: 'destructive' },
   { value: 'refunded', label: 'Reembolsado', color: 'outline' },
 ];
 
@@ -224,6 +225,15 @@ export default function AdminOrders() {
   };
 
   const updateOrderStatus = async (orderId: string, status: string) => {
+    // Show confirmation for critical status changes
+    if (status === 'cancelled' || status === 'delivered') {
+      const statusText = status === 'cancelled' ? 'CANCELAR' : 'MARCAR COMO ENTREGUE';
+      const confirmed = window.confirm(
+        `Tem certeza que deseja ${statusText} este pedido?\n\nEsta ação irá alterar o status do pedido para "${statusOptions.find(s => s.value === status)?.label}".`
+      );
+      if (!confirmed) return;
+    }
+
     try {
       const { error } = await supabase
         .from('orders')
@@ -241,19 +251,28 @@ export default function AdminOrders() {
       }
 
       toast({
-        title: 'Sucesso',
-        description: 'Status do pedido atualizado',
+        title: 'Status Atualizado',
+        description: `Status do pedido alterado para "${statusOptions.find(s => s.value === status)?.label}"`,
       });
     } catch (error) {
       toast({
         title: 'Erro',
-        description: 'Não foi possível atualizar o status',
+        description: 'Não foi possível atualizar o status do pedido',
         variant: 'destructive',
       });
     }
   };
 
   const updatePaymentStatus = async (orderId: string, paymentStatus: string) => {
+    // Show confirmation for important payment status changes
+    if (paymentStatus === 'paid' || paymentStatus === 'cancelled' || paymentStatus === 'refunded') {
+      const statusText = paymentStatusOptions.find(s => s.value === paymentStatus)?.label;
+      const confirmed = window.confirm(
+        `Tem certeza que deseja alterar o status de pagamento para "${statusText}"?\n\nEsta ação pode impactar o processamento do pedido.`
+      );
+      if (!confirmed) return;
+    }
+
     try {
       const { error } = await supabase
         .from('orders')
@@ -271,8 +290,8 @@ export default function AdminOrders() {
       }
 
       toast({
-        title: 'Sucesso',
-        description: 'Status de pagamento atualizado',
+        title: 'Pagamento Atualizado',
+        description: `Status de pagamento alterado para "${paymentStatusOptions.find(s => s.value === paymentStatus)?.label}"`,
       });
     } catch (error) {
       toast({
@@ -585,32 +604,41 @@ export default function AdminOrders() {
                         <Eye className="w-4 h-4 mr-1" />
                         Ver
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openEditDialog(order)}
-                      >
-                        <Edit className="w-4 h-4 mr-1" />
-                        Editar
-                      </Button>
-                      <Select
-                        value={order.status}
-                        onValueChange={(value) => updateOrderStatus(order.id, value)}
-                      >
-                        <SelectTrigger className="w-[130px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {statusOptions.map((status) => (
-                            <SelectItem key={status.value} value={status.value}>
-                              <div className="flex items-center gap-2">
-                                <div className={`w-2 h-2 rounded-full ${status.color}`} />
+                      <div className="flex flex-col gap-1">
+                        <Select
+                          value={order.status}
+                          onValueChange={(value) => updateOrderStatus(order.id, value)}
+                        >
+                          <SelectTrigger className="w-[140px] h-8">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {statusOptions.map((status) => (
+                              <SelectItem key={status.value} value={status.value}>
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-2 h-2 rounded-full ${status.color}`} />
+                                  {status.label}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={order.payment_status}
+                          onValueChange={(value) => updatePaymentStatus(order.id, value)}
+                        >
+                          <SelectTrigger className="w-[140px] h-8">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {paymentStatusOptions.map((status) => (
+                              <SelectItem key={status.value} value={status.value}>
                                 {status.label}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </TableCell>
                 </TableRow>
