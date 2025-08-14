@@ -198,8 +198,8 @@ const Footer = () => {
           </div>
           <div className="flex flex-wrap gap-4 md:gap-6 justify-center md:justify-end">
             <a href="#" className="hover:text-primary transition-colors">Termos de Uso</a>
-            <a href="#" className="hover:text-primary transition-colors">Política de Privacidade</a>
-            <a href="#" className="hover:text-primary transition-colors">Cookies</a>
+            <a href="/politica-privacidade" className="hover:text-primary transition-colors">Política de Privacidade</a>
+            <a href="/cookies" className="hover:text-primary transition-colors">Cookies</a>
           </div>
         </div>
       </div>

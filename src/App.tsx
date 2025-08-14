@@ -14,12 +14,15 @@ import SobreNos from "./pages/SobreNos";
 import Contato from "./pages/Contato";
 import Entrega from "./pages/Entrega";
 import TrocaseDevolucoes from "./pages/TrocaseDevolucoes";
+import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
+import Cookies from "./pages/Cookies";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminCategories from "./pages/admin/AdminCategories";
 import ProductForm from "./pages/admin/ProductForm";
 import ScrollToTop from "./components/ScrollToTop";
+import CookieConsent from "./components/CookieConsent";
 
 import NotFound from "./pages/NotFound";
 
@@ -43,6 +46,8 @@ const App = () => (
             <Route path="/contato" element={<Contato />} />
             <Route path="/entrega" element={<Entrega />} />
             <Route path="/trocas-e-devolucoes" element={<TrocaseDevolucoes />} />
+            <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
+            <Route path="/cookies" element={<Cookies />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
@@ -54,6 +59,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <CookieConsent />
         </BrowserRouter>
       </TooltipProvider>
       </CartProvider>
