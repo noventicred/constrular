@@ -429,301 +429,236 @@ export default function AdminOrders() {
     try {
       const pdf = new jsPDF();
       const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 15;
-      let yPosition = 20;
+      let yPos = 15;
 
       // Helper functions
-      const drawBox = (x: number, y: number, width: number, height: number, fill = false) => {
+      const drawLine = (y: number) => {
         pdf.setDrawColor(0, 0, 0);
         pdf.setLineWidth(0.5);
-        if (fill) {
-          pdf.setFillColor(245, 245, 245);
-          pdf.rect(x, y, width, height, 'FD');
-        } else {
-          pdf.rect(x, y, width, height);
-        }
+        pdf.line(margin, y, pageWidth - margin, y);
       };
 
       const addSectionTitle = (title: string, y: number) => {
-        pdf.setFontSize(12);
+        pdf.setFontSize(10);
         pdf.setTextColor(0, 0, 0);
         pdf.text(title, margin, y);
-        pdf.setLineWidth(1);
-        pdf.line(margin, y + 2, pageWidth - margin, y + 2);
-        return y + 10;
+        drawLine(y + 1);
+        return y + 8;
       };
 
-      const addField = (label: string, value: string, x: number, y: number, width = 60) => {
-        pdf.setFontSize(8);
-        pdf.setTextColor(80, 80, 80);
-        pdf.text(`${label}:`, x, y);
-        pdf.setFontSize(9);
-        pdf.setTextColor(0, 0, 0);
-        const wrappedText = pdf.splitTextToSize(value || 'Não informado', width);
-        pdf.text(wrappedText, x, y + 4);
-        return Array.isArray(wrappedText) ? wrappedText.length * 4 + 8 : 12;
-      };
-
-      // Document title
-      pdf.setFontSize(18);
+      // Document title - centered
+      pdf.setFontSize(16);
       pdf.setTextColor(0, 0, 0);
       const title = 'Ordem de Compra';
       const titleWidth = pdf.getTextWidth(title);
-      pdf.text(title, (pageWidth - titleWidth) / 2, yPosition);
-      
-      yPosition += 15;
+      pdf.text(title, (pageWidth - titleWidth) / 2, yPos);
+      yPos += 10;
 
-      // Company header box
-      drawBox(margin, yPosition, pageWidth - 2 * margin, 35, true);
-      
-      pdf.setFontSize(16);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(settings.store_name || 'MINHA LOJA', margin + 5, yPosition + 12);
-      
+      // Company info - right aligned
       pdf.setFontSize(9);
       pdf.setTextColor(80, 80, 80);
-      pdf.text(settings.store_name || 'MINHA LOJA', margin + 5, yPosition + 20);
-      pdf.text(`CNPJ: 00.000.000/0001-00`, margin + 5, yPosition + 25);
-      pdf.text(`Rua Exemplo, 100 - Cidade - Estado`, margin + 5, yPosition + 30);
+      const companyInfo = [
+        settings.store_name || 'CONSTRUTORA EXEMPLO',
+        'CNPJ: 00.000.000/0001-00',
+        'Rua Exemplo, 100 A',
+        '00000-000 - Cidade Exemplo - BA'
+      ];
       
-      yPosition += 45;
+      companyInfo.forEach((line, index) => {
+        const textWidth = pdf.getTextWidth(line);
+        pdf.text(line, pageWidth - margin - textWidth, yPos + (index * 4));
+      });
+      yPos += 20;
 
-      // Order info section
-      yPosition = addSectionTitle('ORDEM DE COMPRA', yPosition);
+      // Order section
+      yPos = addSectionTitle('ORDEM DE COMPRA', yPos);
       
-      drawBox(margin, yPosition, pageWidth - 2 * margin, 25);
-      
-      let infoY = yPosition + 8;
+      // Order details in two columns
       pdf.setFontSize(8);
       pdf.setTextColor(80, 80, 80);
-      pdf.text('Pedido:', margin + 5, infoY);
-      pdf.setFontSize(10);
+      
+      // Left column
+      pdf.text('Pedido:', margin, yPos);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(order.id.slice(0, 8).toUpperCase(), margin + 25, infoY);
+      pdf.text(order.id.slice(0, 8).toUpperCase(), margin + 20, yPos);
       
-      pdf.setFontSize(8);
       pdf.setTextColor(80, 80, 80);
-      pdf.text('Fornecedor:', margin + 80, infoY);
-      pdf.setFontSize(9);
+      pdf.text('Data de:', margin, yPos + 5);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(order.profiles?.full_name || 'CLIENTE', margin + 115, infoY);
+      pdf.text(new Date(order.created_at).toLocaleDateString('pt-BR'), margin + 20, yPos + 5);
       
-      infoY += 8;
-      pdf.setFontSize(8);
+      // Right column
       pdf.setTextColor(80, 80, 80);
-      pdf.text('Telefone:', margin + 5, infoY);
-      pdf.setFontSize(9);
+      pdf.text('Fornecedor:', margin + 100, yPos);
       pdf.setTextColor(0, 0, 0);
-      pdf.text((order.profiles as any)?.phone || '00.000.000/0000-00', margin + 30, infoY);
+      pdf.text(order.profiles?.full_name || 'CLIENTE', margin + 135, yPos);
       
-      pdf.setFontSize(8);
       pdf.setTextColor(80, 80, 80);
-      pdf.text('Email:', margin + 80, infoY);
-      pdf.setFontSize(9);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(order.profiles?.email || 'contato@exemplo.com', margin + 100, infoY);
-      
-      infoY += 8;
-      pdf.setFontSize(8);
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('Data de:', margin + 5, infoY);
-      pdf.setFontSize(9);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(new Date(order.created_at).toLocaleDateString('pt-BR'), margin + 25, infoY);
-      
-      pdf.setFontSize(8);
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('Entrega:', margin + 80, infoY);
-      pdf.setFontSize(9);
+      pdf.text('Entrega:', margin + 100, yPos + 5);
       pdf.setTextColor(0, 0, 0);
       const deliveryDate = new Date(order.created_at);
       deliveryDate.setDate(deliveryDate.getDate() + 7);
-      pdf.text(deliveryDate.toLocaleDateString('pt-BR'), margin + 105, infoY);
+      pdf.text(deliveryDate.toLocaleDateString('pt-BR'), margin + 125, yPos + 5);
       
-      yPosition += 35;
+      // Contact info
+      pdf.setTextColor(80, 80, 80);
+      pdf.text('Telefone:', margin, yPos + 10);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text((order.profiles as any)?.phone || '00.000.000/0000-00', margin + 25, yPos + 10);
+      
+      pdf.setTextColor(80, 80, 80);
+      pdf.text('Email:', margin + 100, yPos + 10);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(order.profiles?.email || 'contato@exemplo.com', margin + 115, yPos + 10);
+      
+      yPos += 20;
 
       // Delivery address section
-      yPosition = addSectionTitle('ENDEREÇO DE ENTREGA', yPosition);
+      yPos = addSectionTitle('ENDEREÇO DE ENTREGA', yPos);
       
-      drawBox(margin, yPosition, pageWidth - 2 * margin, 25);
-      
-      let addressY = yPosition + 8;
+      pdf.setFontSize(8);
       const profile = order.profiles as any;
       
-      pdf.setFontSize(8);
+      // Address in compact format
       pdf.setTextColor(80, 80, 80);
-      pdf.text('Endereço:', margin + 5, addressY);
-      pdf.setFontSize(9);
+      pdf.text('Endereço:', margin, yPos);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.street || 'Rua Exemplo', margin + 30, addressY);
+      pdf.text(profile?.street || 'Rua Exemplo', margin + 25, yPos);
       
-      pdf.setFontSize(8);
       pdf.setTextColor(80, 80, 80);
-      pdf.text('Número:', margin + 100, addressY);
-      pdf.setFontSize(9);
+      pdf.text('Número:', margin + 90, yPos);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.number || '100 A', margin + 125, addressY);
+      pdf.text(profile?.number || '100 A', margin + 110, yPos);
       
-      pdf.setFontSize(8);
       pdf.setTextColor(80, 80, 80);
-      pdf.text('Complemento:', margin + 150, addressY);
-      pdf.setFontSize(9);
+      pdf.text('Cidade:', margin + 130, yPos);
       pdf.setTextColor(0, 0, 0);
-      pdf.text('Casa', margin + 185, addressY);
+      pdf.text(profile?.city || 'Cidade Exemplo', margin + 145, yPos);
       
-      addressY += 8;
-      pdf.setFontSize(8);
+      // Second line
       pdf.setTextColor(80, 80, 80);
-      pdf.text('Bairro:', margin + 5, addressY);
-      pdf.setFontSize(9);
+      pdf.text('Bairro:', margin, yPos + 5);
       pdf.setTextColor(0, 0, 0);
-      pdf.text('Centro', margin + 25, addressY);
+      pdf.text('Centro', margin + 20, yPos + 5);
       
-      pdf.setFontSize(8);
       pdf.setTextColor(80, 80, 80);
-      pdf.text('CEP:', margin + 80, addressY);
-      pdf.setFontSize(9);
+      pdf.text('CEP:', margin + 60, yPos + 5);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.zip_code || '00000-000', margin + 100, addressY);
+      pdf.text(profile?.zip_code || '00000-000', margin + 75, yPos + 5);
       
-      pdf.setFontSize(8);
       pdf.setTextColor(80, 80, 80);
-      pdf.text('Cidade:', margin + 150, addressY);
-      pdf.setFontSize(9);
+      pdf.text('Estado:', margin + 120, yPos + 5);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.city || 'Cidade Exemplo', margin + 175, addressY);
+      pdf.text(profile?.state || 'SP', margin + 135, yPos + 5);
       
-      addressY += 8;
-      pdf.setFontSize(8);
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('Estado:', margin + 5, addressY);
-      pdf.setFontSize(9);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.state || 'SP', margin + 25, addressY);
-      
-      yPosition += 35;
+      yPos += 15;
 
-      // Get order items for PDF
+      // Get order items
       const { data: items } = await supabase
         .from('order_items')
         .select('*')
         .eq('order_id', order.id);
 
       // Items section
-      yPosition = addSectionTitle('ITENS DO PEDIDO', yPosition);
+      yPos = addSectionTitle('ITENS DO PEDIDO', yPos);
       
-      // Table header
-      drawBox(margin, yPosition, pageWidth - 2 * margin, 12, true);
-      
+      // Compact table header
       pdf.setFontSize(8);
       pdf.setTextColor(0, 0, 0);
-      pdf.text('Item', margin + 2, yPosition + 8);
-      pdf.text('Cod', margin + 15, yPosition + 8);
-      pdf.text('Descrição dos Produtos', margin + 35, yPosition + 8);
-      pdf.text('Un', margin + 120, yPosition + 8);
-      pdf.text('Qtde', margin + 135, yPosition + 8);
-      pdf.text('Preço', margin + 155, yPosition + 8);
-      pdf.text('Total', margin + 175, yPosition + 8);
+      pdf.text('Item', margin, yPos);
+      pdf.text('Cod', margin + 15, yPos);
+      pdf.text('Descrição dos Produtos', margin + 30, yPos);
+      pdf.text('Un', margin + 110, yPos);
+      pdf.text('Qtde', margin + 125, yPos);
+      pdf.text('Preço', margin + 145, yPos);
+      pdf.text('Total', margin + 165, yPos);
       
-      yPosition += 12;
+      yPos += 3;
+      drawLine(yPos);
+      yPos += 5;
       
       let subtotal = 0;
       items?.forEach((item, index) => {
-        const rowHeight = 12;
-        drawBox(margin, yPosition, pageWidth - 2 * margin, rowHeight);
-        
-        pdf.setFontSize(8);
+        pdf.setFontSize(7);
         pdf.setTextColor(0, 0, 0);
         
-        pdf.text((index + 1).toString(), margin + 2, yPosition + 8);
-        pdf.text(item.id.slice(0, 6), margin + 15, yPosition + 8);
+        pdf.text((index + 1).toString(), margin + 2, yPos);
+        pdf.text(item.id.slice(-4), margin + 15, yPos);
         
-        const productName = pdf.splitTextToSize(item.product_name, 75);
-        pdf.text(productName[0] + (productName.length > 1 ? '...' : ''), margin + 35, yPosition + 8);
+        // Truncate long product names
+        const maxNameLength = 50;
+        const productName = item.product_name.length > maxNameLength 
+          ? item.product_name.substring(0, maxNameLength) + '...'
+          : item.product_name;
+        pdf.text(productName, margin + 30, yPos);
         
-        pdf.text('Un', margin + 120, yPosition + 8);
-        pdf.text(item.quantity.toString(), margin + 135, yPosition + 8);
-        pdf.text(`R$ ${item.unit_price.toFixed(2)}`, margin + 150, yPosition + 8);
-        pdf.text(`R$ ${item.total_price.toFixed(2)}`, margin + 170, yPosition + 8);
+        pdf.text('Un', margin + 110, yPos);
+        pdf.text(item.quantity.toString(), margin + 127, yPos);
+        pdf.text(`R$ ${item.unit_price.toFixed(2)}`, margin + 145, yPos);
+        pdf.text(`R$ ${item.total_price.toFixed(2)}`, margin + 165, yPos);
         
         subtotal += item.total_price;
-        yPosition += rowHeight;
-        
-        if (yPosition > pageHeight - 80) {
-          pdf.addPage();
-          yPosition = 30;
-        }
+        yPos += 4;
       });
       
-      // Subtotal, discount and total
-      yPosition += 5;
-      pdf.setFontSize(9);
+      // Totals section - compact
+      yPos += 3;
+      drawLine(yPos);
+      yPos += 5;
+      
+      pdf.setFontSize(8);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(`Subtotal: R$ ${subtotal.toFixed(2)}`, pageWidth - 80, yPosition);
+      pdf.text(`Subtotal: R$ ${subtotal.toFixed(2)}`, margin + 120, yPos);
+      pdf.text('Desconto: R$ 0,00', margin + 120, yPos + 4);
+      pdf.text('Acréscimos:', margin + 120, yPos + 8);
       
-      yPosition += 8;
-      pdf.text('Desconto: R$ 0,00', pageWidth - 80, yPosition);
+      pdf.setFontSize(10);
+      pdf.text(`TOTAL: R$ ${order.total_amount.toFixed(2)}`, margin + 120, yPos + 15);
       
-      yPosition += 8;
-      pdf.text('Acréscimos:', pageWidth - 80, yPosition);
-      
-      yPosition += 10;
-      pdf.setFontSize(11);
-      pdf.text(`TOTAL: R$ ${order.total_amount.toFixed(2)}`, pageWidth - 80, yPosition);
-      
-      yPosition += 20;
+      yPos += 22;
 
-      // Payment conditions section
-      yPosition = addSectionTitle('FORMA/CONDIÇÕES DE PAGAMENTO', yPosition);
-      
-      drawBox(margin, yPosition, pageWidth - 2 * margin, 20);
+      // Payment section
+      yPos = addSectionTitle('FORMA/CONDIÇÕES DE PAGAMENTO', yPos);
       
       pdf.setFontSize(8);
       pdf.setTextColor(80, 80, 80);
-      pdf.text('Condições de pagamento', margin + 5, yPosition + 8);
-      pdf.text('Vencimento', margin + 65, yPosition + 8);
-      pdf.text('Pagamento', margin + 105, yPosition + 8);
-      pdf.text('Valor', margin + 135, yPosition + 8);
-      pdf.text('Observação', margin + 165, yPosition + 8);
+      pdf.text('Condições de pagamento', margin, yPos);
+      pdf.text('Vencimento', margin + 60, yPos);
+      pdf.text('Valor', margin + 100, yPos);
+      pdf.text('Observação', margin + 140, yPos);
       
-      pdf.setFontSize(9);
+      yPos += 5;
       pdf.setTextColor(0, 0, 0);
-      const paymentMethod = order.payment_method === 'credit_card' ? 'CARTÃO DE CRÉDITO' : 
+      const paymentMethod = order.payment_method === 'credit_card' ? 'CARTÃO' : 
                            order.payment_method === 'pix' ? 'PIX' : 'DINHEIRO (À VISTA)';
-      pdf.text(paymentMethod, margin + 5, yPosition + 15);
+      pdf.text(paymentMethod, margin, yPos);
       
       const dueDate = new Date(order.created_at);
       dueDate.setDate(dueDate.getDate() + 3);
-      pdf.text(dueDate.toLocaleDateString('pt-BR'), margin + 65, yPosition + 15);
-      pdf.text(`R$ ${order.total_amount.toFixed(2)}`, margin + 135, yPosition + 15);
+      pdf.text(dueDate.toLocaleDateString('pt-BR'), margin + 60, yPos);
+      pdf.text(`R$ ${order.total_amount.toFixed(2)}`, margin + 100, yPos);
       
-      yPosition += 30;
+      yPos += 15;
 
-      // Signature section
-      yPosition += 10;
-      const signatureY = yPosition;
+      // Signature section - compact
+      const signatureY = yPos;
+      pdf.setLineWidth(0.3);
+      pdf.line(margin + 20, signatureY + 10, margin + 70, signatureY + 10);
+      pdf.line(margin + 100, signatureY + 10, margin + 150, signatureY + 10);
       
-      // Buyer signature
-      pdf.setLineWidth(0.5);
-      pdf.line(margin + 20, signatureY + 20, margin + 80, signatureY + 20);
-      pdf.setFontSize(9);
+      pdf.setFontSize(7);
       pdf.setTextColor(0, 0, 0);
-      pdf.text('Assinatura do Comprador', margin + 35, signatureY + 30);
+      pdf.text('Assinatura do Comprador', margin + 25, signatureY + 15);
+      pdf.text('Assinatura do Recebedor', margin + 105, signatureY + 15);
       
-      // Receiver signature
-      pdf.line(pageWidth - 100, signatureY + 20, pageWidth - 40, signatureY + 20);
-      pdf.text('Assinatura do Recebedor', pageWidth - 95, signatureY + 30);
-      
-      yPosition += 50;
+      yPos += 22;
 
-      // Observations section
-      yPosition = addSectionTitle('OBSERVAÇÕES', yPosition);
-      drawBox(margin, yPosition, pageWidth - 2 * margin, 20);
-      
-      pdf.setFontSize(9);
+      // Observations
+      yPos = addSectionTitle('OBSERVAÇÕES', yPos);
+      pdf.setFontSize(8);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(`Acesse o nosso site: https://minhaloja.com.br/`, margin + 5, yPosition + 12);
+      pdf.text('Acesse o nosso site: https://minhaloja.com.br/', margin, yPos);
       
       // Save PDF
       const orderDate = new Date(order.created_at).toLocaleDateString('pt-BR').replace(/\//g, '-');
@@ -732,14 +667,14 @@ export default function AdminOrders() {
       
       toast({
         title: 'PDF Gerado com Sucesso',
-        description: `Ordem de compra #${order.id.slice(0, 8)} foi criada e baixada.`,
+        description: `Ordem de compra #${order.id.slice(0, 8)} foi criada.`,
       });
       
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
       toast({
         title: 'Erro ao Gerar PDF',
-        description: 'Não foi possível gerar o PDF do pedido. Tente novamente.',
+        description: 'Não foi possível gerar o PDF. Tente novamente.',
         variant: 'destructive',
       });
     } finally {
