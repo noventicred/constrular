@@ -5,10 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit2, Trash2, Search, Star, Percent, AlertTriangle, TrendingUp } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Star, Percent, AlertTriangle, TrendingUp, Filter, X } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
 
 interface Product {
@@ -37,14 +38,20 @@ interface Category {
 const AdminProducts = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [featuredFilter, setFeaturedFilter] = useState('all');
+  const [offerFilter, setOfferFilter] = useState('all');
   const [featuredCount, setFeaturedCount] = useState(0);
   const [specialOfferCount, setSpecialOfferCount] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
 
   const fetchProducts = async () => {
@@ -74,6 +81,20 @@ const AdminProducts = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, name')
+        .order('name');
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
     }
   };
 
@@ -109,10 +130,34 @@ const AdminProducts = () => {
   };
 
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.description?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = categoryFilter === 'all' || product.category_id === categoryFilter;
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'in_stock' && product.in_stock) ||
+      (statusFilter === 'out_stock' && !product.in_stock);
+    const matchesFeatured = featuredFilter === 'all' ||
+      (featuredFilter === 'featured' && product.is_featured) ||
+      (featuredFilter === 'not_featured' && !product.is_featured);
+    const matchesOffer = offerFilter === 'all' ||
+      (offerFilter === 'offer' && product.is_special_offer) ||
+      (offerFilter === 'not_offer' && !product.is_special_offer);
+
+    return matchesSearch && matchesCategory && matchesStatus && matchesFeatured && matchesOffer;
+  });
+
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setCategoryFilter('all');
+    setStatusFilter('all');
+    setFeaturedFilter('all');
+    setOfferFilter('all');
+  };
+
+  const hasActiveFilters = searchTerm || categoryFilter !== 'all' || statusFilter !== 'all' || 
+    featuredFilter !== 'all' || offerFilter !== 'all';
 
   const formatPrice = (price: number) => {
     return formatCurrency(price);
@@ -233,6 +278,81 @@ const AdminProducts = () => {
               />
             </div>
           </div>
+          
+          {/* Filtros */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Categoria</label>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Status</label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="in_stock">Em estoque</SelectItem>
+                  <SelectItem value="out_stock">Fora de estoque</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Destaque</label>
+              <Select value={featuredFilter} onValueChange={setFeaturedFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="featured">Em destaque</SelectItem>
+                  <SelectItem value="not_featured">Não destacado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Oferta</label>
+              <Select value={offerFilter} onValueChange={setOfferFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  <SelectItem value="offer">Em oferta</SelectItem>
+                  <SelectItem value="not_offer">Sem oferta</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium opacity-0">Ações</label>
+              <Button 
+                variant="outline" 
+                onClick={clearAllFilters}
+                disabled={!hasActiveFilters}
+                className="w-full"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Limpar
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="rounded-lg border border-border">
@@ -259,9 +379,19 @@ const AdminProducts = () => {
                         <div className="relative">
                           {product.image_url ? (
                             <img 
-                              src={product.image_url} 
+                              src={(() => {
+                                try {
+                                  const parsed = JSON.parse(product.image_url);
+                                  return Array.isArray(parsed) ? parsed[0] : product.image_url;
+                                } catch {
+                                  return product.image_url;
+                                }
+                              })()} 
                               alt={product.name} 
                               className="w-12 h-12 rounded-lg object-cover border shadow-sm"
+                              onError={(e) => {
+                                e.currentTarget.src = "/placeholder.svg";
+                              }}
                             />
                           ) : (
                             <div className="w-12 h-12 rounded-lg bg-muted border flex items-center justify-center">
