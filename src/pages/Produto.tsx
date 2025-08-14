@@ -74,6 +74,12 @@ const Produto = () => {
   const [comments, setComments] = useState<ProductComment[]>([]);
   const [loading, setLoading] = useState(true);
 
+  
+  // Calcular rating baseado nos comentários
+  const averageRating = comments.length > 0 
+    ? comments.reduce((acc, comment) => acc + comment.rating, 0) / comments.length 
+    : 0;
+
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;
@@ -349,9 +355,11 @@ const Produto = () => {
             {/* Rating */}
             <div className="flex items-center gap-2">
               <div className="flex">
-                {renderStars(product.rating)}
+                {renderStars(averageRating)}
               </div>
-              <span className="text-sm font-medium">{product.rating}</span>
+              <span className="text-sm font-medium">
+                {averageRating > 0 ? averageRating.toFixed(1) : '0.0'}
+              </span>
               <span className="text-sm text-muted-foreground">({comments.length} avaliações)</span>
             </div>
 
@@ -517,12 +525,12 @@ const Produto = () => {
                   {comments.length > 0 ? (
                     <div className="flex items-center gap-6 mb-6">
                       <div className="text-center">
-                        <div className="text-4xl font-bold text-primary mb-1">
-                          {(comments.reduce((acc, comment) => acc + comment.rating, 0) / comments.length).toFixed(1)}
-                        </div>
-                        <div className="flex justify-center mb-1">
-                          {renderStars(comments.reduce((acc, comment) => acc + comment.rating, 0) / comments.length)}
-                        </div>
+                         <div className="text-4xl font-bold text-primary mb-1">
+                           {averageRating.toFixed(1)}
+                         </div>
+                         <div className="flex justify-center mb-1">
+                           {renderStars(averageRating)}
+                         </div>
                         <div className="text-sm text-muted-foreground">
                           {comments.length} avaliação{comments.length !== 1 ? 'ões' : ''}
                         </div>
