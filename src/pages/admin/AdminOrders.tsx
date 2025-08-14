@@ -14,10 +14,12 @@ import { Separator } from '@/components/ui/separator';
 import { 
   Eye, Package, Clock, CheckCircle2, XCircle, Truck, Search, Filter, 
   Edit, Save, X, Calendar, CreditCard, MapPin, User, Phone, Mail,
-  TrendingUp, DollarSign, ShoppingCart, RefreshCw
+  TrendingUp, DollarSign, ShoppingCart, RefreshCw, FileText
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/formatters';
+import { useSettings } from '@/hooks/useSettings';
+import jsPDF from 'jspdf';
 
 interface Order {
   id: string;
@@ -79,7 +81,9 @@ export default function AdminOrders() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [dateRange, setDateRange] = useState('all');
+  const [generatingPdf, setGeneratingPdf] = useState<string | null>(null);
   const { toast } = useToast();
+  const { settings } = useSettings();
 
   // Statistics
   const [stats, setStats] = useState({
@@ -417,6 +421,178 @@ export default function AdminOrders() {
     );
   };
 
+  const generateOrderPDF = async (order: Order) => {
+    if (generatingPdf === order.id) return;
+    
+    setGeneratingPdf(order.id);
+    
+    try {
+      const pdf = new jsPDF();
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      let yPosition = 20;
+
+      // Header with company info
+      pdf.setFontSize(20);
+      pdf.setTextColor(40, 116, 240); // Primary blue color
+      pdf.text(settings.store_name || 'Minha Loja', 20, yPosition);
+      
+      yPosition += 15;
+      pdf.setFontSize(12);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(`Email: ${settings.store_email || 'contato@minhaloja.com'}`, 20, yPosition);
+      
+      // Order title
+      yPosition += 20;
+      pdf.setFontSize(16);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(`Pedido #${order.id.slice(0, 8)}`, 20, yPosition);
+      
+      // Order info
+      yPosition += 15;
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(`Data: ${new Date(order.created_at).toLocaleDateString('pt-BR')}`, 20, yPosition);
+      pdf.text(`Status: ${statusOptions.find(s => s.value === order.status)?.label || order.status}`, 120, yPosition);
+      
+      yPosition += 10;
+      pdf.text(`Pagamento: ${paymentStatusOptions.find(s => s.value === order.payment_status)?.label || order.payment_status}`, 20, yPosition);
+      
+      // Customer info
+      yPosition += 20;
+      pdf.setFontSize(14);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Dados do Cliente', 20, yPosition);
+      
+      yPosition += 10;
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(`Nome: ${order.profiles?.full_name || 'Não informado'}`, 20, yPosition);
+      
+      yPosition += 7;
+      pdf.text(`Email: ${order.profiles?.email || 'Não informado'}`, 20, yPosition);
+      
+      if ((order.profiles as any)?.phone) {
+        yPosition += 7;
+        pdf.text(`Telefone: ${(order.profiles as any).phone}`, 20, yPosition);
+      }
+      
+      // Shipping address
+      if (order.shipping_address || (order.profiles as any)?.street) {
+        yPosition += 15;
+        pdf.setFontSize(14);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text('Endereço de Entrega', 20, yPosition);
+        
+        yPosition += 10;
+        pdf.setFontSize(10);
+        pdf.setTextColor(100, 100, 100);
+        
+        if (order.shipping_address) {
+          const addressLines = pdf.splitTextToSize(order.shipping_address, pageWidth - 40);
+          addressLines.forEach((line: string) => {
+            pdf.text(line, 20, yPosition);
+            yPosition += 7;
+          });
+        } else {
+          const profile = order.profiles as any;
+          if (profile?.street) {
+            pdf.text(`${profile.street}, ${profile.number || 'S/N'}`, 20, yPosition);
+            yPosition += 7;
+          }
+          if (profile?.city) {
+            pdf.text(`${profile.city} - ${profile.state || ''}`, 20, yPosition);
+            yPosition += 7;
+          }
+          if (profile?.zip_code) {
+            pdf.text(`CEP: ${profile.zip_code}`, 20, yPosition);
+            yPosition += 7;
+          }
+        }
+      }
+      
+      // Get order items for PDF
+      const { data: items } = await supabase
+        .from('order_items')
+        .select('*')
+        .eq('order_id', order.id);
+      
+      // Order items
+      yPosition += 15;
+      pdf.setFontSize(14);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Itens do Pedido', 20, yPosition);
+      
+      yPosition += 15;
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      
+      // Table header
+      pdf.text('Produto', 20, yPosition);
+      pdf.text('Qtd', 120, yPosition);
+      pdf.text('Valor Unit.', 140, yPosition);
+      pdf.text('Total', 170, yPosition);
+      
+      yPosition += 5;
+      pdf.line(20, yPosition, pageWidth - 20, yPosition);
+      yPosition += 10;
+      
+      let subtotal = 0;
+      items?.forEach((item) => {
+        pdf.setTextColor(0, 0, 0);
+        const productName = pdf.splitTextToSize(item.product_name, 90);
+        pdf.text(productName[0], 20, yPosition);
+        pdf.text(item.quantity.toString(), 120, yPosition);
+        pdf.text(formatCurrency(item.unit_price), 140, yPosition);
+        pdf.text(formatCurrency(item.total_price), 170, yPosition);
+        
+        subtotal += item.total_price;
+        yPosition += 10;
+        
+        if (yPosition > pageHeight - 40) {
+          pdf.addPage();
+          yPosition = 20;
+        }
+      });
+      
+      // Total
+      yPosition += 10;
+      pdf.line(140, yPosition, pageWidth - 20, yPosition);
+      yPosition += 10;
+      
+      pdf.setFontSize(12);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('TOTAL:', 140, yPosition);
+      pdf.setFontSize(14);
+      pdf.text(formatCurrency(order.total_amount), 170, yPosition);
+      
+      // Footer
+      yPosition = pageHeight - 30;
+      pdf.setFontSize(8);
+      pdf.setTextColor(150, 150, 150);
+      pdf.text('Documento gerado automaticamente pelo sistema', 20, yPosition);
+      pdf.text(new Date().toLocaleString('pt-BR'), pageWidth - 60, yPosition);
+      
+      // Save PDF
+      pdf.save(`pedido-${order.id.slice(0, 8)}.pdf`);
+      
+      toast({
+        title: 'PDF Gerado',
+        description: 'PDF do pedido foi gerado com sucesso!',
+      });
+      
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível gerar o PDF do pedido',
+        variant: 'destructive',
+      });
+    } finally {
+      setGeneratingPdf(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6 animate-fade-in">
@@ -643,6 +819,15 @@ export default function AdminOrders() {
                       >
                         <Eye className="w-4 h-4 mr-1" />
                         Ver
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => generateOrderPDF(order)}
+                        disabled={generatingPdf === order.id}
+                      >
+                        <FileText className="w-4 h-4 mr-1" />
+                        {generatingPdf === order.id ? 'Gerando...' : 'PDF'}
                       </Button>
                       <div className="flex flex-col gap-1">
                         <Select
