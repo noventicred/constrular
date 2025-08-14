@@ -207,10 +207,21 @@ const Carrinho = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-4 pt-4">
+                  <div className="space-y-3">
+                    <Button 
+                      onClick={() => navigate('/checkout')}
+                      className="w-full"
+                      size="lg"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      Ir para Checkout
+                    </Button>
+                    
+                    <Separator />
+                    
                     <div>
                       <Label htmlFor="phone" className="text-sm font-medium">
-                        WhatsApp para contato:
+                        Ou finalize direto pelo WhatsApp:
                       </Label>
                       <Input
                         id="phone"
@@ -223,18 +234,13 @@ const Carrinho = () => {
                     
                     <Button 
                       onClick={handleWhatsAppRedirect}
+                      variant="outline"
                       className="w-full"
                       size="lg"
                     >
                       <MessageCircle className="h-4 w-4 mr-2" />
-                      Finalizar no WhatsApp
+                      Finalizar Rápido no WhatsApp
                     </Button>
-                    
-                    <div className="text-center">
-                      <p className="text-xs text-muted-foreground">
-                        Você será redirecionado para o WhatsApp para finalizar seu pedido
-                      </p>
-                    </div>
                   </div>
                 </CardContent>
               </Card>

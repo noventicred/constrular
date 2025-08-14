@@ -19,6 +19,7 @@ interface CartContextType {
   clearCart: () => void;
   total: number;
   itemCount: number;
+  getTotalPrice: () => number;
   sendToWhatsApp: (phoneNumber?: string) => void;
 }
 
@@ -96,6 +97,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
+  const getTotalPrice = () => total;
+
   const generateWhatsAppMessage = () => {
     const message = `Olá! Gostaria de fazer um pedido:\n\n${items.map(item => 
       `${item.quantity}x ${item.name} - ${item.brand}\n${formatCurrency(item.price)} cada`
@@ -119,6 +122,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       clearCart,
       total,
       itemCount,
+      getTotalPrice,
       sendToWhatsApp
     }}>
       {children}

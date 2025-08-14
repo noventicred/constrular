@@ -28,6 +28,7 @@ import AdminConfiguracoes from "./pages/admin/AdminConfiguracoes";
 import ProductForm from "./pages/admin/ProductForm";
 import ScrollToTop from "./components/ScrollToTop";
 import CookieConsent from "./components/CookieConsent";
+import Checkout from "./pages/Checkout";
 
 import NotFound from "./pages/NotFound";
 
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/produtos" element={<Produtos />} />
             <Route path="/produto/:id" element={<Produto />} />
             <Route path="/carrinho" element={<Carrinho />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/sobre-nos" element={<SobreNos />} />
             <Route path="/contato" element={<Contato />} />
             <Route path="/entrega" element={<Entrega />} />
