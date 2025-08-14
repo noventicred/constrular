@@ -369,16 +369,15 @@ const Produto = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex gap-3">
                 <Button 
-                  className="flex-1 w-full sm:w-auto" 
+                  className="flex-1" 
                   size="lg"
                   onClick={handleAddToCart}
                   disabled={!product.in_stock}
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
-                  <span className="hidden sm:inline">Adicionar ao Carrinho</span>
-                  <span className="sm:hidden">Adicionar</span>
+                  Adicionar ao Carrinho
                 </Button>
                 <Button variant="outline" size="lg" className="shrink-0">
                   <Heart className="h-5 w-5" />
