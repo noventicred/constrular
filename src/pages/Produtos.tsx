@@ -128,11 +128,9 @@ const Produtos = () => {
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Se offerFilter está ativo, só mostrar produtos em oferta
+    // Se offerFilter está ativo, só mostrar produtos marcados como oferta especial
     if (offerFilter) {
-      const isOffer = product.is_special_offer === true ||
-        (product.original_price && product.original_price > product.price);
-      return matchesCategory && matchesSearch && isOffer;
+      return matchesCategory && matchesSearch && product.is_special_offer === true;
     }
     
     // Se não há filtro de oferta, aplicar apenas categoria e busca
