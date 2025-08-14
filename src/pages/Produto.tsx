@@ -172,20 +172,49 @@ const Produto = () => {
   }
 
   const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addItem({
-        id: product.id,
-        name: product.name,
-        brand: product.brand || 'Marca não informada',
-        price: product.price,
-        image: product.image_url
+    try {
+      for (let i = 0; i < quantity; i++) {
+        addItem({
+          id: product.id,
+          name: product.name,
+          brand: product.brand || 'Marca não informada',
+          price: product.price,
+          image: product.image_url || "/placeholder.svg"
+        });
+      }
+      
+      // Notificação melhorada
+      toast({
+        title: "✅ Produto adicionado!",
+        description: (
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <p className="font-semibold">{quantity}x {product.name}</p>
+              <p className="text-sm text-muted-foreground">
+                {formatCurrency(product.price)} cada • Agora no seu carrinho
+              </p>
+            </div>
+          </div>
+        ),
+        duration: 3000,
+      });
+
+      // Pequeno delay para mostrar a notificação antes de abrir o carrinho
+      setTimeout(() => {
+        const cartButton = document.querySelector('[data-cart-trigger]') as HTMLButtonElement;
+        if (cartButton) {
+          cartButton.click();
+        }
+      }, 800);
+      
+    } catch (error) {
+      console.error('Erro ao adicionar produto ao carrinho:', error);
+      toast({
+        title: "❌ Erro",
+        description: "Não foi possível adicionar o produto ao carrinho.",
+        variant: "destructive",
       });
     }
-    
-    toast({
-      title: "Produto adicionado!",
-      description: `${quantity}x ${product.name} adicionado ao carrinho.`,
-    });
   };
 
   const renderStars = (rating: number, size: string = "h-4 w-4") => {

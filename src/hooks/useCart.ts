@@ -31,18 +31,26 @@ export const useCart = () => {
   }, [items]);
 
   const addItem = (product: Omit<CartItem, 'quantity'>) => {
+    console.log('🛒 Adicionando produto:', product);
+    console.log('📦 Carrinho atual antes:', items);
+    
     setItems(prev => {
       const existingItem = prev.find(item => item.id === product.id);
+      console.log('🔍 Item existente:', existingItem);
       
       if (existingItem) {
-        return prev.map(item =>
+        const updated = prev.map(item =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
+        console.log('✅ Atualizado:', updated);
+        return updated;
       }
       
-      return [...prev, { ...product, quantity: 1 }];
+      const newCart = [...prev, { ...product, quantity: 1 }];
+      console.log('✅ Novo carrinho:', newCart);
+      return newCart;
     });
   };
 

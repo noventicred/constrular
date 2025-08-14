@@ -166,20 +166,52 @@ const Produtos = () => {
     }
   });
 
-  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
+  const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
-    addItem({
-      id: product.id,
-      name: product.name,
-      brand: '',
-      price: product.price,
-      image: product.image_url || "/placeholder.svg"
-    });
     
-    toast({
-      title: "Produto adicionado!",
-      description: `${product.name} foi adicionado ao carrinho.`,
-    });
+    try {
+      const cartItem = {
+        id: product.id,
+        name: product.name,
+        brand: '',
+        price: product.price,
+        image: product.image_url || "/placeholder.svg"
+      };
+      
+      addItem(cartItem);
+      
+      // Notificação melhorada
+      toast({
+        title: "✅ Produto adicionado!",
+        description: (
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <p className="font-semibold">{product.name}</p>
+              <p className="text-sm text-muted-foreground">
+                {formatCurrency(product.price)} • Agora no seu carrinho
+              </p>
+            </div>
+          </div>
+        ),
+        duration: 3000,
+      });
+
+      // Pequeno delay para mostrar a notificação antes de abrir o carrinho
+      setTimeout(() => {
+        const cartButton = document.querySelector('[data-cart-trigger]') as HTMLButtonElement;
+        if (cartButton) {
+          cartButton.click();
+        }
+      }, 800);
+      
+    } catch (error) {
+      console.error('Erro ao adicionar produto ao carrinho:', error);
+      toast({
+        title: "❌ Erro",
+        description: "Não foi possível adicionar o produto ao carrinho.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (loading) {
