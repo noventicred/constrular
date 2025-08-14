@@ -174,6 +174,15 @@ const Produtos = () => {
     }
   });
 
+  const getProductImageUrl = (imageUrl: string) => {
+    try {
+      const parsed = JSON.parse(imageUrl);
+      return Array.isArray(parsed) ? parsed[0] : imageUrl;
+    } catch {
+      return imageUrl || "/placeholder.svg";
+    }
+  };
+
   const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
     
@@ -183,7 +192,7 @@ const Produtos = () => {
         name: product.name,
         brand: '',
         price: product.price,
-        image: product.image_url || "/placeholder.svg"
+        image: getProductImageUrl(product.image_url)
       };
       
       addItem(cartItem);

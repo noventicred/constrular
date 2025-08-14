@@ -177,6 +177,15 @@ const Produto = () => {
     );
   }
 
+  const getProductImageUrl = (imageUrl: string) => {
+    try {
+      const parsed = JSON.parse(imageUrl);
+      return Array.isArray(parsed) ? parsed[0] : imageUrl;
+    } catch {
+      return imageUrl || "/placeholder.svg";
+    }
+  };
+
   const handleAddToCart = () => {
     try {
       for (let i = 0; i < quantity; i++) {
@@ -185,7 +194,7 @@ const Produto = () => {
           name: product.name,
           brand: product.brand || 'Marca não informada',
           price: product.price,
-          image: product.image_url || "/placeholder.svg"
+          image: getProductImageUrl(product.image_url)
         });
       }
       
