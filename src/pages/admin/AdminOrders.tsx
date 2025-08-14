@@ -100,32 +100,47 @@ export default function AdminOrders() {
   const fetchOrders = async () => {
     console.log('🔍 ADMIN: Iniciando busca de pedidos...');
     try {
-      const { data, error } = await supabase
+      // First get all orders
+      const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
-        .select(`
-          *,
-          profiles:user_id (
-            full_name,
-            email,
-            phone,
-            street,
-            number,
-            city,
-            state,
-            zip_code
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      console.log('📊 ADMIN: Resultado da query:', { data, error });
-      
-      if (error) {
-        console.error('❌ ADMIN: Erro na query:', error);
-        throw error;
+      if (ordersError) {
+        console.error('❌ ADMIN: Erro ao buscar pedidos:', ordersError);
+        throw ordersError;
       }
-      
-      console.log('✅ ADMIN: Pedidos carregados:', data?.length || 0);
-      setOrders((data as any) || []);
+
+      console.log('📦 ADMIN: Pedidos encontrados:', ordersData?.length || 0);
+
+      // Get unique user IDs
+      const userIds = [...new Set(ordersData?.map(order => order.user_id).filter(Boolean))];
+      console.log('👥 ADMIN: User IDs únicos:', userIds.length);
+
+      // Get profiles for these users
+      let profilesData = [];
+      if (userIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name, email, phone, street, number, city, state, zip_code')
+          .in('id', userIds);
+
+        if (profilesError) {
+          console.warn('⚠️ ADMIN: Erro ao buscar profiles (continuando sem eles):', profilesError);
+        } else {
+          profilesData = profiles || [];
+          console.log('👤 ADMIN: Profiles encontrados:', profilesData.length);
+        }
+      }
+
+      // Combine orders with profiles
+      const ordersWithProfiles = ordersData?.map(order => ({
+        ...order,
+        profiles: profilesData.find(profile => profile.id === order.user_id) || null
+      })) || [];
+
+      console.log('✅ ADMIN: Pedidos com profiles combinados:', ordersWithProfiles.length);
+      setOrders(ordersWithProfiles);
     } catch (error) {
       console.error('❌ ADMIN: Erro geral:', error);
       toast({
