@@ -192,7 +192,7 @@ const Footer = () => {
         <Separator className="my-6 md:my-8 bg-white/20" />
 
         {/* Bottom */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs md:text-sm text-gray-400">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs md:text-sm text-gray-400 pb-20 md:pb-4">
           <div>
             <p>&copy; 2024 ConstrutorPro. Todos os direitos reservados.</p>
           </div>
