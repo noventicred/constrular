@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 
 const Cart = () => {
   const { items, removeItem, updateQuantity, clearCart, total, itemCount, sendToWhatsApp } = useCart();
+  console.log('🛒 Cart component - items:', items, 'itemCount:', itemCount);
   const [phoneNumber, setPhoneNumber] = useState('5511999999999');
   const navigate = useNavigate();
 

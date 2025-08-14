@@ -27,16 +27,22 @@ export const useCart = () => {
   }, []);
 
   useEffect(() => {
+    console.log('💾 useEffect localStorage - items mudaram:', items);
     localStorage.setItem('cart', JSON.stringify(items));
   }, [items]);
 
   const addItem = (product: Omit<CartItem, 'quantity'>) => {
     console.log('🛒 Adicionando produto:', product);
     console.log('📦 Carrinho atual antes:', items);
+    console.log('📊 Tipo do ID do produto:', typeof product.id);
     
     setItems(prev => {
-      const existingItem = prev.find(item => item.id === product.id);
-      console.log('🔍 Item existente:', existingItem);
+      console.log('🔄 SetItems executando, prev:', prev);
+      const existingItem = prev.find(item => {
+        console.log(`🔍 Comparando ${item.id} (${typeof item.id}) com ${product.id} (${typeof product.id})`);
+        return item.id === product.id;
+      });
+      console.log('🔍 Item existente encontrado:', existingItem);
       
       if (existingItem) {
         const updated = prev.map(item =>
@@ -44,14 +50,19 @@ export const useCart = () => {
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
-        console.log('✅ Atualizado:', updated);
+        console.log('✅ Quantidade atualizada:', updated);
         return updated;
       }
       
       const newCart = [...prev, { ...product, quantity: 1 }];
-      console.log('✅ Novo carrinho:', newCart);
+      console.log('✅ Novo carrinho criado:', newCart);
       return newCart;
     });
+    
+    // Verificar o estado após a atualização
+    setTimeout(() => {
+      console.log('🕐 Estado do carrinho após 100ms:', items);
+    }, 100);
   };
 
   const removeItem = (id: string) => {
