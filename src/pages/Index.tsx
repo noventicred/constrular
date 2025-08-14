@@ -7,6 +7,7 @@ import FeaturedProducts from "@/components/FeaturedProducts";
 import SocialProof from "@/components/SocialProof";
 import Newsletter from "@/components/Newsletter";
 import Footer from "@/components/Footer";
+import FloatingCart from "@/components/FloatingCart";
 
 const Index = () => {
   return (
@@ -22,6 +23,7 @@ const Index = () => {
         <Newsletter />
       </main>
       <Footer />
+      <FloatingCart />
     </div>
   );
 };

@@ -20,7 +20,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from "@/integrations/supabase/client";
-import Cart from "./Cart";
+
 
 interface Category {
   id: string;
@@ -166,9 +166,6 @@ const Header = () => {
                 Entrar
               </Button>
             )}
-            
-            <Cart />
-            
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="sm" className="md:hidden">

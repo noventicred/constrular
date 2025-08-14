@@ -26,6 +26,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
+import FloatingCart from "@/components/FloatingCart";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Product type interface matching Supabase
@@ -550,6 +551,7 @@ const Produto = () => {
       </main>
       
       <Footer />
+      <FloatingCart />
     </div>
   );
 };

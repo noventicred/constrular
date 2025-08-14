@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
+import FloatingCart from "@/components/FloatingCart";
 
 interface Category {
   id: string;
@@ -461,6 +462,7 @@ const Produtos = () => {
       </main>
       
       <Footer />
+      <FloatingCart />
     </div>
   );
 };
