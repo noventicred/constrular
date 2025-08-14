@@ -29,8 +29,8 @@ interface Product {
 const SpecialOffers = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
   const { addItem } = useCart();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: false,

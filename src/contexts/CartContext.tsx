@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { formatCurrency } from '@/lib/formatters';
+import { useToast } from '@/hooks/use-toast';
 
 export interface CartItem {
   id: string;
@@ -25,6 +26,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
@@ -48,12 +50,23 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const existingItem = prev.find(item => item.id === product.id);
       
       if (existingItem) {
+        toast({
+          title: "✅ Quantidade atualizada!",
+          description: `${product.name} agora tem ${existingItem.quantity + 1} unidades no carrinho`,
+          duration: 3000,
+        });
         return prev.map(item =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
+      
+      toast({
+        title: "🛒 Produto adicionado!",
+        description: `${product.name} foi adicionado ao carrinho`,
+        duration: 3000,
+      });
       
       return [...prev, { ...product, quantity: 1 }];
     });
