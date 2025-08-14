@@ -70,24 +70,6 @@ const Header = () => {
   };
   return (
     <header className="bg-background border-b shadow-sm sticky top-0 z-40">
-      {/* Top bar */}
-      <div className="bg-construction-gray text-white py-2">
-        <div className="container mx-auto px-4 flex justify-between items-center text-sm">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1">
-              <Phone className="h-4 w-4" />
-              <span>(11) 99999-9999</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <MapPin className="h-4 w-4" />
-              <span>Retire na Loja ou Receba em Casa</span>
-            </div>
-          </div>
-          <div className="hidden md:block">
-            <span>Frete Grátis para São Paulo em compras acima de R$ 299</span>
-          </div>
-        </div>
-      </div>
 
       {/* Main header */}
       <div className="container mx-auto px-4 py-4">
