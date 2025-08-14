@@ -58,15 +58,15 @@ const Header = () => {
   };
 
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
-    console.log('Category clicked:', categoryId, categoryName); // Debug
+    console.log('Category clicked:', categoryId, categoryName);
+    
+    // Fechar todos os menus
     setIsDropdownOpen(false);
     setIsCategoriesOpen(false);
     setIsMobileMenuOpen(false);
     
-    // Pequeno delay para garantir que o menu feche antes de navegar
-    setTimeout(() => {
-      navigate(`/produtos?categoria=${categoryId}`);
-    }, 100);
+    // Navegar diretamente
+    navigate(`/produtos?categoria=${categoryId}`);
   };
   return (
     <header className="bg-background border-b shadow-sm">
