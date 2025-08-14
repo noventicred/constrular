@@ -589,6 +589,10 @@ const ProductForm = () => {
                   <CardTitle>Imagens do produto</CardTitle>
                   <CardDescription>
                     Adicione até 5 imagens para o produto
+                    <br />
+                    <span className="text-xs text-blue-600 font-medium">
+                      💡 Tamanho ideal: 800x800px (quadrada) | Formato: JPG, PNG | Máx: 2MB por imagem
+                    </span>
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -648,6 +652,10 @@ const ProductForm = () => {
                         />
                         <p className="text-xs text-muted-foreground mt-2 text-center">
                           {imagePreviews.length}/5 imagens selecionadas
+                          <br />
+                          <span className="text-blue-600">
+                            ✨ Primeira imagem será a principal nos cards e listas
+                          </span>
                         </p>
                       </div>
                     )}
