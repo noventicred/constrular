@@ -459,10 +459,10 @@ export default function AdminOrders() {
       pdf.setFontSize(9);
       pdf.setTextColor(80, 80, 80);
       const companyInfo = [
-        settings.store_name || 'CONSTRUTORA EXEMPLO',
-        'CNPJ: 00.000.000/0001-00',
-        'Rua Exemplo, 100 A',
-        '00000-000 - Cidade Exemplo - BA'
+        settings.store_name || 'Minha Loja',
+        settings.store_email || 'contato@minhaloja.com',
+        'CNPJ: Não informado',
+        'Endereço não cadastrado'
       ];
       
       companyInfo.forEach((line, index) => {
@@ -505,12 +505,12 @@ export default function AdminOrders() {
       pdf.setTextColor(80, 80, 80);
       pdf.text('Telefone:', margin, yPos + 10);
       pdf.setTextColor(0, 0, 0);
-      pdf.text((order.profiles as any)?.phone || '00.000.000/0000-00', margin + 25, yPos + 10);
+      pdf.text((order.profiles as any)?.phone || 'Não informado', margin + 25, yPos + 10);
       
       pdf.setTextColor(80, 80, 80);
       pdf.text('Email:', margin + 100, yPos + 10);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(order.profiles?.email || 'contato@exemplo.com', margin + 115, yPos + 10);
+      pdf.text(order.profiles?.email || 'Não informado', margin + 115, yPos + 10);
       
       yPos += 20;
 
@@ -524,33 +524,33 @@ export default function AdminOrders() {
       pdf.setTextColor(80, 80, 80);
       pdf.text('Endereço:', margin, yPos);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.street || 'Rua Exemplo', margin + 25, yPos);
+      pdf.text(profile?.street || 'Não informado', margin + 25, yPos);
       
       pdf.setTextColor(80, 80, 80);
       pdf.text('Número:', margin + 90, yPos);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.number || '100 A', margin + 110, yPos);
+      pdf.text(profile?.number || 'S/N', margin + 110, yPos);
       
       pdf.setTextColor(80, 80, 80);
       pdf.text('Cidade:', margin + 130, yPos);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.city || 'Cidade Exemplo', margin + 145, yPos);
+      pdf.text(profile?.city || 'Não informado', margin + 145, yPos);
       
       // Second line
       pdf.setTextColor(80, 80, 80);
       pdf.text('Bairro:', margin, yPos + 5);
       pdf.setTextColor(0, 0, 0);
-      pdf.text('Centro', margin + 20, yPos + 5);
+      pdf.text('Não informado', margin + 20, yPos + 5);
       
       pdf.setTextColor(80, 80, 80);
       pdf.text('CEP:', margin + 60, yPos + 5);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.zip_code || '00000-000', margin + 75, yPos + 5);
+      pdf.text(profile?.zip_code || 'Não informado', margin + 75, yPos + 5);
       
       pdf.setTextColor(80, 80, 80);
       pdf.text('Estado:', margin + 120, yPos + 5);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.state || 'SP', margin + 135, yPos + 5);
+      pdf.text(profile?.state || 'Não informado', margin + 135, yPos + 5);
       
       yPos += 15;
 
@@ -630,8 +630,11 @@ export default function AdminOrders() {
       
       yPos += 5;
       pdf.setTextColor(0, 0, 0);
-      const paymentMethod = order.payment_method === 'credit_card' ? 'CARTÃO' : 
-                           order.payment_method === 'pix' ? 'PIX' : 'DINHEIRO (À VISTA)';
+      const paymentMethod = order.payment_method === 'credit_card' ? 'CARTÃO DE CRÉDITO' : 
+                           order.payment_method === 'pix' ? 'PIX' : 
+                           order.payment_method === 'debit_card' ? 'CARTÃO DE DÉBITO' :
+                           order.payment_method === 'bank_slip' ? 'BOLETO' :
+                           order.payment_method || 'NÃO INFORMADO';
       pdf.text(paymentMethod, margin, yPos);
       
       const dueDate = new Date(order.created_at);
@@ -658,7 +661,7 @@ export default function AdminOrders() {
       yPos = addSectionTitle('OBSERVAÇÕES', yPos);
       pdf.setFontSize(8);
       pdf.setTextColor(0, 0, 0);
-      pdf.text('Acesse o nosso site: https://minhaloja.com.br/', margin, yPos);
+      pdf.text(`Acesse o nosso site: ${settings.store_email || 'Site não informado'}`, margin, yPos);
       
       // Save PDF
       const orderDate = new Date(order.created_at).toLocaleDateString('pt-BR').replace(/\//g, '-');
