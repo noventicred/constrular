@@ -153,7 +153,7 @@ const FeaturedProducts = () => {
                   </div>
                   
                   {/* Rating */}
-                  {product.rating && product.reviews && (
+                  {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 && (
                     <div className="flex items-center gap-1 mb-3">
                       <div className="flex">
                         {[...Array(5)].map((_, i) => (
@@ -168,7 +168,7 @@ const FeaturedProducts = () => {
                         ))}
                       </div>
                       <span className="text-sm text-muted-foreground">
-                        {product.rating} ({product.reviews})
+                        {product.rating} ({product.reviews} avaliações)
                       </span>
                     </div>
                   )}

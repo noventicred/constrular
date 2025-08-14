@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Filter, Grid, List, ShoppingCart } from "lucide-react";
+import { Search, Filter, Grid, List, ShoppingCart, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -291,6 +291,27 @@ const Produtos = () => {
                   <h3 className="font-semibold line-clamp-2 min-h-[3rem]">
                     {product.name}
                   </h3>
+                  
+                  {/* Rating */}
+                  {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 && (
+                    <div className="flex items-center gap-1 mb-2">
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <Star 
+                            key={i} 
+                            className={`h-3 w-3 ${
+                              i < Math.floor(product.rating!) 
+                                ? 'text-yellow-400 fill-current' 
+                                : 'text-gray-300'
+                            }`} 
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {product.rating} ({product.reviews} avaliações)
+                      </span>
+                    </div>
+                  )}
                   
                   <div className="space-y-1">
                     {product.original_price && product.original_price > product.price && (

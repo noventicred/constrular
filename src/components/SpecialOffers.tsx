@@ -199,7 +199,7 @@ const SpecialOffers = () => {
                         </div>
                         
                         {/* Rating */}
-                        {product.rating && product.reviews && (
+                        {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 && (
                           <div className="flex items-center gap-2 mb-4">
                             <div className="flex items-center">
                               {[...Array(5)].map((_, i) => (
