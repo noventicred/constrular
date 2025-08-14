@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,45 +24,33 @@ import {
 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { formatCurrency } from "@/lib/formatters";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Mock product data - in a real app this would come from an API
-const products = {
-  1: {
-    id: 1,
-    name: "Cimento CP II-E-32 50kg",
-    brand: "Votorantim",
-    price: 32.90,
-    originalPrice: 39.90,
-    rating: 4.8,
-    reviews: 156,
-    discount: 18,
-    inStock: true,
-    sku: "CIM-VOT-50KG",
-    category: "Cimento & Argamassa",
-    images: [
-      "/placeholder.svg",
-      "/placeholder.svg",
-      "/placeholder.svg",
-      "/placeholder.svg"
-    ],
-    description: "Cimento Portland CP II-E-32 da Votorantim, ideal para obras em geral. Oferece alta resistência e durabilidade, perfeito para fundações, pilares, vigas e lajes. Formulação especial que garante excelente aderência e trabalhabilidade.",
-    specifications: {
-      "Peso": "50kg",
-      "Tipo": "CP II-E-32",
-      "Marca": "Votorantim",
-      "Resistência": "32 MPa",
-      "Validade": "3 meses",
-      "Origem": "Nacional"
-    },
-    benefits: [
-      "Alta resistência e durabilidade",
-      "Excelente aderência",
-      "Boa trabalhabilidade",
-      "Certificado ABNT",
-      "Ideal para diversas aplicações"
-    ]
-  }
-};
+// Product type interface matching Supabase
+interface Product {
+  id: string;
+  name: string;
+  brand?: string;
+  price: number;
+  original_price?: number;
+  rating: number;
+  reviews_count?: number;
+  discount?: number;
+  in_stock: boolean;
+  sku?: string;
+  category?: string;
+  image_url: string;
+  description: string;
+  specifications?: Record<string, string>;
+  benefits?: string[];
+  category_id?: string;
+  created_at?: string;
+  updated_at?: string;
+  is_featured?: boolean;
+  is_special_offer?: boolean;
+}
 
 const productReviews = [
   {
@@ -119,9 +107,75 @@ const Produto = () => {
   
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) return;
+      
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) {
+          console.error('Erro ao carregar produto:', error);
+          toast({
+            title: "Erro",
+            description: "Não foi possível carregar o produto.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        setProduct(data);
+      } catch (error) {
+        console.error('Erro ao carregar produto:', error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar o produto.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id, toast]);
   
-  const product = products[Number(id) as keyof typeof products];
-  
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <PromoBanner />
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <div className="space-y-4">
+              <Skeleton className="aspect-square w-full" />
+              <div className="grid grid-cols-4 gap-2">
+                {Array(4).fill(0).map((_, i) => (
+                  <Skeleton key={i} className="aspect-square" />
+                ))}
+              </div>
+            </div>
+            <div className="space-y-6">
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-6 w-1/2" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   if (!product) {
     return (
       <div className="min-h-screen bg-background">
@@ -141,11 +195,11 @@ const Produto = () => {
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
       addItem({
-        id: product.id,
+        id: parseInt(product.id),
         name: product.name,
-        brand: product.brand,
+        brand: product.brand || 'Marca não informada',
         price: product.price,
-        image: product.images[0]
+        image: product.image_url
       });
     }
     
@@ -194,8 +248,12 @@ const Produto = () => {
             Produtos
           </Button>
           <span className="text-muted-foreground">/</span>
-          <span className="text-muted-foreground">{product.category}</span>
-          <span className="text-muted-foreground">/</span>
+          {product.category && (
+            <>
+              <span className="text-muted-foreground">{product.category}</span>
+              <span className="text-muted-foreground">/</span>
+            </>
+          )}
           <span className="font-medium">{product.name}</span>
         </div>
 
@@ -214,39 +272,23 @@ const Produto = () => {
           <div className="space-y-4">
             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
               <img 
-                src={product.images[selectedImage]} 
+                src={product.image_url} 
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
-            </div>
-            
-            <div className="grid grid-cols-4 gap-2">
-              {product.images.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-colors ${
-                    selectedImage === index 
-                      ? 'border-primary' 
-                      : 'border-transparent hover:border-gray-300'
-                  }`}
-                >
-                  <img 
-                    src={image} 
-                    alt={`${product.name} ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
             </div>
           </div>
 
           {/* Product Info */}
           <div className="space-y-6">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">{product.brand}</p>
+              {product.brand && (
+                <p className="text-sm text-muted-foreground mb-1">{product.brand}</p>
+              )}
               <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-              <p className="text-sm text-muted-foreground">SKU: {product.sku}</p>
+              {product.sku && (
+                <p className="text-sm text-muted-foreground">SKU: {product.sku}</p>
+              )}
             </div>
 
             {/* Rating */}
@@ -255,19 +297,19 @@ const Produto = () => {
                 {renderStars(product.rating)}
               </div>
               <span className="text-sm font-medium">{product.rating}</span>
-              <span className="text-sm text-muted-foreground">({product.reviews} avaliações)</span>
+              <span className="text-sm text-muted-foreground">({product.reviews_count || 0} avaliações)</span>
             </div>
 
             {/* Price */}
             <div className="space-y-2">
               <div className="flex items-center gap-3">
                 <span className="text-3xl font-bold text-primary">
-                  R$ {product.price.toFixed(2)}
+                  {formatCurrency(product.price)}
                 </span>
-                {product.originalPrice > product.price && (
+                {product.original_price && product.original_price > product.price && (
                   <>
                     <span className="text-lg text-muted-foreground line-through">
-                      R$ {product.originalPrice.toFixed(2)}
+                      {formatCurrency(product.original_price)}
                     </span>
                     <Badge className="bg-red-500 text-white">
                       -{product.discount}%
@@ -276,16 +318,16 @@ const Produto = () => {
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                ou 10x de R$ {(product.price / 10).toFixed(2)} sem juros
+                ou 10x de {formatCurrency(product.price / 10)} sem juros
               </p>
             </div>
 
             {/* Stock Status */}
             <div className="flex items-center gap-2">
-              <Badge className={product.inStock ? 'bg-green-500' : 'bg-red-500'}>
-                {product.inStock ? 'Em Estoque' : 'Indisponível'}
+              <Badge className={product.in_stock ? 'bg-green-500' : 'bg-red-500'}>
+                {product.in_stock ? 'Em Estoque' : 'Indisponível'}
               </Badge>
-              {product.inStock && (
+              {product.in_stock && (
                 <span className="text-sm text-muted-foreground">
                   Últimas unidades disponíveis
                 </span>
@@ -321,7 +363,7 @@ const Produto = () => {
                   className="flex-1" 
                   size="lg"
                   onClick={handleAddToCart}
-                  disabled={!product.inStock}
+                  disabled={!product.in_stock}
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
                   Adicionar ao Carrinho
@@ -362,7 +404,7 @@ const Produto = () => {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="description">Descrição</TabsTrigger>
             <TabsTrigger value="specifications">Especificações</TabsTrigger>
-            <TabsTrigger value="reviews">Avaliações ({product.reviews})</TabsTrigger>
+            <TabsTrigger value="reviews">Avaliações ({product.reviews_count || 0})</TabsTrigger>
           </TabsList>
           
           <TabsContent value="description" className="mt-6">
@@ -375,17 +417,19 @@ const Produto = () => {
                   {product.description}
                 </p>
                 
-                <div>
-                  <h4 className="font-semibold mb-3">Principais Benefícios:</h4>
-                  <ul className="space-y-2">
-                    {product.benefits.map((benefit, index) => (
-                      <li key={index} className="flex items-center gap-2">
-                        <div className="h-2 w-2 bg-primary rounded-full"></div>
-                        <span className="text-muted-foreground">{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                {product.benefits && product.benefits.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-3">Principais Benefícios:</h4>
+                    <ul className="space-y-2">
+                      {product.benefits.map((benefit, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <div className="h-2 w-2 bg-primary rounded-full"></div>
+                          <span className="text-muted-foreground">{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -396,14 +440,18 @@ const Produto = () => {
                 <CardTitle>Especificações Técnicas</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(product.specifications).map(([key, value]) => (
-                    <div key={key} className="flex justify-between py-2 border-b">
-                      <span className="font-medium">{key}:</span>
-                      <span className="text-muted-foreground">{value}</span>
-                    </div>
-                  ))}
-                </div>
+                {product.specifications && Object.keys(product.specifications).length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.entries(product.specifications).map(([key, value]) => (
+                      <div key={key} className="flex justify-between py-2 border-b">
+                        <span className="font-medium">{key}:</span>
+                        <span className="text-muted-foreground">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">Especificações não disponíveis.</p>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -425,7 +473,7 @@ const Produto = () => {
                         {renderStars(product.rating)}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {product.reviews} avaliações
+                        {product.reviews_count || 0} avaliações
                       </div>
                     </div>
                     
