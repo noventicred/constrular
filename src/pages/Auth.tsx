@@ -103,6 +103,10 @@ const Auth = () => {
     if (!confirmPassword.trim()) newErrors.confirmPassword = 'Confirmação de senha é obrigatória';
     else if (password !== confirmPassword) newErrors.confirmPassword = 'As senhas não coincidem';
     
+    // Telefone obrigatório
+    if (!phone.trim()) newErrors.phone = 'Telefone é obrigatório';
+    else if (phone.replace(/\D/g, '').length < 10) newErrors.phone = 'Telefone deve ter pelo menos 10 dígitos';
+    
     // Campos de endereço obrigatórios
     if (!zipCode.trim()) newErrors.zipCode = 'CEP é obrigatório';
     else if (zipCode.replace(/\D/g, '').length !== 8) newErrors.zipCode = 'CEP deve ter 8 dígitos';
@@ -111,11 +115,6 @@ const Auth = () => {
     if (!number.trim()) newErrors.number = 'Número é obrigatório';
     if (!city.trim()) newErrors.city = 'Cidade é obrigatória';
     if (!state.trim()) newErrors.state = 'Estado é obrigatório';
-    
-    // Validação opcional para telefone quando preenchido
-    if (phone && phone.replace(/\D/g, '').length < 10) {
-      newErrors.phone = 'Telefone deve ter pelo menos 10 dígitos';
-    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -361,7 +360,7 @@ const Auth = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="phone" className="text-sm font-medium">
-                            Telefone
+                            Telefone *
                           </Label>
                           <Input
                             id="phone"
