@@ -201,33 +201,6 @@ const Contato = () => {
               </CardContent>
             </Card>
 
-            {/* Emergency Contact */}
-            <Card className="p-6 bg-destructive/10 border-destructive/20">
-              <CardHeader className="px-0 pt-0">
-                <CardTitle className="text-xl flex items-center gap-2 text-destructive">
-                  <Phone className="h-5 w-5 text-destructive" />
-                  Atendimento de Urgência
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-0 pb-0">
-                <p className="text-destructive/80 mb-3">
-                  Para emergências fora do horário comercial:
-                </p>
-                <div className="flex items-center justify-between bg-card p-3 rounded-lg border">
-                  <div>
-                    <p className="font-bold text-destructive">(11) 9 8888-7777</p>
-                    <p className="text-sm text-destructive/70">Disponível 24h</p>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    variant="destructive"
-                    onClick={() => window.open('tel:11988887777')}
-                  >
-                    Ligar
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
 
