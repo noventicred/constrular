@@ -98,7 +98,7 @@ export default function AdminOrders() {
   }, [orders]);
 
   const fetchOrders = async () => {
-    console.log('🔍 ADMIN: Iniciando busca de pedidos...');
+    console.log('🚀 ADMIN: NOVA VERSÃO - Iniciando busca de pedidos...');
     try {
       // First get all orders
       const { data: ordersData, error: ordersError } = await supabase
