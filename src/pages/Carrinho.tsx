@@ -29,25 +29,27 @@ const Carrinho = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-4 md:py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <Button 
             variant="ghost" 
             onClick={() => navigate(-1)}
-            className="mb-4"
+            className="mb-4 p-2"
+            size="sm"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Continuar Comprando
+            <span className="hidden sm:inline">Continuar Comprando</span>
+            <span className="sm:hidden">Voltar</span>
           </Button>
           
-          <div className="flex items-center gap-3 mb-2">
-            <ShoppingBag className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl md:text-3xl font-bold">Meu Carrinho</h1>
+          <div className="flex items-center gap-2 md:gap-3 mb-2">
+            <ShoppingBag className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold">Meu Carrinho</h1>
           </div>
           
           {itemCount > 0 && (
-            <p className="text-muted-foreground">
+            <p className="text-sm md:text-base text-muted-foreground">
               {itemCount} {itemCount === 1 ? 'item' : 'itens'} no seu carrinho
             </p>
           )}
@@ -65,53 +67,55 @@ const Carrinho = () => {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
             {/* Items List */}
-            <div className="lg:col-span-2 space-y-4">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Itens do Carrinho</h2>
+            <div className="lg:col-span-2 space-y-3 md:space-y-4">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
+                <h2 className="text-lg md:text-xl font-semibold">Itens do Carrinho</h2>
                 <Button 
                   variant="outline" 
                   size="sm"
                   onClick={clearCart}
+                  className="self-start sm:self-auto"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Limpar Carrinho
+                  <span className="hidden sm:inline">Limpar Carrinho</span>
+                  <span className="sm:hidden">Limpar</span>
                 </Button>
               </div>
               
               {items.map((item) => (
                 <Card key={item.id} className="overflow-hidden">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <div className="flex-shrink-0">
+                  <CardContent className="p-4 md:p-6">
+                    <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+                      <div className="flex-shrink-0 self-center sm:self-start">
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="w-24 h-24 object-cover rounded-lg"
+                          className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-lg"
                         />
                       </div>
                       
-                      <div className="flex-1 space-y-2">
-                        <div className="flex justify-between">
-                          <div>
-                            <h3 className="font-semibold text-lg">{item.name}</h3>
+                      <div className="flex-1 space-y-2 md:space-y-3">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1 pr-2">
+                            <h3 className="font-semibold text-base md:text-lg leading-tight">{item.name}</h3>
                             {item.brand && (
                               <p className="text-sm text-muted-foreground">{item.brand}</p>
                             )}
                           </div>
-                           <Button
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => removeItem(item.id)}
-                            className="text-destructive hover:text-destructive/80"
+                            className="text-destructive hover:text-destructive/80 h-8 w-8 p-0 shrink-0"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                         
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                          <div className="flex items-center space-x-3">
+                        <div className="flex flex-col gap-3 md:gap-4">
+                          <div className="flex items-center justify-between">
                             <span className="text-sm font-medium">Quantidade:</span>
                             <div className="flex items-center border rounded-lg">
                               <Button
@@ -136,14 +140,19 @@ const Carrinho = () => {
                             </div>
                           </div>
                           
-                          <div className="text-right">
-                            <p className="text-sm text-muted-foreground">Preço unitário</p>
-                            <p className="font-bold text-lg text-primary">
-                              {formatCurrency(item.price)}
-                            </p>
-                            <p className="text-sm font-medium">
-                              Subtotal: {formatCurrency(item.price * item.quantity)}
-                            </p>
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Preço unitário</p>
+                              <p className="font-bold text-base md:text-lg text-primary">
+                                {formatCurrency(item.price)}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-muted-foreground">Subtotal</p>
+                              <p className="font-bold text-base md:text-lg">
+                                {formatCurrency(item.price * item.quantity)}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
