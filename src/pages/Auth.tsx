@@ -5,10 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
-import { ArrowLeft, User, Mail, Phone, MapPin, Calendar, FileText, ChevronDown, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, User, Mail, Phone, MapPin, Eye, EyeOff, Lock } from 'lucide-react';
 import { AuthRedirect } from '@/components/auth/AuthRedirect';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -24,9 +23,6 @@ const Auth = () => {
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [zipCode, setZipCode] = useState('');
-  const [birthDate, setBirthDate] = useState('');
-  const [documentNumber, setDocumentNumber] = useState('');
-  const [isOptionalOpen, setIsOptionalOpen] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
@@ -39,27 +35,6 @@ const Auth = () => {
       return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
     }
     return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-  };
-
-  const formatCPF = (value: string) => {
-    const cleaned = value.replace(/\D/g, '');
-    if (cleaned.length <= 11) {
-      return cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-    }
-    return value;
-  };
-
-  const formatCNPJ = (value: string) => {
-    const cleaned = value.replace(/\D/g, '');
-    return cleaned.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
-  };
-
-  const formatDocument = (value: string) => {
-    const cleaned = value.replace(/\D/g, '');
-    if (cleaned.length <= 11) {
-      return formatCPF(value);
-    }
-    return formatCNPJ(value);
   };
 
   const formatCEP = (value: string) => {
@@ -112,78 +87,6 @@ const Auth = () => {
     return emailRegex.test(email);
   };
 
-  const validateCPF = (cpf: string) => {
-    const cleaned = cpf.replace(/\D/g, '');
-    if (cleaned.length !== 11) return false;
-    
-    // Verifica se todos os dígitos são iguais
-    if (/^(\d)\1+$/.test(cleaned)) return false;
-    
-    // Valida primeiro dígito verificador
-    let sum = 0;
-    for (let i = 0; i < 9; i++) {
-      sum += parseInt(cleaned.charAt(i)) * (10 - i);
-    }
-    let remainder = 11 - (sum % 11);
-    if (remainder === 10 || remainder === 11) remainder = 0;
-    if (remainder !== parseInt(cleaned.charAt(9))) return false;
-    
-    // Valida segundo dígito verificador
-    sum = 0;
-    for (let i = 0; i < 10; i++) {
-      sum += parseInt(cleaned.charAt(i)) * (11 - i);
-    }
-    remainder = 11 - (sum % 11);
-    if (remainder === 10 || remainder === 11) remainder = 0;
-    if (remainder !== parseInt(cleaned.charAt(10))) return false;
-    
-    return true;
-  };
-
-  const validateCNPJ = (cnpj: string) => {
-    const cleaned = cnpj.replace(/\D/g, '');
-    if (cleaned.length !== 14) return false;
-    
-    // Verifica se todos os dígitos são iguais
-    if (/^(\d)\1+$/.test(cleaned)) return false;
-    
-    // Valida primeiro dígito verificador
-    let sum = 0;
-    let weight = 2;
-    for (let i = 11; i >= 0; i--) {
-      sum += parseInt(cleaned.charAt(i)) * weight;
-      weight = weight === 9 ? 2 : weight + 1;
-    }
-    let remainder = sum % 11;
-    if (remainder < 2) remainder = 0;
-    else remainder = 11 - remainder;
-    if (remainder !== parseInt(cleaned.charAt(12))) return false;
-    
-    // Valida segundo dígito verificador
-    sum = 0;
-    weight = 2;
-    for (let i = 12; i >= 0; i--) {
-      sum += parseInt(cleaned.charAt(i)) * weight;
-      weight = weight === 9 ? 2 : weight + 1;
-    }
-    remainder = sum % 11;
-    if (remainder < 2) remainder = 0;
-    else remainder = 11 - remainder;
-    if (remainder !== parseInt(cleaned.charAt(13))) return false;
-    
-    return true;
-  };
-
-  const validateDocument = (document: string) => {
-    const cleaned = document.replace(/\D/g, '');
-    if (cleaned.length === 11) {
-      return validateCPF(document);
-    } else if (cleaned.length === 14) {
-      return validateCNPJ(document);
-    }
-    return false;
-  };
-
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
     
@@ -202,13 +105,9 @@ const Auth = () => {
     if (!city.trim()) newErrors.city = 'Cidade é obrigatória';
     if (!state.trim()) newErrors.state = 'Estado é obrigatório';
     
-    // Validações opcionais quando preenchidas
+    // Validação opcional para telefone quando preenchido
     if (phone && phone.replace(/\D/g, '').length < 10) {
       newErrors.phone = 'Telefone deve ter pelo menos 10 dígitos';
-    }
-    
-    if (documentNumber && !validateDocument(documentNumber)) {
-      newErrors.documentNumber = 'CPF ou CNPJ inválido';
     }
     
     setErrors(newErrors);
@@ -266,8 +165,6 @@ const Auth = () => {
             city,
             state,
             zip_code: zipCode,
-            birth_date: birthDate,
-            document_number: documentNumber,
           },
         },
       });
@@ -292,8 +189,6 @@ const Auth = () => {
         setCity('');
         setState('');
         setZipCode('');
-        setBirthDate('');
-        setDocumentNumber('');
       }
     } catch (error) {
       toast({
@@ -366,7 +261,7 @@ const Auth = () => {
                       
                       <div className="space-y-2">
                         <Label htmlFor="signin-password" className="text-sm font-medium flex items-center gap-2">
-                          <FileText className="h-4 w-4" />
+                          <Lock className="h-4 w-4" />
                           Senha
                         </Label>
                         <div className="relative">
@@ -408,7 +303,7 @@ const Auth = () => {
 
                 <TabsContent value="signup" className="space-y-6 mt-8">
                   <form onSubmit={handleSignUp} className="space-y-6">
-                    {/* Informações Básicas */}
+                    {/* Informações Pessoais */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                         <User className="h-4 w-4" />
@@ -603,62 +498,6 @@ const Auth = () => {
                       </div>
                     </div>
 
-                    {/* Informações Opcionais */}
-                    <Collapsible open={isOptionalOpen} onOpenChange={setIsOptionalOpen}>
-                      <CollapsibleTrigger asChild>
-                        <Button 
-                          type="button"
-                          variant="ghost" 
-                          className="w-full justify-between p-4 h-auto border border-muted rounded-lg hover:bg-muted/50 transition-colors"
-                        >
-                          <div className="flex items-center gap-2 text-sm font-medium">
-                            <Calendar className="h-4 w-4" />
-                            Informações Complementares (Opcional)
-                          </div>
-                          <ChevronDown className={`h-4 w-4 transition-transform ${isOptionalOpen ? 'rotate-180' : ''}`} />
-                        </Button>
-                      </CollapsibleTrigger>
-                      
-                      <CollapsibleContent className="space-y-4 mt-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="document" className="text-sm font-medium flex items-center gap-2">
-                              <FileText className="h-4 w-4" />
-                              CPF/CNPJ
-                            </Label>
-                            <Input
-                              id="document"
-                              type="text"
-                              placeholder="000.000.000-00 ou 00.000.000/0000-00"
-                              value={documentNumber}
-                              onChange={(e) => {
-                                const formatted = formatDocument(e.target.value);
-                                setDocumentNumber(formatted);
-                              }}
-                              className={`h-11 transition-all duration-200 ${errors.documentNumber ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
-                            />
-                            {errors.documentNumber && (
-                              <p className="text-sm text-destructive">{errors.documentNumber}</p>
-                            )}
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label htmlFor="birthDate" className="text-sm font-medium flex items-center gap-2">
-                              <Calendar className="h-4 w-4" />
-                              Data de Nascimento
-                            </Label>
-                            <Input
-                              id="birthDate"
-                              type="date"
-                              value={birthDate}
-                              onChange={(e) => setBirthDate(e.target.value)}
-                              className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-                            />
-                          </div>
-                        </div>
-
-                      </CollapsibleContent>
-                    </Collapsible>
                     <div className="space-y-4 pt-4">
                       <Button
                         type="submit"
