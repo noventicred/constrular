@@ -16,6 +16,15 @@ interface Category {
   name: string;
 }
 
+interface Comment {
+  id?: string;
+  author_name: string;
+  comment_text: string;
+  rating: number;
+  likes: number;
+  dislikes: number;
+}
+
 interface ProductFormData {
   name: string;
   description: string;
@@ -39,6 +48,14 @@ const ProductForm = () => {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState<Comment>({
+    author_name: '',
+    comment_text: '',
+    rating: 5,
+    likes: 0,
+    dislikes: 0
+  });
 
 
   const [formData, setFormData] = useState<ProductFormData>({
@@ -57,6 +74,7 @@ const ProductForm = () => {
     fetchCategories();
     if (isEditing) {
       fetchProduct();
+      fetchComments();
     }
   }, [id, isEditing]);
 
@@ -123,6 +141,69 @@ const ProductForm = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchComments = async () => {
+    if (!id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('product_comments')
+        .select('*')
+        .eq('product_id', id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setComments(data || []);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  };
+
+  const addComment = () => {
+    if (!newComment.author_name.trim() || !newComment.comment_text.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'Nome do autor e comentário são obrigatórios.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const comment: Comment = {
+      id: Date.now().toString(),
+      ...newComment,
+      author_name: newComment.author_name.trim(),
+      comment_text: newComment.comment_text.trim(),
+    };
+
+    setComments([comment, ...comments]);
+    setNewComment({
+      author_name: '',
+      comment_text: '',
+      rating: 5,
+      likes: 0,
+      dislikes: 0
+    });
+
+    toast({
+      title: 'Sucesso',
+      description: 'Comentário adicionado com sucesso!',
+    });
+  };
+
+  const removeComment = (commentId: string) => {
+    setComments(comments.filter(comment => comment.id !== commentId));
+    toast({
+      title: 'Sucesso',
+      description: 'Comentário removido com sucesso!',
+    });
+  };
+
+  const updateComment = (commentId: string, field: keyof Comment, value: any) => {
+    setComments(comments.map(comment => 
+      comment.id === commentId ? { ...comment, [field]: value } : comment
+    ));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -220,16 +301,77 @@ const ProductForm = () => {
         is_special_offer: formData.is_special_offer,
       };
 
+      // Save comments
+      if (comments.length > 0) {
+        // Delete existing comments if editing
+        if (isEditing) {
+          await supabase
+            .from('product_comments')
+            .delete()
+            .eq('product_id', id);
+        }
+
+        // Insert new comments
+        const commentsData = comments.map(comment => ({
+          product_id: isEditing ? id : undefined, // Will be set after product creation
+          author_name: comment.author_name,
+          comment_text: comment.comment_text,
+          rating: comment.rating,
+          likes: comment.likes,
+          dislikes: comment.dislikes,
+        }));
+
+        if (isEditing) {
+          commentsData.forEach(comment => { comment.product_id = id; });
+          const { error: commentsError } = await supabase
+            .from('product_comments')
+            .insert(commentsData);
+          
+          if (commentsError) {
+            console.error('Error saving comments:', commentsError);
+          }
+        }
+      }
+
       let error;
+      let productId = id;
+      
       if (isEditing) {
         ({ error } = await supabase
           .from('products')
           .update(productData)
           .eq('id', id));
       } else {
-        ({ error } = await supabase
+        const { data: newProduct, error: insertError } = await supabase
           .from('products')
-          .insert([productData]));
+          .insert([productData])
+          .select('id')
+          .single();
+        
+        error = insertError;
+        if (newProduct) {
+          productId = newProduct.id;
+          
+          // Save comments for new product
+          if (comments.length > 0) {
+            const commentsData = comments.map(comment => ({
+              product_id: productId,
+              author_name: comment.author_name,
+              comment_text: comment.comment_text,
+              rating: comment.rating,
+              likes: comment.likes,
+              dislikes: comment.dislikes,
+            }));
+
+            const { error: commentsError } = await supabase
+              .from('product_comments')
+              .insert(commentsData);
+            
+            if (commentsError) {
+              console.error('Error saving comments:', commentsError);
+            }
+          }
+        }
       }
 
       if (error) throw error;
@@ -514,6 +656,156 @@ const ProductForm = () => {
               </Card>
             </div>
           </div>
+
+          {/* Seção de Comentários */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Comentários e Avaliações</CardTitle>
+              <CardDescription>
+                Gerencie os comentários e avaliações do produto
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Formulário para novo comentário */}
+              <div className="border rounded-lg p-4 bg-muted/50">
+                <h4 className="font-medium mb-4">Adicionar novo comentário</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <Label htmlFor="author_name">Nome do autor</Label>
+                    <Input
+                      id="author_name"
+                      value={newComment.author_name}
+                      onChange={(e) => setNewComment({...newComment, author_name: e.target.value})}
+                      placeholder="Nome do autor"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="rating">Avaliação</Label>
+                    <Select
+                      value={newComment.rating.toString()}
+                      onValueChange={(value) => setNewComment({...newComment, rating: parseInt(value)})}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[5, 4, 3, 2, 1].map((star) => (
+                          <SelectItem key={star} value={star.toString()}>
+                            {star} estrela{star !== 1 ? 's' : ''}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <Label htmlFor="likes">Curtidas</Label>
+                    <Input
+                      id="likes"
+                      type="number"
+                      min="0"
+                      value={newComment.likes}
+                      onChange={(e) => setNewComment({...newComment, likes: parseInt(e.target.value) || 0})}
+                      placeholder="0"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="dislikes">Não curtiu</Label>
+                    <Input
+                      id="dislikes"
+                      type="number"
+                      min="0"
+                      value={newComment.dislikes}
+                      onChange={(e) => setNewComment({...newComment, dislikes: parseInt(e.target.value) || 0})}
+                      placeholder="0"
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <Label htmlFor="comment_text">Comentário</Label>
+                  <Textarea
+                    id="comment_text"
+                    value={newComment.comment_text}
+                    onChange={(e) => setNewComment({...newComment, comment_text: e.target.value})}
+                    placeholder="Digite o comentário..."
+                    rows={3}
+                    className="mt-1"
+                  />
+                </div>
+                <Button type="button" onClick={addComment}>
+                  Adicionar Comentário
+                </Button>
+              </div>
+
+              {/* Lista de comentários existentes */}
+              {comments.length > 0 && (
+                <div className="space-y-4">
+                  <h4 className="font-medium">Comentários existentes ({comments.length})</h4>
+                  {comments.map((comment) => (
+                    <div key={comment.id} className="border rounded-lg p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <p className="font-medium">{comment.author_name}</p>
+                          <div className="flex items-center gap-2">
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <span
+                                  key={i}
+                                  className={`text-lg ${
+                                    i < comment.rating ? 'text-yellow-400' : 'text-gray-300'
+                                  }`}
+                                >
+                                  ★
+                                </span>
+                              ))}
+                            </div>
+                            <span className="text-sm text-muted-foreground">
+                              {comment.rating} estrela{comment.rating !== 1 ? 's' : ''}
+                            </span>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeComment(comment.id!)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <p className="text-muted-foreground mb-3">{comment.comment_text}</p>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="number"
+                            min="0"
+                            value={comment.likes}
+                            onChange={(e) => updateComment(comment.id!, 'likes', parseInt(e.target.value) || 0)}
+                            className="w-20"
+                          />
+                          <span className="text-sm text-muted-foreground">👍 curtidas</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="number"
+                            min="0"
+                            value={comment.dislikes}
+                            onChange={(e) => updateComment(comment.id!, 'dislikes', parseInt(e.target.value) || 0)}
+                            className="w-20"
+                          />
+                          <span className="text-sm text-muted-foreground">👎 não curtiu</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           <div className="flex items-center justify-end gap-4 pt-6 border-t">
             <Button

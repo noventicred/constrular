@@ -52,6 +52,50 @@ export type Database = {
           },
         ]
       }
+      product_comments: {
+        Row: {
+          author_name: string
+          comment_text: string
+          created_at: string
+          dislikes: number | null
+          id: string
+          likes: number | null
+          product_id: string
+          rating: number | null
+          updated_at: string
+        }
+        Insert: {
+          author_name: string
+          comment_text: string
+          created_at?: string
+          dislikes?: number | null
+          id?: string
+          likes?: number | null
+          product_id: string
+          rating?: number | null
+          updated_at?: string
+        }
+        Update: {
+          author_name?: string
+          comment_text?: string
+          created_at?: string
+          dislikes?: number | null
+          id?: string
+          likes?: number | null
+          product_id?: string
+          rating?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_comments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category_id: string | null

@@ -401,9 +401,8 @@ const Produto = () => {
 
         {/* Product Details Tabs */}
         <Tabs defaultValue="description" className="mb-12">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="description">Descrição</TabsTrigger>
-            <TabsTrigger value="specifications">Especificações</TabsTrigger>
             <TabsTrigger value="reviews">Avaliações ({product.reviews_count || 0})</TabsTrigger>
           </TabsList>
           
@@ -434,27 +433,6 @@ const Produto = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="specifications" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Especificações Técnicas</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {product.specifications && Object.keys(product.specifications).length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(product.specifications).map(([key, value]) => (
-                      <div key={key} className="flex justify-between py-2 border-b">
-                        <span className="font-medium">{key}:</span>
-                        <span className="text-muted-foreground">{value}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground">Especificações não disponíveis.</p>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
           
           <TabsContent value="reviews" className="mt-6">
             <div className="space-y-6">
