@@ -247,14 +247,17 @@ export type Database = {
           address: string | null
           birth_date: string | null
           city: string | null
+          complement: string | null
           created_at: string
           document_number: string | null
           email: string | null
           full_name: string | null
           id: string
           is_admin: boolean | null
+          number: string | null
           phone: string | null
           state: string | null
+          street: string | null
           updated_at: string
           zip_code: string | null
         }
@@ -262,14 +265,17 @@ export type Database = {
           address?: string | null
           birth_date?: string | null
           city?: string | null
+          complement?: string | null
           created_at?: string
           document_number?: string | null
           email?: string | null
           full_name?: string | null
           id: string
           is_admin?: boolean | null
+          number?: string | null
           phone?: string | null
           state?: string | null
+          street?: string | null
           updated_at?: string
           zip_code?: string | null
         }
@@ -277,14 +283,17 @@ export type Database = {
           address?: string | null
           birth_date?: string | null
           city?: string | null
+          complement?: string | null
           created_at?: string
           document_number?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
           is_admin?: boolean | null
+          number?: string | null
           phone?: string | null
           state?: string | null
+          street?: string | null
           updated_at?: string
           zip_code?: string | null
         }
