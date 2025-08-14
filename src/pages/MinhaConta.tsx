@@ -297,108 +297,109 @@ export default function MinhaConta() {
         </div>
       </div>
 
-      <div className="flex-1 container mx-auto px-4 py-6 lg:py-8">
+      <div className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
         <div className="max-w-6xl mx-auto">
           {/* Header with user info */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <User className="h-6 w-6 text-primary" />
+          <div className="flex flex-col gap-4 mb-4 sm:mb-6 lg:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                  <User className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 </div>
                 <div>
-                  <h1 className="text-2xl lg:text-3xl font-bold">Minha Conta</h1>
-                  <p className="text-muted-foreground">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Minha Conta</h1>
+                  <p className="text-sm sm:text-base text-muted-foreground">
                     Olá, {profileData.full_name || user.email?.split('@')[0] || 'usuário'}!
                   </p>
                 </div>
               </div>
-            </div>
-            <div className="flex gap-2">
-              <Link to="/">
-                <Button variant="outline" size="sm">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Voltar à loja
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Link to="/" className="w-full sm:w-auto">
+                  <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    <span className="hidden sm:inline">Voltar à loja</span>
+                    <span className="sm:hidden">Voltar</span>
+                  </Button>
+                </Link>
+                <Button variant="outline" size="sm" onClick={handleSignOut} className="w-full sm:w-auto">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sair
                 </Button>
-              </Link>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Sair
-              </Button>
+              </div>
             </div>
           </div>
 
-          <Tabs defaultValue="dashboard" className="space-y-6">
+          <Tabs defaultValue="dashboard" className="space-y-4 lg:space-y-6">
             <TabsList className="grid w-full grid-cols-3 h-auto p-1">
-              <TabsTrigger value="dashboard" className="flex items-center gap-2 py-3">
-                <TrendingUp className="h-4 w-4" />
-                <span className="hidden sm:inline">Dashboard</span>
+              <TabsTrigger value="dashboard" className="flex items-center gap-1 sm:gap-2 py-2 sm:py-3 text-xs sm:text-sm">
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Dashboard</span>
               </TabsTrigger>
-              <TabsTrigger value="profile" className="flex items-center gap-2 py-3">
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Perfil</span>
+              <TabsTrigger value="profile" className="flex items-center gap-1 sm:gap-2 py-2 sm:py-3 text-xs sm:text-sm">
+                <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Perfil</span>
               </TabsTrigger>
-              <TabsTrigger value="orders" className="flex items-center gap-2 py-3">
-                <Package className="h-4 w-4" />
-                <span className="hidden sm:inline">Pedidos</span>
+              <TabsTrigger value="orders" className="flex items-center gap-1 sm:gap-2 py-2 sm:py-3 text-xs sm:text-sm">
+                <Package className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Pedidos</span>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard">
               <div className="grid gap-6">
                 {/* Stats Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
                   <Card className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4 lg:p-6">
+                    <CardContent className="p-3 sm:p-4 lg:p-6">
                       <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-xs lg:text-sm font-medium text-muted-foreground">Total de Pedidos</p>
-                          <p className="text-xl lg:text-2xl font-bold">{orderStats.total_orders}</p>
+                        <div className="min-w-0 flex-1 mr-2">
+                          <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">Total de Pedidos</p>
+                          <p className="text-lg sm:text-xl lg:text-2xl font-bold">{orderStats.total_orders}</p>
                         </div>
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <ShoppingCart className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
+                        <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg flex-shrink-0">
+                          <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-primary" />
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                   
                   <Card className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4 lg:p-6">
+                    <CardContent className="p-3 sm:p-4 lg:p-6">
                       <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-xs lg:text-sm font-medium text-muted-foreground">Total Gasto</p>
-                          <p className="text-xl lg:text-2xl font-bold">{formatCurrency(orderStats.total_spent)}</p>
+                        <div className="min-w-0 flex-1 mr-2">
+                          <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">Total Gasto</p>
+                          <p className="text-lg sm:text-xl lg:text-2xl font-bold">{formatCurrency(orderStats.total_spent)}</p>
                         </div>
-                        <div className="p-2 bg-green-100 rounded-lg">
-                          <CreditCard className="h-5 w-5 lg:h-6 lg:w-6 text-green-600" />
+                        <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg flex-shrink-0">
+                          <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-600" />
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                   
                   <Card className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4 lg:p-6">
+                    <CardContent className="p-3 sm:p-4 lg:p-6">
                       <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-xs lg:text-sm font-medium text-muted-foreground">Pendentes</p>
-                          <p className="text-xl lg:text-2xl font-bold">{orderStats.pending_orders}</p>
+                        <div className="min-w-0 flex-1 mr-2">
+                          <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">Pendentes</p>
+                          <p className="text-lg sm:text-xl lg:text-2xl font-bold">{orderStats.pending_orders}</p>
                         </div>
-                        <div className="p-2 bg-yellow-100 rounded-lg">
-                          <Clock className="h-5 w-5 lg:h-6 lg:w-6 text-yellow-600" />
+                        <div className="p-1.5 sm:p-2 bg-yellow-100 rounded-lg flex-shrink-0">
+                          <Clock className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-yellow-600" />
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                   
                   <Card className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4 lg:p-6">
+                    <CardContent className="p-3 sm:p-4 lg:p-6">
                       <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-xs lg:text-sm font-medium text-muted-foreground">Concluídos</p>
-                          <p className="text-xl lg:text-2xl font-bold">{orderStats.completed_orders}</p>
+                        <div className="min-w-0 flex-1 mr-2">
+                          <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">Concluídos</p>
+                          <p className="text-lg sm:text-xl lg:text-2xl font-bold">{orderStats.completed_orders}</p>
                         </div>
-                        <div className="p-2 bg-green-100 rounded-lg">
-                          <CheckCircle className="h-5 w-5 lg:h-6 lg:w-6 text-green-600" />
+                        <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg flex-shrink-0">
+                          <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-600" />
                         </div>
                       </div>
                     </CardContent>
@@ -416,38 +417,38 @@ export default function MinhaConta() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                        <div className="p-2 bg-background rounded-lg shadow-sm">
-                          <Mail className="h-4 w-4 text-primary" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                      <div className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-muted/30 rounded-lg">
+                        <div className="p-1.5 sm:p-2 bg-background rounded-lg shadow-sm flex-shrink-0">
+                          <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium">Email</p>
-                          <p className="text-sm text-muted-foreground truncate">
+                          <p className="text-xs sm:text-sm font-medium">Email</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground truncate">
                             {profileData.email || 'Não informado'}
                           </p>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                        <div className="p-2 bg-background rounded-lg shadow-sm">
-                          <Phone className="h-4 w-4 text-primary" />
+                      <div className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-muted/30 rounded-lg">
+                        <div className="p-1.5 sm:p-2 bg-background rounded-lg shadow-sm flex-shrink-0">
+                          <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium">Telefone</p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs sm:text-sm font-medium">Telefone</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             {profileData.phone || 'Não informado'}
                           </p>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                        <div className="p-2 bg-background rounded-lg shadow-sm">
-                          <MapPin className="h-4 w-4 text-primary" />
+                      <div className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-muted/30 rounded-lg">
+                        <div className="p-1.5 sm:p-2 bg-background rounded-lg shadow-sm flex-shrink-0">
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium">Cidade</p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs sm:text-sm font-medium">Cidade</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             {profileData.city || 'Não informado'}
                           </p>
                         </div>
@@ -546,56 +547,60 @@ export default function MinhaConta() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="full_name">Nome Completo</Label>
+                      <Label htmlFor="full_name" className="text-sm font-medium">Nome Completo</Label>
                       <Input
                         id="full_name"
                         value={profileData.full_name}
                         onChange={(e) => setProfileData(prev => ({ ...prev, full_name: e.target.value }))}
                         placeholder="Seu nome completo"
+                        className="text-sm"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email" className="text-sm font-medium">Email</Label>
                       <Input
                         id="email"
                         type="email"
                         value={profileData.email}
                         disabled
-                        className="bg-muted"
+                        className="bg-muted text-sm"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Telefone</Label>
+                      <Label htmlFor="phone" className="text-sm font-medium">Telefone</Label>
                       <Input
                         id="phone"
                         value={profileData.phone}
                         onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
                         placeholder="(11) 99999-9999"
+                        className="text-sm"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="birth_date">Data de Nascimento</Label>
+                      <Label htmlFor="birth_date" className="text-sm font-medium">Data de Nascimento</Label>
                       <Input
                         id="birth_date"
                         type="date"
                         value={profileData.birth_date}
                         onChange={(e) => setProfileData(prev => ({ ...prev, birth_date: e.target.value }))}
+                        className="text-sm"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="document_number">CPF/CNPJ</Label>
+                    <Label htmlFor="document_number" className="text-sm font-medium">CPF/CNPJ</Label>
                     <Input
                       id="document_number"
                       value={profileData.document_number}
                       onChange={(e) => setProfileData(prev => ({ ...prev, document_number: e.target.value }))}
                       placeholder="000.000.000-00"
+                      className="text-sm"
                     />
                   </div>
 
@@ -607,70 +612,76 @@ export default function MinhaConta() {
                       Endereço de Entrega
                     </h3>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="md:col-span-2 space-y-2">
-                        <Label htmlFor="street">Rua</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                      <div className="sm:col-span-2 space-y-2">
+                        <Label htmlFor="street" className="text-sm font-medium">Rua</Label>
                         <Input
                           id="street"
                           value={profileData.street}
                           onChange={(e) => setProfileData(prev => ({ ...prev, street: e.target.value }))}
                           placeholder="Nome da rua"
+                          className="text-sm"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="number">Número</Label>
+                        <Label htmlFor="number" className="text-sm font-medium">Número</Label>
                         <Input
                           id="number"
                           value={profileData.number}
                           onChange={(e) => setProfileData(prev => ({ ...prev, number: e.target.value }))}
                           placeholder="123"
+                          className="text-sm"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="complement">Complemento</Label>
+                      <Label htmlFor="complement" className="text-sm font-medium">Complemento</Label>
                       <Input
                         id="complement"
                         value={profileData.complement}
                         onChange={(e) => setProfileData(prev => ({ ...prev, complement: e.target.value }))}
                         placeholder="Apartamento, bloco, etc. (opcional)"
+                        className="text-sm"
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="city">Cidade</Label>
+                        <Label htmlFor="city" className="text-sm font-medium">Cidade</Label>
                         <Input
                           id="city"
                           value={profileData.city}
                           onChange={(e) => setProfileData(prev => ({ ...prev, city: e.target.value }))}
                           placeholder="São Paulo"
+                          className="text-sm"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="state">Estado</Label>
+                        <Label htmlFor="state" className="text-sm font-medium">Estado</Label>
                         <Input
                           id="state"
                           value={profileData.state}
                           onChange={(e) => setProfileData(prev => ({ ...prev, state: e.target.value }))}
                           placeholder="SP"
+                          className="text-sm"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="zip_code">CEP</Label>
+                        <Label htmlFor="zip_code" className="text-sm font-medium">CEP</Label>
                         <Input
                           id="zip_code"
                           value={profileData.zip_code}
                           onChange={(e) => setProfileData(prev => ({ ...prev, zip_code: e.target.value }))}
                           placeholder="00000-000"
+                          className="text-sm"
                         />
                       </div>
                     </div>
                   </div>
 
                   <div className="pt-4">
-                    <Button onClick={handleSaveProfile} disabled={isLoading} className="w-full md:w-auto">
+                    <Button onClick={handleSaveProfile} disabled={isLoading} className="w-full sm:w-auto">
                       <Save className="mr-2 h-4 w-4" />
                       {isLoading ? 'Salvando...' : 'Salvar Alterações'}
                     </Button>
@@ -701,13 +712,15 @@ export default function MinhaConta() {
                     <div className="space-y-4">
                       {orders.map((order) => (
                         <Card key={order.id} className="border">
-                          <CardContent className="p-6">
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center gap-4">
-                                {getStatusIcon(order.status)}
-                                <div>
-                                  <h4 className="font-semibold text-lg">Pedido #{order.id.slice(0, 8)}</h4>
-                                  <p className="text-sm text-muted-foreground">
+                          <CardContent className="p-3 sm:p-4 lg:p-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4">
+                              <div className="flex items-center gap-3 sm:gap-4">
+                                <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg flex-shrink-0">
+                                  {getStatusIcon(order.status)}
+                                </div>
+                                <div className="min-w-0">
+                                  <h4 className="font-semibold text-base sm:text-lg">Pedido #{order.id.slice(0, 8)}</h4>
+                                  <p className="text-xs sm:text-sm text-muted-foreground">
                                     {new Date(order.created_at).toLocaleDateString('pt-BR', {
                                       day: '2-digit',
                                       month: '2-digit',
@@ -718,8 +731,8 @@ export default function MinhaConta() {
                                   </p>
                                 </div>
                               </div>
-                              <div className="text-right">
-                                <p className="font-bold text-xl">{formatCurrency(order.total_amount)}</p>
+                              <div className="text-left sm:text-right">
+                                <p className="font-bold text-lg sm:text-xl">{formatCurrency(order.total_amount)}</p>
                                 <Badge variant="outline" className={getStatusColor(order.status)}>
                                   {getStatusText(order.status)}
                                 </Badge>
@@ -729,17 +742,17 @@ export default function MinhaConta() {
                             {/* Order Items */}
                             {order.order_items && order.order_items.length > 0 && (
                               <div className="mb-4">
-                                <h5 className="font-medium mb-2">Itens do Pedido:</h5>
+                                <h5 className="font-medium mb-2 text-sm sm:text-base">Itens do Pedido:</h5>
                                 <div className="space-y-2">
                                   {order.order_items.map((item) => (
-                                    <div key={item.id} className="flex justify-between items-center p-2 bg-muted/50 rounded">
-                                      <div>
-                                        <p className="font-medium">{item.product_name}</p>
-                                        <p className="text-sm text-muted-foreground">
+                                    <div key={item.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 p-2 sm:p-3 bg-muted/50 rounded">
+                                      <div className="min-w-0 flex-1">
+                                        <p className="font-medium text-sm sm:text-base">{item.product_name}</p>
+                                        <p className="text-xs sm:text-sm text-muted-foreground">
                                           Qtd: {item.quantity} × {formatCurrency(item.unit_price)}
                                         </p>
                                       </div>
-                                      <p className="font-medium">{formatCurrency(item.total_price)}</p>
+                                      <p className="font-medium text-sm sm:text-base">{formatCurrency(item.total_price)}</p>
                                     </div>
                                   ))}
                                 </div>
@@ -747,33 +760,33 @@ export default function MinhaConta() {
                             )}
                             
                             {/* Payment and Shipping Info */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                               <div>
-                                <p className="text-sm font-medium text-muted-foreground mb-1">Status do Pagamento:</p>
-                                <Badge variant={order.payment_status === 'paid' ? 'default' : 'secondary'}>
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">Status do Pagamento:</p>
+                                <Badge variant={order.payment_status === 'paid' ? 'default' : 'secondary'} className="text-xs">
                                   {order.payment_status === 'pending' ? 'Pendente' : 'Pago'}
                                 </Badge>
                               </div>
                               
                               {order.payment_method && (
                                 <div>
-                                  <p className="text-sm font-medium text-muted-foreground mb-1">Método de Pagamento:</p>
-                                  <p className="text-sm">{order.payment_method}</p>
+                                  <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">Método de Pagamento:</p>
+                                  <p className="text-xs sm:text-sm">{order.payment_method}</p>
                                 </div>
                               )}
                             </div>
                             
                             {order.shipping_address && (
                               <div className="mb-4">
-                                <p className="text-sm font-medium text-muted-foreground mb-1">Endereço de entrega:</p>
-                                <p className="text-sm bg-muted/50 p-2 rounded">{order.shipping_address}</p>
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">Endereço de entrega:</p>
+                                <p className="text-xs sm:text-sm bg-muted/50 p-2 rounded break-words">{order.shipping_address}</p>
                               </div>
                             )}
                             
-                            <div className="flex justify-between items-center pt-4 border-t">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-4 border-t">
                               <div className="flex items-center gap-2">
-                                <Star className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm text-muted-foreground">
+                                <Star className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                                <span className="text-xs sm:text-sm text-muted-foreground">
                                   {order.status === 'delivered' ? 'Avalie este pedido' : 'Aguardando entrega'}
                                 </span>
                               </div>
@@ -781,9 +794,11 @@ export default function MinhaConta() {
                                 variant="outline" 
                                 size="sm"
                                 onClick={() => setSelectedOrder(order)}
+                                className="w-full sm:w-auto"
                               >
                                 <Eye className="mr-2 h-4 w-4" />
-                                Ver Detalhes Completos
+                                <span className="sm:hidden">Ver Detalhes</span>
+                                <span className="hidden sm:inline">Ver Detalhes Completos</span>
                               </Button>
                             </div>
                           </CardContent>
