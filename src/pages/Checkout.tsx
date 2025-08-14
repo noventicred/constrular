@@ -504,7 +504,7 @@ export default function Checkout() {
           {/* Order Summary Sidebar */}
           <div className="space-y-6">
             {/* Order Items */}
-            <Card className="shadow-sm sticky top-4">
+            <Card className="shadow-sm">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <div className="p-2 bg-primary/10 rounded-lg">
