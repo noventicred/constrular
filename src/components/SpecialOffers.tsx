@@ -189,11 +189,6 @@ const SpecialOffers = () => {
                         >
                           {product.in_stock ? 'Em Estoque' : 'Indisponível'}
                         </Badge>
-                        
-                        {/* Special Offer Label */}
-                        <div className="absolute bottom-4 left-4 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                          OFERTA ESPECIAL
-                        </div>
                       </div>
                       
                       <div className="p-5 flex-1 flex flex-col">
@@ -237,13 +232,6 @@ const SpecialOffers = () => {
                                 </span>
                               )}
                             </div>
-                            {product.original_price && (
-                              <div className="bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-lg">
-                                <p className="text-xs text-green-600 dark:text-green-400 font-bold">
-                                  🎉 Economia de {formatCurrency(product.original_price - product.price)}
-                                </p>
-                              </div>
-                            )}
                           </div>
                         </div>
                         
