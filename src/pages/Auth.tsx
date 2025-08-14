@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, User, Mail, Phone, MapPin, Eye, EyeOff, Lock } from 'lucide-react';
 import { AuthRedirect } from '@/components/auth/AuthRedirect';
 import { supabase } from '@/integrations/supabase/client';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -215,16 +217,16 @@ const Auth = () => {
   return (
     <>
       <AuthRedirect />
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 p-4">
-        <div className="w-full max-w-2xl">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/')}
-            className="mb-6 hover:bg-muted/50 transition-colors"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar para o site
-          </Button>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        
+        <main className="flex-1 flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 p-4">
+          <div className="w-full max-w-2xl">
+            <div className="mb-6">
+              <nav className="text-sm text-muted-foreground">
+                <span>Início</span> / <span className="text-foreground">Autenticação</span>
+              </nav>
+            </div>
 
           <Card className="shadow-2xl border-muted/20 bg-card/50 backdrop-blur-sm">
             <CardHeader className="text-center space-y-4 pb-8">
@@ -601,7 +603,10 @@ const Auth = () => {
               </Tabs>
             </CardContent>
           </Card>
-        </div>
+          </div>
+        </main>
+        
+        <Footer />
       </div>
     </>
   );
