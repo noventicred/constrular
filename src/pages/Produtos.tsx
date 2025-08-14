@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Search, Filter, Grid, List } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Filter, Grid, List, ShoppingCart } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -13,92 +13,147 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/hooks/useCart";
 
-const categories = [
-  "Todas as Categorias",
-  "Cimento & Argamassa",
-  "Tijolos & Blocos", 
-  "Tintas & Vernizes",
-  "Ferramentas",
-  "Hidráulica",
-  "Elétrica",
-  "Madeiras",
-  "Transporte",
-  "Pisos & Revestimentos",
-  "Iluminação",
-];
+interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  original_price: number | null;
+  discount: number | null;
+  image_url: string | null;
+  category_id: string | null;
+  rating: number | null;
+  reviews: number | null;
+  in_stock: boolean | null;
+  created_at: string;
+  updated_at: string;
+  categories?: {
+    id: string;
+    name: string;
+  };
+}
 
-const products = [
-  {
-    id: 1,
-    name: "Cimento Portland CP II-E-32",
-    brand: "Votorantim",
-    price: 25.90,
-    originalPrice: 29.90,
-    image: "/api/placeholder/300/300",
-    category: "Cimento & Argamassa",
-    discount: 13
-  },
-  {
-    id: 2,
-    name: "Tijolo Cerâmico 6 Furos",
-    brand: "Cerâmica São João",
-    price: 0.89,
-    originalPrice: null,
-    image: "/api/placeholder/300/300",
-    category: "Tijolos & Blocos",
-    discount: null
-  },
-  {
-    id: 3,
-    name: "Tinta Acrílica Premium Branca 18L",
-    brand: "Suvinil",
-    price: 189.90,
-    originalPrice: 219.90,
-    image: "/api/placeholder/300/300",
-    category: "Tintas & Vernizes",
-    discount: 14
-  },
-  {
-    id: 4,
-    name: "Furadeira de Impacto 1/2\" 650W",
-    brand: "Bosch",
-    price: 299.90,
-    originalPrice: 349.90,
-    image: "/api/placeholder/300/300",
-    category: "Ferramentas",
-    discount: 14
-  },
-  {
-    id: 5,
-    name: "Tubo PVC 100mm 6m",
-    brand: "Tigre",
-    price: 45.90,
-    originalPrice: null,
-    image: "/api/placeholder/300/300",
-    category: "Hidráulica",
-    discount: null
-  },
-  {
-    id: 6,
-    name: "Cabo Flexível 2,5mm² 100m",
-    brand: "Prysmian",
-    price: 189.90,
-    originalPrice: 209.90,
-    image: "/api/placeholder/300/300",
-    category: "Elétrica",
-    discount: 10
-  },
-];
+interface Category {
+  id: string;
+  name: string;
+}
 
 const Produtos = () => {
-  const [selectedCategory, setSelectedCategory] = useState("Todas as Categorias");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("todas");
+  const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("relevancia");
+  const { toast } = useToast();
+  const { addItem } = useCart();
 
-  const filteredProducts = products.filter(product => 
-    selectedCategory === "Todas as Categorias" || product.category === selectedCategory
-  );
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      // Fetch categories
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from('categories')
+        .select('id, name')
+        .order('name');
+
+      if (categoriesError) throw categoriesError;
+      setCategories(categoriesData || []);
+
+      // Fetch products with categories
+      const { data: productsData, error: productsError } = await supabase
+        .from('products')
+        .select(`
+          *,
+          categories (
+            id,
+            name
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (productsError) throw productsError;
+      setProducts(productsData || []);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar os dados.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter products based on category and search term
+  const filteredProducts = products.filter(product => {
+    const matchesCategory = selectedCategory === "todas" || 
+      (product.categories?.id === selectedCategory);
+    
+    const matchesSearch = !searchTerm || 
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return matchesCategory && matchesSearch;
+  });
+
+  // Sort products
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case 'menor-preco':
+        return a.price - b.price;
+      case 'maior-preco':
+        return b.price - a.price;
+      case 'nome':
+        return a.name.localeCompare(b.name);
+      default:
+        return 0;
+    }
+  });
+
+  const handleAddToCart = (product: Product) => {
+    addItem({
+      id: parseInt(product.id),
+      name: product.name,
+      brand: product.categories?.name || '',
+      price: product.price,
+      image: product.image_url || "/placeholder.svg"
+    });
+    
+    toast({
+      title: "Produto adicionado!",
+      description: `${product.name} foi adicionado ao carrinho.`,
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">Produtos</h1>
+            <p className="text-muted-foreground">Carregando produtos...</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="h-96 bg-muted rounded-lg animate-pulse" />
+            ))}
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -122,9 +177,10 @@ const Produtos = () => {
                 <SelectValue placeholder="Categoria" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="todas">Todas as Categorias</SelectItem>
                 {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -136,6 +192,8 @@ const Produtos = () => {
               <Input
                 placeholder="Buscar produtos..."
                 className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
@@ -179,7 +237,7 @@ const Produtos = () => {
         {/* Results Count */}
         <div className="mb-6">
           <p className="text-sm text-muted-foreground">
-            {filteredProducts.length} produtos encontrados
+            {sortedProducts.length} produtos encontrados
           </p>
         </div>
 
@@ -189,36 +247,47 @@ const Produtos = () => {
             ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
             : "grid-cols-1"
         }`}>
-          {filteredProducts.map((product) => (
+          {sortedProducts.map((product) => (
             <Card key={product.id} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               <CardContent className="p-4">
                 {/* Product Image */}
                 <div className="aspect-square mb-4 bg-gray-100 rounded-lg overflow-hidden">
                   <img
-                    src={product.image}
+                    src={product.image_url || "/placeholder.svg"}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
 
                 {/* Discount Badge */}
-                {product.discount && (
+                {product.discount && product.discount > 0 && (
                   <Badge className="mb-2 bg-red-500 hover:bg-red-600">
                     -{product.discount}%
                   </Badge>
                 )}
 
+                {/* Stock Badge */}
+                <Badge 
+                  className={`mb-2 ml-2 ${
+                    product.in_stock 
+                      ? 'bg-green-500 hover:bg-green-600' 
+                      : 'bg-gray-500 hover:bg-gray-600'
+                  }`}
+                >
+                  {product.in_stock ? 'Em Estoque' : 'Indisponível'}
+                </Badge>
+
                 {/* Product Info */}
                 <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">{product.brand}</p>
+                  <p className="text-sm text-muted-foreground">{product.categories?.name}</p>
                   <h3 className="font-semibold line-clamp-2 min-h-[3rem]">
                     {product.name}
                   </h3>
                   
                   <div className="space-y-1">
-                    {product.originalPrice && (
+                    {product.original_price && product.original_price > product.price && (
                       <p className="text-sm text-muted-foreground line-through">
-                        R$ {product.originalPrice.toFixed(2)}
+                        R$ {product.original_price.toFixed(2)}
                       </p>
                     )}
                     <p className="text-xl font-bold text-primary">
@@ -229,8 +298,14 @@ const Produtos = () => {
               </CardContent>
               
               <CardFooter className="p-4 pt-0">
-                <Button className="w-full" variant="construction">
-                  Adicionar ao Carrinho
+                <Button 
+                  className="w-full" 
+                  variant="construction"
+                  disabled={!product.in_stock}
+                  onClick={() => handleAddToCart(product)}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
                 </Button>
               </CardFooter>
             </Card>
