@@ -61,21 +61,26 @@ const FeaturedProducts = () => {
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
     
+    console.log('🎯 Clicou para adicionar produto:', product);
+    
     try {
-      addItem({
+      const cartItem = {
         id: product.id,
         name: product.name,
         brand: product.brand || '',
         price: product.price,
         image: product.image_url || "/placeholder.svg"
-      });
+      };
+      
+      console.log('📝 Item do carrinho preparado:', cartItem);
+      addItem(cartItem);
       
       toast({
         title: "Produto adicionado!",
         description: `${product.name} foi adicionado ao carrinho.`,
       });
     } catch (error) {
-      console.error('Erro ao adicionar produto ao carrinho:', error);
+      console.error('❌ Erro ao adicionar produto ao carrinho:', error);
       toast({
         title: "Erro",
         description: "Não foi possível adicionar o produto ao carrinho.",
