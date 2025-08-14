@@ -162,7 +162,7 @@ const SpecialOffers = () => {
                     onClick={() => navigate(`/produto/${product.id}`)}
                   >
                     <CardContent className="p-0 h-full flex flex-col">
-                      <div className="relative aspect-square overflow-hidden rounded-t-2xl">
+                      <div className="relative h-56 overflow-hidden rounded-t-2xl">
                         <img
                           src={product.image_url || "/placeholder.svg"}
                           alt={product.name}
@@ -196,25 +196,22 @@ const SpecialOffers = () => {
                         </div>
                       </div>
                       
-                      <div className="p-6 flex-1 flex flex-col">
-                        <div className="space-y-3 flex-1">
+                      <div className="p-5 flex-1 flex flex-col">
+                        <div className="space-y-2 flex-1">
                           <div>
-                            <h3 className="font-bold text-xl mb-2 group-hover:text-orange-600 transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
+                            <h3 className="font-bold text-lg mb-1 group-hover:text-orange-600 transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
                               {product.name}
                             </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                              {product.description}
-                            </p>
                           </div>
                           
                           {/* Rating */}
                           {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 && (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 mb-2">
                               <div className="flex items-center">
                                 {[...Array(5)].map((_, i) => (
                                   <Star 
                                     key={i} 
-                                    className={`h-4 w-4 ${
+                                    className={`h-3 w-3 ${
                                       i < Math.floor(product.rating!)
                                         ? 'text-yellow-400 fill-current' 
                                         : 'text-gray-300'
@@ -222,27 +219,27 @@ const SpecialOffers = () => {
                                   />
                                 ))}
                               </div>
-                              <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
                                 {product.rating} ({product.reviews} avaliações)
                               </span>
                             </div>
                           )}
                           
                           {/* Price */}
-                          <div className="space-y-2">
-                            <div className="flex items-baseline gap-3">
-                              <span className="text-3xl font-bold text-orange-600">
+                          <div className="space-y-1">
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-2xl font-bold text-orange-600">
                                 {formatCurrency(product.price)}
                               </span>
                               {product.original_price && product.original_price > product.price && (
-                                <span className="text-lg text-gray-500 line-through">
+                                <span className="text-sm text-gray-500 line-through">
                                   {formatCurrency(product.original_price)}
                                 </span>
                               )}
                             </div>
                             {product.original_price && (
-                              <div className="bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg">
-                                <p className="text-sm text-green-600 dark:text-green-400 font-bold">
+                              <div className="bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-lg">
+                                <p className="text-xs text-green-600 dark:text-green-400 font-bold">
                                   🎉 Economia de {formatCurrency(product.original_price - product.price)}
                                 </p>
                               </div>
@@ -252,11 +249,11 @@ const SpecialOffers = () => {
                         
                         {/* Action Button */}
                         <Button 
-                          className="w-full mt-6 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl"
+                          className="w-full mt-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl"
                           disabled={!product.in_stock}
                           onClick={(e) => handleAddToCart(e, product)}
                         >
-                          <ShoppingCart className="h-5 w-5 mr-2" />
+                          <ShoppingCart className="h-4 w-4 mr-2" />
                           {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
                         </Button>
                       </div>

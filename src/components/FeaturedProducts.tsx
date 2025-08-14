@@ -110,7 +110,7 @@ const FeaturedProducts = () => {
           {products.map((product, index) => (
             <Card key={product.id} className="group relative overflow-hidden bg-white dark:bg-gray-900 border-0 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 animate-fade-in cursor-pointer" style={{ animationDelay: `${index * 100}ms` }} onClick={() => navigate(`/produto/${product.id}`)}>
               <CardContent className="p-0">
-                <div className="relative aspect-square overflow-hidden rounded-t-2xl">
+                <div className="relative aspect-square h-48 overflow-hidden rounded-t-2xl">
                   <img 
                     src={product.image_url || "/placeholder.svg"} 
                     alt={product.name}
@@ -149,17 +149,12 @@ const FeaturedProducts = () => {
                   </Button>
                 </div>
                 
-                <div className="p-5">
-                  <div className="space-y-3">
+                <div className="p-4">
+                  <div className="space-y-2">
                     <div>
-                      <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-2 group-hover:text-primary transition-colors duration-300 leading-tight">
+                      <h3 className="font-bold text-base text-gray-900 dark:text-white line-clamp-2 group-hover:text-primary transition-colors duration-300 leading-tight">
                         {product.name}
                       </h3>
-                      {product.description && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-1">
-                          {product.description}
-                        </p>
-                      )}
                     </div>
                     
                     {/* Rating */}
@@ -169,7 +164,7 @@ const FeaturedProducts = () => {
                           {[...Array(5)].map((_, i) => (
                             <Star 
                               key={i} 
-                              className={`h-4 w-4 ${
+                              className={`h-3 w-3 ${
                                 i < Math.floor(product.rating!) 
                                   ? 'text-yellow-400 fill-current' 
                                   : 'text-gray-300'
@@ -177,7 +172,7 @@ const FeaturedProducts = () => {
                             />
                           ))}
                         </div>
-                        <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                        <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
                           {product.rating} ({product.reviews} avaliações)
                         </span>
                       </div>
@@ -186,7 +181,7 @@ const FeaturedProducts = () => {
                     {/* Price */}
                     <div className="space-y-1">
                       <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                        <span className="text-xl font-bold text-gray-900 dark:text-white">
                           {formatCurrency(product.price)}
                         </span>
                         {product.original_price && product.original_price > product.price && (
@@ -205,9 +200,9 @@ const FeaturedProducts = () => {
                 </div>
               </CardContent>
               
-              <CardFooter className="p-5 pt-0">
+              <CardFooter className="p-4 pt-0">
                 <Button 
-                  className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg" 
+                  className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold py-2 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg" 
                   disabled={!product.in_stock}
                   onClick={(e) => {
                     e.stopPropagation();
