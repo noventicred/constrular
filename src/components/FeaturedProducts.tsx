@@ -12,6 +12,7 @@ import { formatCurrency } from "@/lib/formatters";
 interface Product {
   id: string;
   name: string;
+  brand?: string | null;
   price: number;
   original_price: number | null;
   image_url: string | null;
@@ -59,18 +60,28 @@ const FeaturedProducts = () => {
 
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
-    addItem({
-      id: parseInt(product.id),
-      name: product.name,
-      brand: '',
-      price: product.price,
-      image: product.image_url || "/placeholder.svg"
-    });
     
-    toast({
-      title: "Produto adicionado!",
-      description: `${product.name} foi adicionado ao carrinho.`,
-    });
+    try {
+      addItem({
+        id: parseInt(product.id),
+        name: product.name,
+        brand: product.brand || '',
+        price: product.price,
+        image: product.image_url || "/placeholder.svg"
+      });
+      
+      toast({
+        title: "Produto adicionado!",
+        description: `${product.name} foi adicionado ao carrinho.`,
+      });
+    } catch (error) {
+      console.error('Erro ao adicionar produto ao carrinho:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível adicionar o produto ao carrinho.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (loading) {
