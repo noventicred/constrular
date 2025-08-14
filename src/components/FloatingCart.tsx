@@ -73,13 +73,19 @@ const FloatingCart = () => {
                   {items.map((item) => (
                     <Card key={item.id} className="relative">
                       <CardContent className="p-4">
-                        <div className="flex gap-3">
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
-                          />
-                          <div className="flex-1 min-w-0">
+                         <div className="flex gap-3">
+                           <div className="w-16 h-16 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
+                             <img
+                               src={item.image}
+                               alt={item.name}
+                               className="w-full h-full object-cover"
+                               onError={(e) => {
+                                 const target = e.target as HTMLImageElement;
+                                 target.src = '/placeholder.svg';
+                               }}
+                             />
+                           </div>
+                           <div className="flex-1 min-w-0">
                             <h4 className="font-semibold text-sm line-clamp-2 mb-1">{item.name}</h4>
                             {item.brand && (
                               <p className="text-xs text-muted-foreground mb-1">{item.brand}</p>
