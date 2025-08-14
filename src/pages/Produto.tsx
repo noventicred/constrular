@@ -429,14 +429,9 @@ const Produto = () => {
                   disabled={!product.in_stock}
                 >
                   {product.in_stock ? (
-                    <div className="flex items-center justify-between w-full">
-                      <div className="flex items-center">
-                        <ShoppingCart className="h-5 w-5 mr-3" />
-                        <span>Adicionar ao Carrinho</span>
-                      </div>
-                      <div className="px-3 py-1 bg-white/20 rounded-lg text-sm font-bold">
-                        {formatCurrency(product.price * quantity)}
-                      </div>
+                    <div className="flex items-center justify-center">
+                      <ShoppingCart className="h-5 w-5 mr-3" />
+                      <span>Adicionar ao Carrinho</span>
                     </div>
                   ) : (
                     <>
