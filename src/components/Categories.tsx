@@ -13,8 +13,9 @@ import {
   Truck,
   HardHat,
   Settings
-} from "lucide-react";
+ } from "lucide-react";
 import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -59,6 +60,7 @@ const Categories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: false,
     dragFree: true,
@@ -98,6 +100,10 @@ const Categories = () => {
   const scrollNext = useCallback(() => {
     if (emblaApi) emblaApi.scrollNext()
   }, [emblaApi]);
+
+  const handleCategoryClick = (categoryId: string, categoryName: string) => {
+    navigate(`/produtos?categoria=${categoryId}`);
+  };
 
   if (loading) {
     return (
@@ -165,7 +171,10 @@ const Categories = () => {
                     className="flex-none w-32 md:w-36 animate-fade-in hover-scale"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1 border-2 hover:border-construction-orange/30 h-28 md:h-32">
+                    <Card 
+                      className="group hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1 border-2 hover:border-construction-orange/30 h-28 md:h-32"
+                      onClick={() => handleCategoryClick(category.id, category.name)}
+                    >
                       <CardContent className="p-4 md:p-5 text-center h-full flex flex-col justify-center items-center">
                         {category.image_url ? (
                           <img 

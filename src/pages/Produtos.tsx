@@ -58,27 +58,40 @@ const Produtos = () => {
     // Verificar parâmetros da URL ao carregar a página
     const urlParams = new URLSearchParams(window.location.search);
     const filterParam = urlParams.get('filter');
+    const categoryParam = urlParams.get('categoria');
+    
     if (filterParam === 'ofertas') {
       setOfferFilter(true);
     }
+    
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+    
     fetchData();
   }, []);
 
-  // Atualizar URL quando filtro mudar
+  // Atualizar URL quando filtros mudarem
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentFilter = urlParams.get('filter');
+    const url = new URL(window.location.href);
     
-    if (offerFilter && currentFilter !== 'ofertas') {
-      const url = new URL(window.location.href);
+    // Gerenciar parâmetro de ofertas
+    if (offerFilter) {
       url.searchParams.set('filter', 'ofertas');
-      window.history.replaceState({}, '', url.toString());
-    } else if (!offerFilter && currentFilter === 'ofertas') {
-      const url = new URL(window.location.href);
+    } else {
       url.searchParams.delete('filter');
-      window.history.replaceState({}, '', url.toString());
     }
-  }, [offerFilter]);
+    
+    // Gerenciar parâmetro de categoria
+    if (selectedCategory && selectedCategory !== 'todas') {
+      url.searchParams.set('categoria', selectedCategory);
+    } else {
+      url.searchParams.delete('categoria');
+    }
+    
+    // Atualizar URL sem recarregar a página
+    window.history.replaceState({}, '', url.toString());
+  }, [offerFilter, selectedCategory]);
 
   const fetchData = async () => {
     try {
@@ -269,11 +282,15 @@ const Produtos = () => {
         {/* Results Count */}
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-1">
-            {offerFilter ? 'Ofertas Especiais' : 'Todos os Produtos'}
+            {offerFilter ? 'Ofertas Especiais' : 
+             selectedCategory !== 'todas' ? 
+               `Categoria: ${categories.find(c => c.id === selectedCategory)?.name || 'Selecionada'}` : 
+               'Todos os Produtos'}
           </h2>
           <p className="text-sm text-muted-foreground">
             {sortedProducts.length} produtos encontrados
             {offerFilter && ' em oferta'}
+            {selectedCategory !== 'todas' && !offerFilter && ` na categoria`}
           </p>
         </div>
 
