@@ -40,6 +40,9 @@ export default function Checkout() {
   
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [orderData, setOrderData] = useState<any>(null);
+  const [whatsappUrl, setWhatsappUrl] = useState('');
   const [userProfile, setUserProfile] = useState<any>(null);
   
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
@@ -268,9 +271,6 @@ export default function Checkout() {
       if (order) {
         console.log('✅ PEDIDO CRIADO:', order);
         
-        // Clear cart
-        clearCart();
-        
         // Generate WhatsApp message
         console.log('📱 GERANDO MENSAGEM WHATSAPP...');
         const whatsappMessage = generateWhatsAppMessage(order.id);
@@ -279,17 +279,18 @@ export default function Checkout() {
         const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
         console.log('🔗 URL WHATSAPP:', whatsappUrl);
         
-        toast({
-          title: 'Pedido criado com sucesso!',
-          description: `Pedido #${order.id.slice(0, 8)} - Redirecionando para WhatsApp...`,
-        });
+        // Set success state with order data
+        setOrderData(order);
+        setWhatsappUrl(whatsappUrl);
+        setOrderSuccess(true);
         
-        // Redirect to WhatsApp
-        console.log('🚀 REDIRECIONANDO PARA WHATSAPP...');
+        // Clear cart
+        clearCart();
+        
+        // Auto-open WhatsApp after 3 seconds
         setTimeout(() => {
           window.open(whatsappUrl, '_blank');
-          navigate('/minha-conta');
-        }, 2000);
+        }, 3000);
       }
     } catch (error) {
       toast({
@@ -315,6 +316,126 @@ export default function Checkout() {
 
   if (!user) {
     return null;
+  }
+
+  // Success Screen
+  if (orderSuccess && orderData) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="max-w-md w-full space-y-6">
+          {/* Success Animation */}
+          <div className="text-center space-y-4">
+            <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center animate-scale-in">
+              <CheckCircle2 className="w-12 h-12 text-green-600" />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-green-800">Pedido Criado!</h1>
+              <p className="text-muted-foreground">
+                Seu pedido foi criado com sucesso
+              </p>
+            </div>
+          </div>
+
+          {/* Order Details */}
+          <Card className="shadow-sm border-green-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Package className="w-5 h-5 text-green-600" />
+                Detalhes do Pedido
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Número do pedido:</span>
+                <span className="font-mono text-sm font-medium">
+                  #{orderData.id.slice(0, 8).toUpperCase()}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Total:</span>
+                <span className="font-bold text-green-600">
+                  {formatCurrency(orderData.total_amount)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Status:</span>
+                <Badge variant="secondary" className="text-xs">
+                  Aguardando pagamento
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* WhatsApp Action */}
+          <Card className="shadow-sm border-green-200 bg-green-50">
+            <CardContent className="p-4">
+              <div className="text-center space-y-3">
+                <div className="flex items-center justify-center gap-2">
+                  <MessageCircle className="w-5 h-5 text-green-600" />
+                  <span className="font-medium text-green-800">
+                    Abrindo WhatsApp em 3 segundos...
+                  </span>
+                </div>
+                <p className="text-sm text-green-700">
+                  Seu pedido será enviado automaticamente para nosso WhatsApp
+                </p>
+                
+                <div className="space-y-2">
+                  <Button 
+                    onClick={() => window.open(whatsappUrl, '_blank')}
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    size="lg"
+                  >
+                    <MessageCircle className="w-5 h-5 mr-2" />
+                    Abrir WhatsApp Agora
+                  </Button>
+                  
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigate('/minha-conta')}
+                    className="w-full"
+                  >
+                    Ver Meus Pedidos
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Order Items Summary */}
+          <Card className="shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Itens do Pedido</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {items.map((item) => (
+                  <div key={item.id} className="flex justify-between items-center text-sm">
+                    <span className="truncate pr-2">
+                      {item.quantity}x {item.name}
+                    </span>
+                    <span className="font-medium">
+                      {formatCurrency(item.price * item.quantity)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Back to home */}
+          <div className="text-center pt-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/')}
+              className="text-muted-foreground"
+            >
+              Voltar ao Início
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
