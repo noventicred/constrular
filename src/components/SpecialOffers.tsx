@@ -162,11 +162,11 @@ const SpecialOffers = () => {
                     onClick={() => navigate(`/produto/${product.id}`)}
                   >
                     <CardContent className="p-0 h-full flex flex-col">
-                      <div className="relative overflow-hidden">
+                      <div className="relative aspect-square overflow-hidden">
                         <img
                           src={product.image_url || "/placeholder.svg"}
                           alt={product.name}
-                          className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                         />
                         
                         {/* Discount Badge */}

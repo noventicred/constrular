@@ -110,11 +110,11 @@ const FeaturedProducts = () => {
           {products.map((product, index) => (
             <Card key={product.id} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-fade-in cursor-pointer" style={{ animationDelay: `${index * 100}ms` }} onClick={() => navigate(`/produto/${product.id}`)}>
               <CardContent className="p-0">
-                <div className="relative">
+                <div className="relative aspect-square overflow-hidden">
                   <img 
                     src={product.image_url || "/placeholder.svg"} 
                     alt={product.name}
-                    className="w-full h-48 object-cover rounded-t-lg"
+                    className="w-full h-full object-cover rounded-t-lg group-hover:scale-110 transition-transform duration-300"
                   />
                   
                   {/* Discount Badge */}
