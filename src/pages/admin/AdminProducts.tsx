@@ -6,8 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
-import { Plus, Edit2, Trash2, Search } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Plus, Edit2, Trash2, Search, Star, Percent } from 'lucide-react';
+import { formatCurrency } from '@/lib/formatters';
 
 interface Product {
   id: string;
@@ -19,6 +20,8 @@ interface Product {
   image_url: string | null;
   category_id: string | null;
   in_stock: boolean;
+  is_featured: boolean;
+  is_special_offer: boolean;
   rating: number;
   reviews: number;
   created_at: string;
@@ -103,10 +106,7 @@ const AdminProducts = () => {
   );
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(price);
+    return formatCurrency(price);
   };
 
   if (loading) {
@@ -157,19 +157,52 @@ const AdminProducts = () => {
                 <TableHead>Categoria</TableHead>
                 <TableHead>Preço</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Destacado</TableHead>
+                <TableHead>Oferta</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredProducts.map((product) => (
                 <TableRow key={product.id}>
-                  <TableCell className="font-medium">{product.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      {product.image_url && (
+                        <img 
+                          src={product.image_url} 
+                          alt={product.name} 
+                          className="w-10 h-10 rounded object-cover"
+                        />
+                      )}
+                      <span>{product.name}</span>
+                    </div>
+                  </TableCell>
                   <TableCell>{product.categories?.name || 'Sem categoria'}</TableCell>
                   <TableCell>{formatPrice(product.price)}</TableCell>
                   <TableCell>
                     <Badge variant={product.in_stock ? 'default' : 'secondary'}>
                       {product.in_stock ? 'Em estoque' : 'Fora de estoque'}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {product.is_featured ? (
+                      <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
+                        <Star className="h-3 w-3 mr-1" />
+                        Destaque
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {product.is_special_offer ? (
+                      <Badge variant="default" className="bg-orange-500 hover:bg-orange-600">
+                        <Percent className="h-3 w-3 mr-1" />
+                        Oferta
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">-</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
