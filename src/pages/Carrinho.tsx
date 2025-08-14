@@ -249,6 +249,25 @@ const Carrinho = () => {
                 </CardContent>
               </Card>
               
+              {/* Security badges */}
+              <Card>
+                <CardContent className="p-4">
+                  <div className="space-y-3 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm">Compra 100% Segura</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm">Garantia de 30 dias</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm">Atendimento especializado</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         )}
