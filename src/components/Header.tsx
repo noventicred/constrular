@@ -567,21 +567,61 @@ const Header = () => {
               >
                 <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="construction" size="sm" className="gap-2">
+                    <Button 
+                      variant="construction" 
+                      size="sm" 
+                      className="gap-2 h-11 px-4 font-semibold text-base shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+                    >
                       Todas as Categorias
-                      <ChevronDown className="h-4 w-4" />
+                      <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-80 bg-background border shadow-lg z-50 grid grid-cols-2 gap-1 p-2" align="start">
-                    {categories.map((category) => (
+                  <DropdownMenuContent 
+                    className="w-96 bg-background/95 backdrop-blur-sm border border-primary/20 shadow-xl z-50 p-4 rounded-xl" 
+                    align="start"
+                    sideOffset={8}
+                  >
+                    <div className="mb-3">
+                      <h3 className="text-sm font-semibold text-primary/80 uppercase tracking-wide mb-2">
+                        Categorias de Produtos
+                      </h3>
+                      <div className="h-0.5 w-12 bg-gradient-to-r from-primary to-primary/50 rounded-full"></div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                      {categories.map((category) => (
+                        <DropdownMenuItem 
+                          key={category.id} 
+                          className="cursor-pointer p-3 hover:bg-gradient-to-r hover:from-primary/10 hover:to-primary/5 rounded-lg border border-transparent hover:border-primary/20 transition-all duration-300 group"
+                          onClick={() => handleCategoryClick(category.id, category.name)}
+                        >
+                          <div className="flex items-center w-full gap-2">
+                            <div className="w-2 h-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors duration-300"></div>
+                            <span className="text-sm font-medium group-hover:text-primary transition-colors duration-300 flex-1">
+                              {category.name}
+                            </span>
+                            <ChevronRight className="h-3 w-3 text-primary/40 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                          </div>
+                        </DropdownMenuItem>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-4 pt-3 border-t border-primary/10">
                       <DropdownMenuItem 
-                        key={category.id} 
-                        className="cursor-pointer p-3 hover:bg-muted rounded-md"
-                        onClick={() => handleCategoryClick(category.id, category.name)}
+                        className="cursor-pointer p-3 hover:bg-gradient-to-r hover:from-primary/15 hover:to-primary/10 rounded-lg border border-transparent hover:border-primary/30 transition-all duration-300 group"
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          navigate('/produtos');
+                        }}
                       >
-                        <span className="text-sm font-medium w-full">{category.name}</span>
+                        <div className="flex items-center justify-center w-full gap-2">
+                          <Package className="h-4 w-4 text-primary" />
+                          <span className="text-sm font-semibold text-primary">
+                            Ver Todos os Produtos
+                          </span>
+                        </div>
                       </DropdownMenuItem>
-                    ))}
+                    </div>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
