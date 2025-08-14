@@ -283,11 +283,56 @@ const Produto = () => {
           <div className="space-y-4 min-w-0">
             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
               <img 
-                src={product.image_url} 
+                src={(() => {
+                  // Handle both string and array formats for image_url
+                  try {
+                    const parsed = JSON.parse(product.image_url);
+                    return Array.isArray(parsed) ? parsed[selectedImage] || parsed[0] : product.image_url;
+                  } catch {
+                    return product.image_url;
+                  }
+                })()} 
                 alt={product.name}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.svg";
+                }}
               />
             </div>
+            
+            {/* Multiple Image Thumbnails */}
+            {(() => {
+              try {
+                const parsed = JSON.parse(product.image_url);
+                if (Array.isArray(parsed) && parsed.length > 1) {
+                  return (
+                    <div className="grid grid-cols-4 gap-2">
+                      {parsed.map((url, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedImage(index)}
+                          className={`aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 ${
+                            selectedImage === index ? 'border-primary' : 'border-transparent'
+                          }`}
+                        >
+                          <img 
+                            src={url} 
+                            alt={`${product.name} ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = "/placeholder.svg";
+                            }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  );
+                }
+                return null;
+              } catch {
+                return null;
+              }
+            })()}
           </div>
 
           {/* Product Info */}
