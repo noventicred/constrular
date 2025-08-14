@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useCart } from "@/hooks/useCart";
+import { useCart } from "@/contexts/CartContext";
 import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, ShoppingBag, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/formatters";
@@ -13,7 +13,6 @@ import { Separator } from "@/components/ui/separator";
 
 const Cart = () => {
   const { items, removeItem, updateQuantity, clearCart, total, itemCount, sendToWhatsApp } = useCart();
-  console.log('🛒 Cart component - items:', items, 'itemCount:', itemCount);
   const [phoneNumber, setPhoneNumber] = useState('5511999999999');
   const navigate = useNavigate();
 

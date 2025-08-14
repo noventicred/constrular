@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { formatCurrency } from '@/lib/formatters';
 
 export interface CartItem {
@@ -10,7 +10,20 @@ export interface CartItem {
   image: string;
 }
 
-export const useCart = () => {
+interface CartContextType {
+  items: CartItem[];
+  addItem: (product: Omit<CartItem, 'quantity'>) => void;
+  removeItem: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
+  clearCart: () => void;
+  total: number;
+  itemCount: number;
+  sendToWhatsApp: (phoneNumber?: string) => void;
+}
+
+const CartContext = createContext<CartContextType | undefined>(undefined);
+
+export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
 
   useEffect(() => {
@@ -27,42 +40,23 @@ export const useCart = () => {
   }, []);
 
   useEffect(() => {
-    console.log('💾 useEffect localStorage - items mudaram:', items);
     localStorage.setItem('cart', JSON.stringify(items));
   }, [items]);
 
   const addItem = (product: Omit<CartItem, 'quantity'>) => {
-    console.log('🛒 Adicionando produto:', product);
-    console.log('📦 Carrinho atual antes:', items);
-    console.log('📊 Tipo do ID do produto:', typeof product.id);
-    
     setItems(prev => {
-      console.log('🔄 SetItems executando, prev:', prev);
-      const existingItem = prev.find(item => {
-        console.log(`🔍 Comparando ${item.id} (${typeof item.id}) com ${product.id} (${typeof product.id})`);
-        return item.id === product.id;
-      });
-      console.log('🔍 Item existente encontrado:', existingItem);
+      const existingItem = prev.find(item => item.id === product.id);
       
       if (existingItem) {
-        const updated = prev.map(item =>
+        return prev.map(item =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
-        console.log('✅ Quantidade atualizada:', updated);
-        return updated;
       }
       
-      const newCart = [...prev, { ...product, quantity: 1 }];
-      console.log('✅ Novo carrinho criado:', newCart);
-      return newCart;
+      return [...prev, { ...product, quantity: 1 }];
     });
-    
-    // Verificar o estado após a atualização
-    setTimeout(() => {
-      console.log('🕐 Estado do carrinho após 100ms:', items);
-    }, 100);
   };
 
   const removeItem = (id: string) => {
@@ -103,14 +97,26 @@ export const useCart = () => {
     window.open(whatsappUrl, '_blank');
   };
 
-  return {
-    items,
-    addItem,
-    removeItem,
-    updateQuantity,
-    clearCart,
-    total,
-    itemCount,
-    sendToWhatsApp
-  };
+  return (
+    <CartContext.Provider value={{
+      items,
+      addItem,
+      removeItem,
+      updateQuantity,
+      clearCart,
+      total,
+      itemCount,
+      sendToWhatsApp
+    }}>
+      {children}
+    </CartContext.Provider>
+  );
+};
+
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (context === undefined) {
+    throw new Error('useCart must be used within a CartProvider');
+  }
+  return context;
 };
