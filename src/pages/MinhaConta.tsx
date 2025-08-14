@@ -22,6 +22,12 @@ interface OrderItem {
   quantity: number;
   unit_price: number;
   total_price: number;
+  products?: {
+    id: string;
+    name: string;
+    image_url: string;
+    sku: string;
+  };
 }
 
 interface Order {
@@ -114,7 +120,13 @@ export default function MinhaConta() {
             product_name,
             quantity,
             unit_price,
-            total_price
+            total_price,
+            products!order_items_product_id_fkey(
+              id,
+              name,
+              image_url,
+              sku
+            )
           )
         `)
         .eq('user_id', user.id)
@@ -928,17 +940,36 @@ export default function MinhaConta() {
                   <ShoppingCart className="h-4 w-4" />
                   Itens do Pedido
                 </h4>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {selectedOrder.order_items?.map((item) => (
-                    <div key={item.id} className="flex justify-between items-center p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <h5 className="font-medium">{item.product_name}</h5>
-                        <p className="text-sm text-muted-foreground">
-                          Quantidade: {item.quantity} × {formatCurrency(item.unit_price)}
-                        </p>
+                    <div key={item.id} className="flex items-start gap-4 p-4 border rounded-lg">
+                      {/* Product Image */}
+                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                        {item.products?.image_url ? (
+                          <img
+                            src={item.products.image_url}
+                            alt={item.product_name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ShoppingCart className="w-6 h-6 text-muted-foreground" />
+                          </div>
+                        )}
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">{formatCurrency(item.total_price)}</p>
+                      
+                      {/* Product Info */}
+                      <div className="flex-1 min-w-0">
+                        <h5 className="font-medium">{item.product_name}</h5>
+                        {item.products?.sku && (
+                          <p className="text-sm text-muted-foreground">SKU: {item.products.sku}</p>
+                        )}
+                        <div className="flex items-center justify-between mt-2">
+                          <p className="text-sm text-muted-foreground">
+                            Quantidade: {item.quantity} × {formatCurrency(item.unit_price)}
+                          </p>
+                          <p className="font-semibold">{formatCurrency(item.total_price)}</p>
+                        </div>
                       </div>
                     </div>
                   ))}

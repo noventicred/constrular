@@ -32,6 +32,7 @@ interface ProductFormData {
   original_price: string;
   discount: string;
   category_id: string;
+  sku: string;
   in_stock: boolean;
   is_featured: boolean;
   is_special_offer: boolean;
@@ -65,6 +66,7 @@ const ProductForm = () => {
     original_price: '',
     discount: '',
     category_id: '',
+    sku: '',
     in_stock: true,
     is_featured: false,
     is_special_offer: false,
@@ -112,6 +114,7 @@ const ProductForm = () => {
         original_price: data.original_price?.toString() || '',
         discount: data.discount?.toString() || '0',
         category_id: data.category_id || '',
+        sku: data.sku || '',
         in_stock: data.in_stock,
         is_featured: data.is_featured || false,
         is_special_offer: data.is_special_offer || false,
@@ -296,6 +299,7 @@ const ProductForm = () => {
         discount: parseInt(formData.discount) || 0,
         image_url: imageUrl,
         category_id: formData.category_id || null,
+        sku: formData.sku.trim() || null,
         in_stock: formData.in_stock,
         is_featured: formData.is_featured,
         is_special_offer: formData.is_special_offer,
@@ -432,16 +436,32 @@ const ProductForm = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="name">Nome do produto *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => updateFormData('name', e.target.value)}
-                      placeholder="Digite o nome do produto"
-                      required
-                      className="mt-1"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="name">Nome do produto *</Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => updateFormData('name', e.target.value)}
+                        placeholder="Digite o nome do produto"
+                        required
+                        className="mt-1"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="sku">SKU</Label>
+                      <Input
+                        id="sku"
+                        value={formData.sku}
+                        onChange={(e) => updateFormData('sku', e.target.value)}
+                        placeholder="Ex: ABC-123, PRD001..."
+                        className="mt-1"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Código único do produto (opcional)
+                      </p>
+                    </div>
                   </div>
 
                   <div>

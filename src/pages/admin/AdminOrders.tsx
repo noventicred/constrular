@@ -41,6 +41,12 @@ interface OrderItem {
   quantity: number;
   unit_price: number;
   total_price: number;
+  products?: {
+    id: string;
+    name: string;
+    image_url: string;
+    sku: string;
+  };
 }
 
 const statusOptions = [
@@ -232,12 +238,22 @@ export default function AdminOrders() {
     try {
       const { data, error } = await supabase
         .from('order_items')
-        .select('*')
+        .select(`
+          *,
+          products!order_items_product_id_fkey(
+            id,
+            name,
+            image_url,
+            sku
+          )
+        `)
         .eq('order_id', orderId);
 
       if (error) throw error;
+      console.log('📦 ADMIN: Itens do pedido com produtos:', data);
       setOrderItems(data || []);
     } catch (error) {
+      console.error('❌ ADMIN: Erro ao carregar itens:', error);
       toast({
         title: 'Erro',
         description: 'Não foi possível carregar os itens do pedido',
@@ -900,28 +916,44 @@ export default function AdminOrders() {
                       </div>
                     ) : (
                       <>
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Produto</TableHead>
-                              <TableHead className="text-center">Quantidade</TableHead>
-                              <TableHead className="text-right">Preço Unitário</TableHead>
-                              <TableHead className="text-right">Total</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {orderItems.map((item) => (
-                              <TableRow key={item.id}>
-                                <TableCell className="font-medium">{item.product_name}</TableCell>
-                                <TableCell className="text-center">{item.quantity}</TableCell>
-                                <TableCell className="text-right">{formatCurrency(item.unit_price)}</TableCell>
-                                <TableCell className="text-right font-semibold">
-                                  {formatCurrency(item.total_price)}
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                        <div className="space-y-4">
+                          {orderItems.map((item) => (
+                            <Card key={item.id} className="p-4">
+                              <div className="flex items-start gap-4">
+                                {/* Product Image */}
+                                <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                                  {item.products?.image_url ? (
+                                    <img
+                                      src={item.products.image_url}
+                                      alt={item.product_name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                      <Package className="w-6 h-6 text-muted-foreground" />
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                {/* Product Info */}
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="font-medium text-sm">{item.product_name}</h4>
+                                  {item.products?.sku && (
+                                    <p className="text-xs text-muted-foreground">SKU: {item.products.sku}</p>
+                                  )}
+                                  <div className="flex items-center justify-between mt-2">
+                                    <div className="text-sm text-muted-foreground">
+                                      Qtd: {item.quantity} × {formatCurrency(item.unit_price)}
+                                    </div>
+                                    <div className="font-semibold">
+                                      {formatCurrency(item.total_price)}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
 
                         <Separator className="my-4" />
                         
