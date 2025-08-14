@@ -98,6 +98,7 @@ export default function AdminOrders() {
   }, [orders]);
 
   const fetchOrders = async () => {
+    console.log('🔍 ADMIN: Iniciando busca de pedidos...');
     try {
       const { data, error } = await supabase
         .from('orders')
@@ -116,9 +117,17 @@ export default function AdminOrders() {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      console.log('📊 ADMIN: Resultado da query:', { data, error });
+      
+      if (error) {
+        console.error('❌ ADMIN: Erro na query:', error);
+        throw error;
+      }
+      
+      console.log('✅ ADMIN: Pedidos carregados:', data?.length || 0);
       setOrders((data as any) || []);
     } catch (error) {
+      console.error('❌ ADMIN: Erro geral:', error);
       toast({
         title: 'Erro',
         description: 'Não foi possível carregar os pedidos',
