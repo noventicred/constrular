@@ -96,18 +96,18 @@ const FeaturedProducts = () => {
   }
 
   return (
-    <section className="py-16 animate-fade-in">
+    <section className="py-12 md:py-16 animate-fade-in">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
             Produtos em Destaque
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-base md:text-lg text-muted-foreground">
             Os mais vendidos com os melhores preços
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           {products.map((product, index) => (
             <div 
               key={product.id} 
@@ -119,7 +119,7 @@ const FeaturedProducts = () => {
                 onClick={() => navigate(`/produto/${product.id}`)}
               >
                 <CardContent className="p-0 h-full flex flex-col">
-                  <div className="relative h-56 overflow-hidden rounded-t-2xl">
+                  <div className="relative h-48 md:h-56 overflow-hidden rounded-t-2xl">
                     <img
                       src={product.image_url || "/placeholder.svg"}
                       alt={product.name}
@@ -131,14 +131,14 @@ const FeaturedProducts = () => {
                     
                     {/* Discount Badge */}
                     {product.discount && product.discount > 0 && (
-                      <Badge className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-base px-4 py-2 shadow-xl border-0 rounded-xl">
+                      <Badge className="absolute top-3 left-3 md:top-4 md:left-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-sm md:text-base px-3 md:px-4 py-1 md:py-2 shadow-xl border-0 rounded-xl">
                         -{product.discount}%
                       </Badge>
                     )}
                     
                     {/* Stock Badge */}
                     <Badge 
-                      className={`absolute top-4 right-4 text-sm font-semibold px-3 py-1 border-0 rounded-xl shadow-lg ${
+                      className={`absolute top-3 right-3 md:top-4 md:right-4 text-xs md:text-sm font-semibold px-2 md:px-3 py-1 border-0 rounded-xl shadow-lg ${
                         product.in_stock
                           ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
                           : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white'
@@ -148,10 +148,10 @@ const FeaturedProducts = () => {
                     </Badge>
                   </div>
                   
-                  <div className="p-5 flex-1 flex flex-col">
+                  <div className="p-4 md:p-5 flex-1 flex flex-col">
                     <div className="space-y-2 flex-1">
                       <div>
-                        <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
+                        <h3 className="font-bold text-base md:text-lg mb-1 group-hover:text-primary transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
                           {product.name}
                         </h3>
                       </div>
@@ -186,7 +186,7 @@ const FeaturedProducts = () => {
                       {/* Price */}
                       <div className="space-y-1">
                         <div className="flex items-baseline gap-2">
-                          <span className="text-2xl font-bold text-primary">
+                          <span className="text-xl md:text-2xl font-bold text-primary">
                             {formatCurrency(product.price)}
                           </span>
                           {product.original_price && product.original_price > product.price && (
@@ -200,7 +200,7 @@ const FeaturedProducts = () => {
                     
                     {/* Action Button */}
                     <Button 
-                      className="w-full mt-4 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl"
+                      className="w-full mt-4 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base"
                       disabled={!product.in_stock}
                       onClick={(e) => handleAddToCart(e, product)}
                     >
@@ -214,8 +214,8 @@ const FeaturedProducts = () => {
           ))}
         </div>
         
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg" onClick={() => navigate("/produtos")}>
+        <div className="text-center mt-8 md:mt-12">
+          <Button variant="outline" size="lg" onClick={() => navigate("/produtos")} className="text-sm md:text-base">
             Ver Todos os Produtos
           </Button>
         </div>

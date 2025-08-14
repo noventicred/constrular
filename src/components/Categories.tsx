@@ -128,13 +128,13 @@ const Categories = () => {
   }
 
   return (
-    <section className="py-16 animate-fade-in">
+    <section className="py-12 md:py-16 animate-fade-in">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3">
             Categorias
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm md:text-base">
             Encontre o que precisa para sua obra
           </p>
         </div>
@@ -144,47 +144,47 @@ const Categories = () => {
           <Button
             variant="outline"
             size="sm"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white shadow-lg border-2 hover:bg-gray-50 hidden md:flex items-center justify-center"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 md:h-10 md:w-10 rounded-full bg-white shadow-lg border-2 hover:bg-gray-50 hidden lg:flex items-center justify-center"
             onClick={scrollPrev}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-3 w-3 md:h-4 md:w-4" />
           </Button>
 
           <Button
             variant="outline"
             size="sm"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white shadow-lg border-2 hover:bg-gray-50 hidden md:flex items-center justify-center"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 md:h-10 md:w-10 rounded-full bg-white shadow-lg border-2 hover:bg-gray-50 hidden lg:flex items-center justify-center"
             onClick={scrollNext}
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-3 w-3 md:h-4 md:w-4" />
           </Button>
 
           {/* Carousel */}
           <div className="overflow-hidden py-2" ref={emblaRef}>
-            <div className="flex gap-4 md:gap-6 px-1">
+            <div className="flex gap-3 md:gap-4 lg:gap-6 px-1">
               {categories.map((category, index) => {
                 const Icon = iconMap[category.name] || Settings;
                 const colorClass = colorMap[category.name] || "bg-gray-600";
                 return (
                   <div
                     key={category.id}
-                    className="flex-none w-32 md:w-36 animate-fade-in hover-scale"
+                    className="flex-none w-28 md:w-32 lg:w-36 animate-fade-in hover-scale"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <Card 
-                      className="group hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1 border-2 hover:border-construction-orange/30 h-28 md:h-32"
+                      className="group hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1 border-2 hover:border-construction-orange/30 h-24 md:h-28 lg:h-32"
                       onClick={() => handleCategoryClick(category.id, category.name)}
                     >
-                      <CardContent className="p-4 md:p-5 text-center h-full flex flex-col justify-center items-center">
+                      <CardContent className="p-3 md:p-4 lg:p-5 text-center h-full flex flex-col justify-center items-center">
                         {category.image_url ? (
                           <img 
                             src={category.image_url} 
                             alt={category.name}
-                            className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover mx-auto mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg"
+                            className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-full object-cover mx-auto mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg"
                           />
                         ) : (
-                          <div className={`w-12 h-12 md:w-14 md:h-14 ${colorClass} rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg aspect-square`}>
-                            <Icon className="h-5 w-5 md:h-6 md:w-6 text-white" />
+                          <div className={`w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 ${colorClass} rounded-full flex items-center justify-center mx-auto mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg aspect-square`}>
+                            <Icon className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-white" />
                           </div>
                         )}
                         <h3 className="font-semibold text-xs md:text-sm text-center leading-tight line-clamp-2">
@@ -199,7 +199,7 @@ const Categories = () => {
           </div>
 
           {/* Mobile scroll indicator */}
-          <div className="flex justify-center mt-4 md:hidden">
+          <div className="flex justify-center mt-4 lg:hidden">
             <div className="text-xs text-muted-foreground">
               ← Deslize para ver mais →
             </div>

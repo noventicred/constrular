@@ -116,14 +116,14 @@ const SpecialOffers = () => {
   }
 
   return (
-    <section className="py-16 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20">
+    <section className="py-12 md:py-16 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center justify-center gap-2">
-            <Percent className="h-8 w-8 text-orange-500" />
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 flex items-center justify-center gap-2">
+            <Percent className="h-6 w-6 md:h-8 md:w-8 text-orange-500" />
             Ofertas Especiais
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-base md:text-lg text-muted-foreground">
             Aproveite nossos descontos exclusivos por tempo limitado
           </p>
         </div>
@@ -133,28 +133,28 @@ const SpecialOffers = () => {
           <Button
             variant="outline"
             size="sm"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white shadow-lg border-2 hover:bg-gray-50 hidden md:flex items-center justify-center"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 md:h-10 md:w-10 rounded-full bg-white shadow-lg border-2 hover:bg-gray-50 hidden lg:flex items-center justify-center"
             onClick={scrollPrev}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-3 w-3 md:h-4 md:w-4" />
           </Button>
 
           <Button
             variant="outline"
             size="sm"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white shadow-lg border-2 hover:bg-gray-50 hidden md:flex items-center justify-center"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 md:h-10 md:w-10 rounded-full bg-white shadow-lg border-2 hover:bg-gray-50 hidden lg:flex items-center justify-center"
             onClick={scrollNext}
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-3 w-3 md:h-4 md:w-4" />
           </Button>
 
           {/* Carousel */}
           <div className="overflow-hidden py-2" ref={emblaRef}>
-            <div className="flex gap-6 px-1">
+            <div className="flex gap-4 md:gap-6 px-1">
               {products.map((product, index) => (
                 <div 
                   key={product.id} 
-                  className="flex-none w-80 animate-fade-in"
+                  className="flex-none w-72 md:w-80 lg:w-80 animate-fade-in"
                   style={{ animationDelay: `${index * 150}ms` }}
                 >
                   <Card 
@@ -162,7 +162,7 @@ const SpecialOffers = () => {
                     onClick={() => navigate(`/produto/${product.id}`)}
                   >
                     <CardContent className="p-0 h-full flex flex-col">
-                      <div className="relative h-56 overflow-hidden rounded-t-2xl">
+                      <div className="relative h-48 md:h-56 overflow-hidden rounded-t-2xl">
                         <img
                           src={product.image_url || "/placeholder.svg"}
                           alt={product.name}
@@ -174,14 +174,14 @@ const SpecialOffers = () => {
                         
                         {/* Discount Badge */}
                         {product.discount && product.discount > 0 && (
-                          <Badge className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-base px-4 py-2 shadow-xl border-0 rounded-xl">
+                          <Badge className="absolute top-3 left-3 md:top-4 md:left-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-sm md:text-base px-3 md:px-4 py-1 md:py-2 shadow-xl border-0 rounded-xl">
                             -{product.discount}%
                           </Badge>
                         )}
                         
                         {/* Stock Badge */}
                         <Badge 
-                          className={`absolute top-4 right-4 text-sm font-semibold px-3 py-1 border-0 rounded-xl shadow-lg ${
+                          className={`absolute top-3 right-3 md:top-4 md:right-4 text-xs md:text-sm font-semibold px-2 md:px-3 py-1 border-0 rounded-xl shadow-lg ${
                             product.in_stock
                               ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
                               : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white'
@@ -191,10 +191,10 @@ const SpecialOffers = () => {
                         </Badge>
                       </div>
                       
-                      <div className="p-5 flex-1 flex flex-col">
+                      <div className="p-4 md:p-5 flex-1 flex flex-col">
                         <div className="space-y-2 flex-1">
                           <div>
-                            <h3 className="font-bold text-lg mb-1 group-hover:text-orange-600 transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
+                            <h3 className="font-bold text-base md:text-lg mb-1 group-hover:text-orange-600 transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
                               {product.name}
                             </h3>
                           </div>
@@ -229,7 +229,7 @@ const SpecialOffers = () => {
                           {/* Price */}
                           <div className="space-y-1">
                             <div className="flex items-baseline gap-2">
-                              <span className="text-2xl font-bold text-orange-600">
+                              <span className="text-xl md:text-2xl font-bold text-orange-600">
                                 {formatCurrency(product.price)}
                               </span>
                               {product.original_price && product.original_price > product.price && (
@@ -243,7 +243,7 @@ const SpecialOffers = () => {
                         
                         {/* Action Button */}
                         <Button 
-                          className="w-full mt-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl"
+                          className="w-full mt-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base"
                           disabled={!product.in_stock}
                           onClick={(e) => handleAddToCart(e, product)}
                         >
@@ -259,18 +259,18 @@ const SpecialOffers = () => {
           </div>
 
           {/* Mobile scroll indicator */}
-          <div className="flex justify-center mt-4 md:hidden">
+          <div className="flex justify-center mt-4 lg:hidden">
             <div className="text-xs text-muted-foreground">
               ← Deslize para ver mais ofertas →
             </div>
           </div>
         </div>
         
-        <div className="text-center mt-12">
+        <div className="text-center mt-8 md:mt-12">
           <Button 
             variant="outline" 
             size="lg" 
-            className="group"
+            className="group text-sm md:text-base"
             onClick={() => navigate("/produtos?filter=ofertas")}
           >
             Ver Todas as Ofertas
