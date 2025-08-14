@@ -15,47 +15,34 @@ export const useCart = () => {
 
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
-    console.log('🔄 Carregando carrinho do localStorage:', savedCart);
     if (savedCart) {
       try {
         const parsedCart = JSON.parse(savedCart);
-        console.log('✅ Carrinho carregado:', parsedCart);
         setItems(parsedCart);
       } catch (error) {
-        console.error('❌ Erro ao carregar carrinho:', error);
+        console.error('Erro ao carregar carrinho:', error);
         localStorage.removeItem('cart');
       }
     }
   }, []);
 
   useEffect(() => {
-    // Só salva se não for a primeira renderização vazia
-    if (items.length > 0) {
-      console.log('💾 Salvando carrinho no localStorage:', items);
-      localStorage.setItem('cart', JSON.stringify(items));
-    }
+    localStorage.setItem('cart', JSON.stringify(items));
   }, [items]);
 
   const addItem = (product: Omit<CartItem, 'quantity'>) => {
-    console.log('🛒 Adicionando produto ao carrinho:', product);
     setItems(prev => {
-      console.log('📦 Carrinho atual:', prev);
       const existingItem = prev.find(item => item.id === product.id);
-      console.log('🔍 Item existente encontrado:', existingItem);
       
       if (existingItem) {
-        const updatedCart = prev.map(item =>
+        return prev.map(item =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
-        console.log('✅ Quantidade atualizada:', updatedCart);
-        return updatedCart;
       }
       
-      const newCart = [...prev, { ...product, quantity: 1 }];
-      console.log('✅ Novo item adicionado:', newCart);
-      return newCart;
+      return [...prev, { ...product, quantity: 1 }];
     });
   };
 
@@ -77,6 +64,7 @@ export const useCart = () => {
 
   const clearCart = () => {
     setItems([]);
+    localStorage.removeItem('cart');
   };
 
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);

@@ -58,10 +58,8 @@ const FeaturedProducts = () => {
     }
   };
 
-  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
+  const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
-    
-    console.log('🎯 Clicou para adicionar produto:', product);
     
     try {
       const cartItem = {
@@ -72,17 +70,37 @@ const FeaturedProducts = () => {
         image: product.image_url || "/placeholder.svg"
       };
       
-      console.log('📝 Item do carrinho preparado:', cartItem);
       addItem(cartItem);
       
+      // Notificação melhorada
       toast({
-        title: "Produto adicionado!",
-        description: `${product.name} foi adicionado ao carrinho.`,
+        title: "✅ Produto adicionado!",
+        description: (
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <p className="font-semibold">{product.name}</p>
+              <p className="text-sm text-muted-foreground">
+                {formatCurrency(product.price)} • Agora no seu carrinho
+              </p>
+            </div>
+          </div>
+        ),
+        duration: 3000,
       });
+
+      // Pequeno delay para mostrar a notificação antes de abrir o carrinho
+      setTimeout(() => {
+        // Simular clique no botão do carrinho para abrir
+        const cartButton = document.querySelector('[data-cart-trigger]') as HTMLButtonElement;
+        if (cartButton) {
+          cartButton.click();
+        }
+      }, 800);
+      
     } catch (error) {
-      console.error('❌ Erro ao adicionar produto ao carrinho:', error);
+      console.error('Erro ao adicionar produto ao carrinho:', error);
       toast({
-        title: "Erro",
+        title: "❌ Erro",
         description: "Não foi possível adicionar o produto ao carrinho.",
         variant: "destructive",
       });

@@ -27,10 +27,10 @@ const Cart = () => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" className="relative">
+        <Button variant="outline" className="relative" data-cart-trigger>
           <ShoppingCart className="h-4 w-4" />
           {itemCount > 0 && (
-            <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-primary text-white text-xs">
+            <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-primary text-white text-xs animate-pulse">
               {itemCount}
             </Badge>
           )}
