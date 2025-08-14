@@ -204,53 +204,6 @@ const Contato = () => {
           </div>
         </div>
 
-        {/* Departments */}
-        <div className="mt-12 md:mt-16">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Departamentos</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-0">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="font-bold text-lg mb-2">Vendas</h3>
-                <p className="text-muted-foreground text-sm mb-3">
-                  Orçamentos, produtos e consultorias
-                </p>
-                <p className="font-semibold">(11) 4002-8922</p>
-                <p className="text-sm text-muted-foreground">Ramal 1</p>
-              </CardContent>
-            </Card>
-
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-0">
-                <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Headphones className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="font-bold text-lg mb-2">Suporte Técnico</h3>
-                <p className="text-muted-foreground text-sm mb-3">
-                  Dúvidas técnicas e orientações
-                </p>
-                <p className="font-semibold">(11) 4002-8922</p>
-                <p className="text-sm text-muted-foreground">Ramal 2</p>
-              </CardContent>
-            </Card>
-
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-0">
-                <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Mail className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="font-bold text-lg mb-2">Financeiro</h3>
-                <p className="text-muted-foreground text-sm mb-3">
-                  Faturamento e pagamentos
-                </p>
-                <p className="font-semibold">(11) 4002-8922</p>
-                <p className="text-sm text-muted-foreground">Ramal 3</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
       </main>
       
       <Footer />
