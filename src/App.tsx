@@ -14,6 +14,7 @@ import SobreNos from "./pages/SobreNos";
 import Contato from "./pages/Contato";
 import Entrega from "./pages/Entrega";
 import TrocaseDevolucoes from "./pages/TrocaseDevolucoes";
+import TermosUso from "./pages/TermosUso";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
 import Cookies from "./pages/Cookies";
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/contato" element={<Contato />} />
             <Route path="/entrega" element={<Entrega />} />
             <Route path="/trocas-e-devolucoes" element={<TrocaseDevolucoes />} />
+            <Route path="/termos-uso" element={<TermosUso />} />
             <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
             <Route path="/cookies" element={<Cookies />} />
             <Route path="/auth" element={<Auth />} />
