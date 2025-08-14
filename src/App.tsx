@@ -23,6 +23,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminClients from "./pages/admin/AdminClients";
+import AdminOrders from "./pages/admin/AdminOrders";
 import ProductForm from "./pages/admin/ProductForm";
 import ScrollToTop from "./components/ScrollToTop";
 import CookieConsent from "./components/CookieConsent";
@@ -61,6 +62,7 @@ const App = () => (
               <Route path="produtos/editar/:id" element={<ProductForm />} />
               <Route path="categorias" element={<AdminCategories />} />
               <Route path="clientes" element={<AdminClients />} />
+              <Route path="pedidos" element={<AdminOrders />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
