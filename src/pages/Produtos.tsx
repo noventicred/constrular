@@ -235,24 +235,25 @@ const Produtos = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-4 md:py-8">
         {/* Filters and Search */}
-        <div className="flex flex-col lg:flex-row gap-6 mb-8">
-          <div className="flex flex-col sm:flex-row gap-4 flex-1">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Buscar produtos..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+        <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-8">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Buscar produtos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
 
+          {/* Filters Row */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             {/* Category Filter */}
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectTrigger className="w-full sm:flex-1">
                 <SelectValue placeholder="Todas as categorias" />
               </SelectTrigger>
               <SelectContent>
@@ -269,7 +270,7 @@ const Produtos = () => {
             <Button
               variant={offerFilter ? "default" : "outline"}
               onClick={() => setOfferFilter(!offerFilter)}
-              className="whitespace-nowrap"
+              className="whitespace-nowrap sm:w-auto w-full"
             >
               <Filter className="h-4 w-4 mr-2" />
               {offerFilter ? "Mostrar Todos" : "Só Ofertas"}
@@ -277,9 +278,9 @@ const Produtos = () => {
           </div>
 
           {/* Sort and View Mode */}
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -291,22 +292,24 @@ const Produtos = () => {
               </SelectContent>
             </Select>
 
-            <div className="flex border rounded-lg">
+            <div className="flex border rounded-lg self-start sm:self-auto">
               <Button
                 variant={viewMode === "grid" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("grid")}
-                className="rounded-r-none"
+                className="rounded-r-none flex-1 sm:flex-none"
               >
                 <Grid className="h-4 w-4" />
+                <span className="ml-2 sm:hidden">Grade</span>
               </Button>
               <Button
                 variant={viewMode === "list" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("list")}
-                className="rounded-l-none"
+                className="rounded-l-none flex-1 sm:flex-none"
               >
                 <List className="h-4 w-4" />
+                <span className="ml-2 sm:hidden">Lista</span>
               </Button>
             </div>
           </div>
