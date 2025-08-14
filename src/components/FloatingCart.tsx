@@ -150,6 +150,14 @@ const FloatingCart = () => {
                       <Eye className="h-4 w-4 mr-2" />
                       Ver Carrinho Completo
                     </Button>
+                    
+                    <Button 
+                      onClick={() => navigate("/checkout")}
+                      className="w-full"
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Finalizar Compra
+                    </Button>
                   </div>
                 </div>
               </>
