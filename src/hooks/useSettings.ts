@@ -183,8 +183,9 @@ export const useSettings = () => {
       root.style.setProperty('--sidebar-primary', `${h} ${s}% ${Math.max(10, l - 20)}%`);
       root.style.setProperty('--sidebar-ring', `${h} ${s}% ${l}%`);
       
-      // Força atualização dos elementos
-      document.body.style.setProperty('--primary-computed', `hsl(${h}, ${s}%, ${l}%)`);
+      // Salvar no localStorage para carregamento imediato
+      localStorage.setItem('app-primary-color', primaryColor);
+      localStorage.setItem('app-primary-hsl', `${h} ${s}% ${l}%`);
     }
   };
 

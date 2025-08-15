@@ -4,6 +4,15 @@ import { useSettings } from '@/hooks/useSettings';
 const DynamicConfigProvider = ({ children }: { children: React.ReactNode }) => {
   const { settings, loading, updateCSSVariables } = useSettings();
 
+  // Aplicar cores imediatamente quando o componente monta
+  useEffect(() => {
+    // Aplicar cores do localStorage primeiro (imediato)
+    const savedColor = localStorage.getItem('app-primary-color');
+    if (savedColor && savedColor !== settings.primary_color) {
+      updateCSSVariables();
+    }
+  }, []);
+
   useEffect(() => {
     if (!loading) {
       updateCSSVariables();
@@ -21,9 +30,10 @@ const DynamicConfigProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [loading, settings, updateCSSVariables]);
 
-  // Também escutar mudanças específicas na cor primária
+  // Aplicar cores imediatamente quando a cor primária muda
   useEffect(() => {
     if (settings.primary_color && !loading) {
+      // Aplicar sem delay
       updateCSSVariables();
     }
   }, [settings.primary_color, loading, updateCSSVariables]);
