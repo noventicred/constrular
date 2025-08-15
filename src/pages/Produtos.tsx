@@ -242,11 +242,15 @@ const Produtos = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
+        <SEO 
+          title="Carregando Produtos - ConstrutorPro"
+          description="Carregando produtos de material de construção..."
+        />
         <Header />
         <main className="flex-1 container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-96 bg-muted rounded-lg animate-pulse" />
+            {Array.from({ length: 8 }, (_, i) => (
+              <div key={`loading-${i}`} className="h-96 bg-muted rounded-lg animate-pulse" />
             ))}
           </div>
         </main>
