@@ -386,6 +386,24 @@ export default function Checkout() {
                   </Button>
                   
                   <Button 
+                    onClick={() => {
+                      const whatsappMessage = generateWhatsAppMessage(orderData.id);
+                      const whatsappNumber = getWhatsAppNumber();
+                      const newWhatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+                      window.open(newWhatsappUrl, '_blank');
+                      toast({
+                        title: 'Mensagem reenviada',
+                        description: 'Abrindo WhatsApp novamente...',
+                      });
+                    }}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Reenviar Mensagem
+                  </Button>
+                  
+                  <Button 
                     variant="outline"
                     onClick={() => navigate('/minha-conta')}
                     className="w-full"

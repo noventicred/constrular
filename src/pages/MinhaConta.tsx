@@ -11,8 +11,9 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { User, MapPin, Phone, Mail, Calendar, Save, Package, Eye, ShoppingCart, CreditCard, Truck, CheckCircle, Clock, XCircle, TrendingUp, Star, Home, ArrowLeft, LogOut, X } from 'lucide-react';
+import { User, MapPin, Phone, Mail, Calendar, Save, Package, Eye, ShoppingCart, CreditCard, Truck, CheckCircle, Clock, XCircle, TrendingUp, Star, Home, ArrowLeft, LogOut, X, MessageCircle } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
+import { useSettings } from '@/hooks/useSettings';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -64,6 +65,7 @@ interface ProfileData {
 
 export default function MinhaConta() {
   const { user, profile, refreshProfile } = useAuth();
+  const { getWhatsAppNumber } = useSettings();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -244,6 +246,45 @@ export default function MinhaConta() {
       case 'refunded': return 'bg-blue-100 text-blue-800 border-blue-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
+  };
+
+  const generateWhatsAppMessage = (order: Order) => {
+    const orderNumber = order.id.slice(0, 8).toUpperCase();
+    const currentDate = new Date(order.created_at).toLocaleDateString('pt-BR');
+    
+    let message = `*PEDIDO #${orderNumber}*\n\n`;
+    
+    message += `*PRODUTOS:*\n`;
+    order.order_items?.forEach((item, index) => {
+      message += `${index + 1}. ${item.product_name}\n`;
+      message += `   Quantidade: ${item.quantity}\n`;
+      message += `   Valor: ${formatCurrency(item.total_price)}\n\n`;
+    });
+    
+    message += `*TOTAL: ${formatCurrency(order.total_amount)}*\n\n`;
+    
+    if (order.shipping_address) {
+      message += `*ENTREGA:*\n`;
+      message += `${order.shipping_address}\n\n`;
+    }
+    
+    message += `Data do pedido: ${currentDate}\n\n`;
+    message += `Gostaria de acompanhar este pedido!`;
+    
+    return encodeURIComponent(message);
+  };
+
+  const handleResendWhatsApp = (order: Order) => {
+    const whatsappMessage = generateWhatsAppMessage(order);
+    const whatsappNumber = getWhatsAppNumber();
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+    
+    window.open(whatsappUrl, '_blank');
+    
+    toast({
+      title: 'Mensagem enviada',
+      description: 'Redirecionando para o WhatsApp...',
+    });
   };
 
   const { signOut } = useAuth();
@@ -790,16 +831,29 @@ export default function MinhaConta() {
                                   {order.status === 'delivered' ? 'Avalie este pedido' : 'Aguardando entrega'}
                                 </span>
                               </div>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => setSelectedOrder(order)}
-                                className="w-full sm:w-auto"
-                              >
-                                <Eye className="mr-2 h-4 w-4" />
-                                <span className="sm:hidden">Ver Detalhes</span>
-                                <span className="hidden sm:inline">Ver Detalhes Completos</span>
-                              </Button>
+                              <div className="flex flex-col gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setSelectedOrder(order)}
+                                  className="w-full"
+                                >
+                                  <Eye className="mr-1 h-3 w-3" />
+                                  <span className="sm:hidden">Ver Detalhes</span>
+                                  <span className="hidden sm:inline">Ver Detalhes Completos</span>
+                                </Button>
+                                
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleResendWhatsApp(order)}
+                                  className="w-full bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+                                >
+                                  <MessageCircle className="mr-1 h-3 w-3" />
+                                  <span className="sm:hidden">WhatsApp</span>
+                                  <span className="hidden sm:inline">Reenviar WhatsApp</span>
+                                </Button>
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
@@ -1022,7 +1076,15 @@ export default function MinhaConta() {
               )}
 
               {/* Actions */}
-              <div className="flex justify-end pt-4 border-t">
+              <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4 border-t">
+                <Button 
+                  variant="outline" 
+                  onClick={() => handleResendWhatsApp(selectedOrder)}
+                  className="bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+                >
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Reenviar no WhatsApp
+                </Button>
                 <Button variant="outline" onClick={() => setSelectedOrder(null)}>
                   <X className="mr-2 h-4 w-4" />
                   Fechar
