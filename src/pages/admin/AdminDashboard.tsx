@@ -244,8 +244,8 @@ const AdminDashboard = () => {
       value: stats.activeProducts,
       description: `de ${stats.totalProducts} total`,
       icon: Package,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
+      color: 'text-primary',
+      bgColor: 'bg-primary/10',
       trend: 'stable',
       progress: stats.totalProducts > 0 ? (stats.activeProducts / stats.totalProducts) * 100 : 0,
     },
@@ -306,7 +306,7 @@ const AdminDashboard = () => {
       case 'success': return 'text-green-600';
       case 'pending': return 'text-yellow-600';
       case 'error': return 'text-red-600';
-      default: return 'text-gray-600';
+      default: return 'text-foreground';
     }
   };
 
@@ -462,8 +462,8 @@ const AdminDashboard = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Sistema</span>
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
+                  <div className="w-2 h-2 bg-primary rounded-full mr-1"></div>
                   Online
                 </Badge>
               </div>
@@ -472,8 +472,8 @@ const AdminDashboard = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Banco de Dados</span>
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
+                  <div className="w-2 h-2 bg-primary rounded-full mr-1"></div>
                   Conectado
                 </Badge>
               </div>

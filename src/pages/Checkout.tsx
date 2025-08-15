@@ -384,7 +384,7 @@ export default function Checkout() {
                 <div className="space-y-2">
                   <Button 
                     onClick={() => window.open(whatsappUrl, '_blank')}
-                    className="w-full bg-green-600 hover:bg-green-700"
+                    className="w-full bg-primary hover:bg-primary/90"
                     size="lg"
                   >
                     <MessageCircle className="w-5 h-5 mr-2" />

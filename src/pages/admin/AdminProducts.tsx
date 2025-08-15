@@ -227,7 +227,7 @@ const AdminProducts = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="h-4 w-4 rounded-full p-0 bg-green-500" />
+              <Badge variant="outline" className="h-4 w-4 rounded-full p-0 bg-primary" />
               <span className="text-sm font-medium text-muted-foreground">Em Estoque</span>
             </div>
             <div className="text-2xl font-bold text-green-600">
@@ -431,7 +431,7 @@ const AdminProducts = () => {
                     <TableCell className="py-4">
                       <Badge 
                         variant={product.in_stock ? 'default' : 'secondary'}
-                        className={product.in_stock ? 'bg-green-100 text-green-800 hover:bg-green-100' : ''}
+                        className={product.in_stock ? 'bg-primary/10 text-primary hover:bg-primary/10' : ''}
                       >
                         {product.in_stock ? 'Em estoque' : 'Fora de estoque'}
                       </Badge>
@@ -439,7 +439,7 @@ const AdminProducts = () => {
                     
                     <TableCell className="py-4 text-center">
                       {product.is_featured ? (
-                        <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 gap-1">
+                        <Badge className="bg-primary/10 text-primary hover:bg-primary/10 gap-1">
                           <Star className="h-3 w-3 fill-current" />
                           Destaque
                         </Badge>
