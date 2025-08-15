@@ -207,12 +207,12 @@ export default function MinhaConta() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'confirmed': return 'bg-primary/10 text-primary border-primary/20';
-      case 'processing': return 'bg-primary/10 text-primary border-primary/20';
-      case 'shipped': return 'bg-primary/10 text-primary border-primary/20';
+      case 'confirmed': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'processing': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'shipped': return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'delivered': return 'bg-green-100 text-green-800 border-green-200';
       case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-muted text-muted-foreground border-border';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -243,8 +243,8 @@ export default function MinhaConta() {
       case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'paid': return 'bg-green-100 text-green-800 border-green-200';
       case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
-      case 'refunded': return 'bg-primary/10 text-primary border-primary/20';
-      default: return 'bg-muted text-muted-foreground border-border';
+      case 'refunded': return 'bg-blue-100 text-blue-800 border-blue-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -421,8 +421,8 @@ export default function MinhaConta() {
                           <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">Total Gasto</p>
                           <p className="text-lg sm:text-xl lg:text-2xl font-bold">{formatCurrency(orderStats.total_spent)}</p>
                         </div>
-                        <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg flex-shrink-0">
-                          <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-primary" />
+                        <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg flex-shrink-0">
+                          <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-600" />
                         </div>
                       </div>
                     </CardContent>
@@ -449,8 +449,8 @@ export default function MinhaConta() {
                           <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">Concluídos</p>
                           <p className="text-lg sm:text-xl lg:text-2xl font-bold">{orderStats.completed_orders}</p>
                         </div>
-                        <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg flex-shrink-0">
-                          <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-primary" />
+                        <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg flex-shrink-0">
+                          <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-600" />
                         </div>
                       </div>
                     </CardContent>
@@ -857,7 +857,7 @@ export default function MinhaConta() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => handleResendWhatsApp(order)}
-                                  className="w-full bg-primary/10 hover:bg-primary/20 text-primary border-primary/20"
+                                  className="w-full bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
                                 >
                                   <MessageCircle className="mr-1 h-3 w-3" />
                                   <span className="sm:hidden">WhatsApp</span>
@@ -1090,7 +1090,7 @@ export default function MinhaConta() {
                 <Button 
                   variant="outline" 
                   onClick={() => handleResendWhatsApp(selectedOrder)}
-                  className="bg-primary/10 hover:bg-primary/20 text-primary border-primary/20"
+                  className="bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
                 >
                   <MessageCircle className="mr-2 h-4 w-4" />
                   Reenviar no WhatsApp

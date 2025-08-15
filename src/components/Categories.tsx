@@ -44,16 +44,16 @@ const iconMap: Record<string, any> = {
 
 // Cores para categorias
 const colorMap: Record<string, string> = {
-  "Cimento & Argamassa": "bg-primary",
-  "Tijolos & Blocos": "bg-primary",
-  "Tintas & Vernizes": "bg-primary",
-  "Ferramentas": "bg-primary",
-  "Hidráulica": "bg-primary",
-  "Elétrica": "bg-primary",
-  "Madeiras": "bg-primary",
-  "Transporte": "bg-primary",
-  "Pisos & Revestimentos": "bg-primary",
-  "Iluminação": "bg-primary",
+  "Cimento & Argamassa": "bg-gray-600",
+  "Tijolos & Blocos": "bg-red-600",
+  "Tintas & Vernizes": "bg-green-600",
+  "Ferramentas": "bg-amber-600",
+  "Hidráulica": "bg-slate-600",
+  "Elétrica": "bg-yellow-600",
+  "Madeiras": "bg-amber-700",
+  "Transporte": "bg-stone-600",
+  "Pisos & Revestimentos": "bg-neutral-600",
+  "Iluminação": "bg-orange-500",
 };
 
 const Categories = () => {

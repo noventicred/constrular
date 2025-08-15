@@ -34,7 +34,7 @@ const FloatingCart = () => {
           >
             <ShoppingCart className="h-6 w-6 text-white group-hover:scale-110 transition-transform" />
             {itemCount > 0 && (
-              <Badge className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center bg-primary text-primary-foreground text-xs font-bold animate-pulse border-2 border-background">
+              <Badge className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center bg-red-500 text-white text-xs font-bold animate-pulse border-2 border-white">
                 {itemCount}
               </Badge>
             )}

@@ -113,11 +113,6 @@ All colors MUST be HSL.
   @apply transition-transform duration-200 hover:scale-105;
 }
 
-/* Evitar flash da cor antiga durante navegação */
-.page-transition {
-  transition: none !important;
-}
-
 @layer base {
   * {
     @apply border-border;
@@ -125,15 +120,5 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    /* Aplicar transições suaves só após carregamento completo */
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-
-  /* CSS para carregamento imediato das cores */
-  :root:not([data-theme-loaded]) {
-    --primary: var(--primary, 24 95% 53%);
-    --accent: var(--accent, 24 95% 53%);
-    --ring: var(--ring, 24 95% 53%);
-    --construction-orange: var(--construction-orange, 24 95% 53%);
   }
 }

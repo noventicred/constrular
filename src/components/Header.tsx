@@ -19,7 +19,6 @@ import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from '@/contexts/AuthContext';
-import { useSettings } from '@/hooks/useSettings';
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
 
@@ -49,7 +48,6 @@ const Header = () => {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const { user, isAdmin, signOut } = useAuth();
-  const { getCompanyName } = useSettings();
   const { toast } = useToast();
   const navigate = useNavigate();
   const searchRef = useRef<HTMLDivElement>(null);
@@ -182,7 +180,7 @@ const Header = () => {
           <div className="flex items-center">
             <Link to={isAdmin ? "/admin" : "/"} className="hover:opacity-80 transition-opacity">
               <h1 className="text-2xl font-bold text-primary">
-                {getCompanyName()}
+                ConstrutorPro
               </h1>
             </Link>
           </div>
