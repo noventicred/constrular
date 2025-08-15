@@ -19,10 +19,12 @@ import {
   Minus,
   ThumbsUp,
   ThumbsDown,
-  CheckCircle
+  CheckCircle,
+  MessageCircle
 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
+import { useSettings } from "@/hooks/useSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
 import FloatingCart from "@/components/FloatingCart";
@@ -67,6 +69,7 @@ const Produto = () => {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const { toast } = useToast();
+  const { getWhatsAppNumber, getSetting } = useSettings();
   
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -230,6 +233,24 @@ const Produto = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleWhatsAppOrder = () => {
+    const storeName = getSetting('store_name') || 'Minha Loja';
+    const currentUrl = window.location.href;
+    
+    const message = `Olá! Gostaria de fazer um pedido desse item específico:\n\n` +
+                   `*${product.name}*\n` +
+                   `SKU: ${product.sku || 'N/A'}\n` +
+                   `Preço: ${formatCurrency(product.price)}\n` +
+                   `Loja: ${storeName}\n\n` +
+                   `Link do produto: ${currentUrl}\n\n` +
+                   `Aguardo informações sobre disponibilidade e formas de pagamento!`;
+    
+    const phoneNumber = getWhatsAppNumber();
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+    
+    window.open(whatsappUrl, '_blank');
   };
 
   const renderStars = (rating: number, size: string = "h-4 w-4") => {
@@ -446,9 +467,19 @@ const Produto = () => {
                       Produto Indisponível
                     </>
                   )}
-                </Button>
-                
-                {product.in_stock && (
+                 </Button>
+                 
+                 <Button 
+                   className="w-full text-base font-bold py-4 bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 rounded-xl border-0" 
+                   size="lg"
+                   onClick={handleWhatsAppOrder}
+                   disabled={!product.in_stock}
+                 >
+                   <MessageCircle className="h-5 w-5 mr-3" />
+                   Comprar pelo WhatsApp
+                 </Button>
+                 
+                 {product.in_stock && (
                   <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center space-y-2">
                     <div className="flex items-center justify-center gap-2 text-sm text-green-700 font-bold">
                       <CheckCircle className="h-4 w-4" />
