@@ -215,58 +215,35 @@ export default function Checkout() {
   };
 
   const generateWhatsAppMessage = (orderId: string) => {
-    console.log('🔥 GERANDO MENSAGEM WHATSAPP');
-    console.log('📦 Items no carrinho:', items);
-    console.log('🏠 Endereço:', shippingAddress);
-    console.log('🆔 Order ID:', orderId);
-    
     const total = getTotalPrice();
     const orderNumber = orderId.slice(0, 8).toUpperCase();
+    const currentDate = new Date().toLocaleDateString('pt-BR');
     
-    let message = `🎯 *NOVO PEDIDO* 🎯\n`;
-    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-    message += `📋 *Pedido:* #${orderNumber}\n`;
-    message += `📅 *Data:* ${new Date().toLocaleDateString('pt-BR', { 
-      day: '2-digit', 
-      month: '2-digit', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })}\n\n`;
+    // Mensagem mais limpa e compatível com WhatsApp
+    let message = `*NOVO PEDIDO #${orderNumber}*\n\n`;
     
-    message += `👋 Olá! Gostaria de finalizar esta compra:\n\n`;
-    
-    message += `🛍️ *PRODUTOS SELECIONADOS*\n`;
-    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+    message += `*PRODUTOS:*\n`;
     items.forEach((item, index) => {
-      message += `${index + 1}️⃣ *${item.name}*\n`;
-      message += `   📊 Qtd: ${item.quantity} unidade${item.quantity > 1 ? 's' : ''}\n`;
-      message += `   💰 Valor unitário: ${formatCurrency(item.price)}\n`;
-      message += `   💵 Subtotal: *${formatCurrency(item.price * item.quantity)}*\n\n`;
+      message += `${index + 1}. ${item.name}\n`;
+      message += `   Quantidade: ${item.quantity}\n`;
+      message += `   Valor: ${formatCurrency(item.price * item.quantity)}\n\n`;
     });
     
-    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-    message += `💸 *TOTAL GERAL: ${formatCurrency(total)}*\n`;
-    message += `━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    message += `*TOTAL: ${formatCurrency(total)}*\n\n`;
     
-    message += `🚚 *DADOS PARA ENTREGA*\n`;
-    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-    message += `👤 *Nome:* ${shippingAddress.full_name}\n`;
-    message += `📱 *Telefone:* ${shippingAddress.phone}\n`;
-    message += `📍 *Endereço:* ${shippingAddress.street}, ${shippingAddress.number}`;
+    message += `*ENTREGA:*\n`;
+    message += `Nome: ${shippingAddress.full_name}\n`;
+    message += `Telefone: ${shippingAddress.phone}\n`;
+    message += `Endereco: ${shippingAddress.street}, ${shippingAddress.number}`;
     if (shippingAddress.complement) {
-      message += ` - ${shippingAddress.complement}`;
+      message += `, ${shippingAddress.complement}`;
     }
-    message += `\n🏙️ *Cidade:* ${shippingAddress.city} - ${shippingAddress.state}\n`;
-    message += `📮 *CEP:* ${shippingAddress.zip_code}\n\n`;
+    message += `\n${shippingAddress.city} - ${shippingAddress.state}\n`;
+    message += `CEP: ${shippingAddress.zip_code}\n\n`;
     
-    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-    message += `✅ *Aguardando confirmação de pagamento*\n`;
-    message += `💬 Responda este WhatsApp para prosseguir!\n`;
-    message += `━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-    message += `🙏 Obrigado pela preferência! 😊`;
+    message += `Data: ${currentDate}\n\n`;
+    message += `Gostaria de confirmar este pedido!`;
     
-    console.log('📱 MENSAGEM GERADA:', message);
     return encodeURIComponent(message);
   };
 

@@ -100,47 +100,31 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const getTotalPrice = () => total;
 
   const generateWhatsAppMessage = () => {
-    console.log('🔥 GERANDO MENSAGEM WHATSAPP RÁPIDA');
-    console.log('📦 Items no carrinho:', items);
-    console.log('💰 Total:', total);
+    const currentDate = new Date().toLocaleDateString('pt-BR');
     
-    let message = `🛒 *ORÇAMENTO RÁPIDO* 🛒\n`;
-    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-    message += `📅 *Data:* ${new Date().toLocaleDateString('pt-BR', { 
-      day: '2-digit', 
-      month: '2-digit', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })}\n\n`;
+    // Mensagem mais limpa e compatível com WhatsApp
+    let message = `*ORCAMENTO - CARRINHO*\n\n`;
     
-    message += `👋 Olá! Tenho interesse nos seguintes produtos:\n\n`;
-    
-    message += `🛍️ *PRODUTOS DE INTERESSE*\n`;
-    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-    
+    message += `*PRODUTOS:*\n`;
     items.forEach((item, index) => {
-      message += `${index + 1}️⃣ *${item.name}*\n`;
+      message += `${index + 1}. ${item.name}\n`;
       if (item.brand) {
-        message += `   🏷️ Marca: ${item.brand}\n`;
+        message += `   Marca: ${item.brand}\n`;
       }
-      message += `   📊 Quantidade: ${item.quantity} unidade${item.quantity > 1 ? 's' : ''}\n`;
-      message += `   💰 Valor unitário: ${formatCurrency(item.price)}\n`;
-      message += `   💵 Subtotal: *${formatCurrency(item.price * item.quantity)}*\n\n`;
+      message += `   Quantidade: ${item.quantity}\n`;
+      message += `   Valor: ${formatCurrency(item.price * item.quantity)}\n\n`;
     });
     
-    message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-    message += `💸 *TOTAL ESTIMADO: ${formatCurrency(total)}*\n`;
-    message += `━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    message += `*TOTAL ESTIMADO: ${formatCurrency(total)}*\n\n`;
     
-    message += `❓ *Gostaria de saber:*\n`;
-    message += `• 🚚 Condições de entrega\n`;
-    message += `• 💳 Formas de pagamento\n`;
-    message += `• ⏰ Prazo de entrega\n\n`;
+    message += `Gostaria de saber:\n`;
+    message += `- Condicoes de entrega\n`;
+    message += `- Formas de pagamento\n`;
+    message += `- Prazo de entrega\n\n`;
     
-    message += `🙏 Aguardo retorno para finalizar! 😊`;
+    message += `Data: ${currentDate}\n\n`;
+    message += `Aguardo retorno para finalizar!`;
     
-    console.log('📱 MENSAGEM RÁPIDA GERADA:', message);
     return encodeURIComponent(message);
   };
 
