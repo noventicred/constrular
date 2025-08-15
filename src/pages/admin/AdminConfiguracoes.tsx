@@ -28,7 +28,12 @@ import {
   RefreshCw,
   MessageCircle,
   Phone,
-  Truck
+  Truck,
+  Share2,
+  Layout,
+  BarChart,
+  Search,
+  MessageSquare
 } from 'lucide-react';
 
 const AdminConfiguracoes = () => {
@@ -131,7 +136,7 @@ const AdminConfiguracoes = () => {
           </div>
 
           <Tabs defaultValue="geral" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-6 lg:grid-cols-7">
               <TabsTrigger value="geral" className="flex items-center gap-2">
                 <Store className="h-4 w-4" />
                 Geral
@@ -140,6 +145,14 @@ const AdminConfiguracoes = () => {
                 <MessageCircle className="h-4 w-4" />
                 WhatsApp
               </TabsTrigger>
+              <TabsTrigger value="aparencia" className="flex items-center gap-2">
+                <Palette className="h-4 w-4" />
+                Visual
+              </TabsTrigger>
+              <TabsTrigger value="seo" className="flex items-center gap-2">
+                <Search className="h-4 w-4" />
+                SEO
+              </TabsTrigger>
               <TabsTrigger value="notificacoes" className="flex items-center gap-2">
                 <Bell className="h-4 w-4" />
                 Notificações
@@ -147,10 +160,6 @@ const AdminConfiguracoes = () => {
               <TabsTrigger value="seguranca" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 Segurança
-              </TabsTrigger>
-              <TabsTrigger value="aparencia" className="flex items-center gap-2">
-                <Palette className="h-4 w-4" />
-                Aparência
               </TabsTrigger>
               <TabsTrigger value="pagamentos" className="flex items-center gap-2">
                 <CreditCard className="h-4 w-4" />
@@ -560,157 +569,483 @@ const AdminConfiguracoes = () => {
 
             {/* Aparência */}
             <TabsContent value="aparencia" className="space-y-6">
+              {/* Identidade Visual */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Palette className="h-5 w-5" />
-                    Personalização Visual
+                    Identidade Visual
                   </CardTitle>
                   <CardDescription>
-                    Customize as cores e aparência do seu site
+                    Configure logo, cores e tipografia da sua loja
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-6">
-                    <div className="space-y-4">
-                      <h4 className="font-medium">Cor Principal do Site</h4>
-                      <div className="flex items-center gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="primary-color">Selecionar Cor</Label>
-                          <div className="flex items-center gap-2">
-                            <Input 
-                              id="primary-color" 
-                              type="color" 
-                              value={settings.primary_color || '#2563eb'}
-                              onChange={(e) => {
-                                const hexColor = e.target.value;
-                                // Converter hex para RGB
-                                const r = parseInt(hexColor.slice(1, 3), 16);
-                                const g = parseInt(hexColor.slice(3, 5), 16);
-                                const b = parseInt(hexColor.slice(5, 7), 16);
-                                const rgbValue = `${r}, ${g}, ${b}`;
-                                
-                                setSettings(prev => ({ 
-                                  ...prev, 
-                                  primary_color: hexColor,
-                                  primary_color_rgb: rgbValue
-                                }));
-                              }}
-                              className="w-16 h-10 border-2 cursor-pointer"
-                            />
-                            <Input 
-                              value={settings.primary_color || '#2563eb'}
-                              onChange={(e) => {
-                                const hexColor = e.target.value;
-                                if (hexColor.match(/^#[0-9A-F]{6}$/i)) {
-                                  const r = parseInt(hexColor.slice(1, 3), 16);
-                                  const g = parseInt(hexColor.slice(3, 5), 16);
-                                  const b = parseInt(hexColor.slice(5, 7), 16);
-                                  const rgbValue = `${r}, ${g}, ${b}`;
-                                  
-                                  setSettings(prev => ({ 
-                                    ...prev, 
-                                    primary_color: hexColor,
-                                    primary_color_rgb: rgbValue
-                                  }));
-                                  
-                                  // Aplicar cores em tempo real
-                                  setTimeout(() => updateCSSVariables(), 50);
-                                
-                                // Aplicar cores em tempo real
-                                setTimeout(() => updateCSSVariables(), 50);
-                                }
-                              }}
-                              placeholder="#2563eb"
-                              className="font-mono"
-                            />
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            Esta cor será aplicada a botões, links e elementos de destaque
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {/* Preview da cor */}
-                      <div className="p-4 border rounded-lg space-y-3">
-                        <p className="text-sm font-medium">Prévia da cor:</p>
-                        <div className="flex items-center gap-3">
-                          <div 
-                            className="w-8 h-8 rounded border-2 border-gray-300"
-                            style={{ backgroundColor: settings.primary_color || '#2563eb' }}
-                          />
-                          <div className="space-y-1">
-                            <Button 
-                              style={{ 
-                                backgroundColor: settings.primary_color || '#2563eb',
-                                borderColor: settings.primary_color || '#2563eb'
-                              }}
-                              className="text-white"
-                              size="sm"
-                            >
-                              Botão de Exemplo
-                            </Button>
-                            <p className="text-xs text-muted-foreground">
-                              Assim ficarão os botões principais do site
-                            </p>
-                          </div>
-                        </div>
-                      </div>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="site_title">Título do Site</Label>
+                      <Input
+                        id="site_title"
+                        value={settings.site_title || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, site_title: e.target.value }))}
+                        placeholder="Nome da sua loja"
+                      />
                     </div>
 
-                    <Separator />
-
-                    <div className="space-y-4">
-                      <h4 className="font-medium">Cores Pré-definidas</h4>
-                      <div className="grid grid-cols-6 gap-2">
-                        {[
-                          { name: 'Azul', color: '#2563eb' },
-                          { name: 'Verde', color: '#16a34a' },
-                          { name: 'Roxo', color: '#9333ea' },
-                          { name: 'Rosa', color: '#e11d48' },
-                          { name: 'Laranja', color: '#ea580c' },
-                          { name: 'Cyan', color: '#0891b2' }
-                        ].map((preset) => (
-                          <button
-                            key={preset.name}
-                            onClick={() => {
-                              const r = parseInt(preset.color.slice(1, 3), 16);
-                              const g = parseInt(preset.color.slice(3, 5), 16);
-                              const b = parseInt(preset.color.slice(5, 7), 16);
-                              const rgbValue = `${r}, ${g}, ${b}`;
-                              
-                              setSettings(prev => ({ 
-                                ...prev, 
-                                primary_color: preset.color,
-                                primary_color_rgb: rgbValue
-                              }));
-                              
-                              // Aplicar cores em tempo real
-                              setTimeout(() => updateCSSVariables(), 50);
-                            }}
-                            className="w-12 h-12 rounded-lg border-2 border-gray-200 hover:border-gray-400 transition-colors"
-                            style={{ backgroundColor: preset.color }}
-                            title={preset.name}
-                          />
-                        ))}
-                      </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="company_name">Nome da Empresa</Label>
+                      <Input
+                        id="company_name"
+                        value={settings.company_name || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, company_name: e.target.value }))}
+                        placeholder="Razão social da empresa"
+                      />
                     </div>
                   </div>
 
+                  <div className="space-y-2">
+                    <Label htmlFor="site_description">Descrição do Site</Label>
+                    <Textarea
+                      id="site_description"
+                      value={settings.site_description || ''}
+                      onChange={(e) => setSettings(prev => ({ ...prev, site_description: e.target.value }))}
+                      placeholder="Descrição para SEO e redes sociais"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="logo_url">URL do Logo</Label>
+                      <Input
+                        id="logo_url"
+                        value={settings.logo_url || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, logo_url: e.target.value }))}
+                        placeholder="https://exemplo.com/logo.png"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Logo que aparecerá no cabeçalho do site
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="favicon_url">URL do Favicon</Label>
+                      <Input
+                        id="favicon_url"
+                        value={settings.favicon_url || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, favicon_url: e.target.value }))}
+                        placeholder="https://exemplo.com/favicon.ico"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Ícone que aparece na aba do navegador
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="font_family">Fonte Principal</Label>
+                    <select
+                      id="font_family"
+                      value={settings.font_family || 'Inter'}
+                      onChange={(e) => setSettings(prev => ({ ...prev, font_family: e.target.value }))}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="Inter">Inter (Padrão)</option>
+                      <option value="Arial">Arial</option>
+                      <option value="Helvetica">Helvetica</option>
+                      <option value="Georgia">Georgia</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                      <option value="Roboto">Roboto</option>
+                      <option value="Open Sans">Open Sans</option>
+                      <option value="Lato">Lato</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="primary_color">Cor Primária</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="primary_color"
+                        type="color"
+                        value={settings.primary_color || '#2563eb'}
+                        onChange={(e) => {
+                          const hexColor = e.target.value;
+                          const r = parseInt(hexColor.slice(1, 3), 16);
+                          const g = parseInt(hexColor.slice(3, 5), 16);
+                          const b = parseInt(hexColor.slice(5, 7), 16);
+                          const rgbValue = `${r}, ${g}, ${b}`;
+                          
+                          setSettings(prev => ({ 
+                            ...prev, 
+                            primary_color: hexColor,
+                            primary_color_rgb: rgbValue
+                          }));
+                        }}
+                        className="w-16 h-10 p-1 rounded border"
+                      />
+                      <Input
+                        type="text"
+                        value={settings.primary_color || '#2563eb'}
+                        onChange={(e) => {
+                          const hexColor = e.target.value;
+                          if (hexColor.match(/^#[0-9A-F]{6}$/i)) {
+                            const r = parseInt(hexColor.slice(1, 3), 16);
+                            const g = parseInt(hexColor.slice(3, 5), 16);
+                            const b = parseInt(hexColor.slice(5, 7), 16);
+                            const rgbValue = `${r}, ${g}, ${b}`;
+                            
+                            setSettings(prev => ({ 
+                              ...prev, 
+                              primary_color: hexColor,
+                              primary_color_rgb: rgbValue
+                            }));
+                          }
+                        }}
+                        placeholder="#2563eb"
+                        className="flex-1"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Esta cor será aplicada em botões, links e elementos principais do site
+                    </p>
+                  </div>
+
                   <Button 
-                    onClick={() => handleSave('aparência', {
+                    onClick={() => handleSave('identidade visual', {
+                      site_title: settings.site_title || '',
+                      company_name: settings.company_name || '',
+                      site_description: settings.site_description || '',
+                      logo_url: settings.logo_url || '',
+                      favicon_url: settings.favicon_url || '',
+                      font_family: settings.font_family || '',
                       primary_color: settings.primary_color || '',
                       primary_color_rgb: settings.primary_color_rgb || ''
                     })} 
                     disabled={isLoading}
-                    className="w-full sm:w-auto"
+                    className="w-full"
                   >
-                    {isLoading ? (
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Save className="mr-2 h-4 w-4" />
-                    )}
-                    Salvar Configurações de Aparência
+                    {isLoading ? 'Salvando...' : 'Salvar Identidade Visual'}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Banner Promocional */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5" />
+                    Banner Promocional
+                  </CardTitle>
+                  <CardDescription>
+                    Configure as mensagens do banner superior
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="show_promo_banner"
+                      checked={settings.show_promo_banner === 'true'}
+                      onCheckedChange={(checked) => setSettings(prev => ({ ...prev, show_promo_banner: checked ? 'true' : 'false' }))}
+                    />
+                    <Label htmlFor="show_promo_banner">Exibir banner promocional</Label>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="banner_text_1">Mensagem 1</Label>
+                      <Input
+                        id="banner_text_1"
+                        value={settings.banner_text_1 || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, banner_text_1: e.target.value }))}
+                        placeholder="Entrega em até 24h"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="banner_text_2">Mensagem 2</Label>
+                      <Input
+                        id="banner_text_2"
+                        value={settings.banner_text_2 || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, banner_text_2: e.target.value }))}
+                        placeholder="Frete Grátis acima de R$ 299"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="banner_text_3">Mensagem 3</Label>
+                      <Input
+                        id="banner_text_3"
+                        value={settings.banner_text_3 || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, banner_text_3: e.target.value }))}
+                        placeholder="Compra 100% Segura"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="banner_text_4">Mensagem 4</Label>
+                      <Input
+                        id="banner_text_4"
+                        value={settings.banner_text_4 || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, banner_text_4: e.target.value }))}
+                        placeholder="12x sem juros"
+                      />
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={() => handleSave('banner promocional', {
+                      show_promo_banner: settings.show_promo_banner || 'true',
+                      banner_text_1: settings.banner_text_1 || '',
+                      banner_text_2: settings.banner_text_2 || '',
+                      banner_text_3: settings.banner_text_3 || '',
+                      banner_text_4: settings.banner_text_4 || ''
+                    })} 
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    {isLoading ? 'Salvando...' : 'Salvar Banner'}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Redes Sociais */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Share2 className="h-5 w-5" />
+                    Redes Sociais
+                  </CardTitle>
+                  <CardDescription>
+                    Configure os links das suas redes sociais
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="facebook_url">Facebook</Label>
+                      <Input
+                        id="facebook_url"
+                        value={settings.facebook_url || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, facebook_url: e.target.value }))}
+                        placeholder="https://facebook.com/suapagina"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="instagram_url">Instagram</Label>
+                      <Input
+                        id="instagram_url"
+                        value={settings.instagram_url || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, instagram_url: e.target.value }))}
+                        placeholder="https://instagram.com/seuperfil"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="youtube_url">YouTube</Label>
+                      <Input
+                        id="youtube_url"
+                        value={settings.youtube_url || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, youtube_url: e.target.value }))}
+                        placeholder="https://youtube.com/seucanal"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="twitter_url">Twitter/X</Label>
+                      <Input
+                        id="twitter_url"
+                        value={settings.twitter_url || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, twitter_url: e.target.value }))}
+                        placeholder="https://twitter.com/seuperfil"
+                      />
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={() => handleSave('redes sociais', {
+                      facebook_url: settings.facebook_url || '',
+                      instagram_url: settings.instagram_url || '',
+                      youtube_url: settings.youtube_url || '',
+                      twitter_url: settings.twitter_url || ''
+                    })} 
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    {isLoading ? 'Salvando...' : 'Salvar Redes Sociais'}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Layout e Componentes */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Layout className="h-5 w-5" />
+                    Layout e Componentes
+                  </CardTitle>
+                  <CardDescription>
+                    Configure quais seções exibir no site
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="show_newsletter"
+                        checked={settings.show_newsletter === 'true'}
+                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, show_newsletter: checked ? 'true' : 'false' }))}
+                      />
+                      <Label htmlFor="show_newsletter">Exibir newsletter</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="show_trust_badges"
+                        checked={settings.show_trust_badges === 'true'}
+                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, show_trust_badges: checked ? 'true' : 'false' }))}
+                      />
+                      <Label htmlFor="show_trust_badges">Exibir selos de confiança</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="show_categories_banner"
+                        checked={settings.show_categories_banner === 'true'}
+                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, show_categories_banner: checked ? 'true' : 'false' }))}
+                      />
+                      <Label htmlFor="show_categories_banner">Exibir banner de categorias</Label>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="currency_symbol">Símbolo da Moeda</Label>
+                      <Input
+                        id="currency_symbol"
+                        value={settings.currency_symbol || 'R$'}
+                        onChange={(e) => setSettings(prev => ({ ...prev, currency_symbol: e.target.value }))}
+                        placeholder="R$"
+                        className="w-20"
+                      />
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={() => handleSave('layout', {
+                      show_newsletter: settings.show_newsletter || 'true',
+                      show_trust_badges: settings.show_trust_badges || 'true',
+                      show_categories_banner: settings.show_categories_banner || 'true',
+                      currency_symbol: settings.currency_symbol || 'R$'
+                    })} 
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    {isLoading ? 'Salvando...' : 'Salvar Layout'}
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* SEO */}
+            <TabsContent value="seo" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Search className="h-5 w-5" />
+                    SEO e Meta Tags
+                  </CardTitle>
+                  <CardDescription>
+                    Configure otimizações para motores de busca
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="meta_description">Meta Descrição</Label>
+                    <Textarea
+                      id="meta_description"
+                      value={settings.site_description || ''}
+                      onChange={(e) => setSettings(prev => ({ ...prev, site_description: e.target.value }))}
+                      placeholder="Descrição que aparece nos resultados do Google"
+                      rows={3}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Máximo 160 caracteres. Atual: {(settings.site_description || '').length}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="meta_keywords">Palavras-chave</Label>
+                    <Textarea
+                      id="meta_keywords"
+                      value={settings.meta_keywords || ''}
+                      onChange={(e) => setSettings(prev => ({ ...prev, meta_keywords: e.target.value }))}
+                      placeholder="material de construção, cimento, tijolo, tinta, ferramentas"
+                      rows={2}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Palavras-chave separadas por vírgula
+                    </p>
+                  </div>
+
+                  <Button 
+                    onClick={() => handleSave('SEO', {
+                      site_description: settings.site_description || '',
+                      meta_keywords: settings.meta_keywords || ''
+                    })} 
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    {isLoading ? 'Salvando...' : 'Salvar SEO'}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Analytics */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart className="h-5 w-5" />
+                    Analytics e Tracking
+                  </CardTitle>
+                  <CardDescription>
+                    Configure códigos de rastreamento
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="google_analytics_id">Google Analytics ID</Label>
+                    <Input
+                      id="google_analytics_id"
+                      value={settings.google_analytics_id || ''}
+                      onChange={(e) => setSettings(prev => ({ ...prev, google_analytics_id: e.target.value }))}
+                      placeholder="G-XXXXXXXXXX"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      ID do Google Analytics (formato: G-XXXXXXXXXX)
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="facebook_pixel_id">Facebook Pixel ID</Label>
+                    <Input
+                      id="facebook_pixel_id"
+                      value={settings.facebook_pixel_id || ''}
+                      onChange={(e) => setSettings(prev => ({ ...prev, facebook_pixel_id: e.target.value }))}
+                      placeholder="123456789012345"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      ID do Facebook Pixel para tracking de conversões
+                    </p>
+                  </div>
+
+                  <Button 
+                    onClick={() => handleSave('analytics', {
+                      google_analytics_id: settings.google_analytics_id || '',
+                      facebook_pixel_id: settings.facebook_pixel_id || ''
+                    })} 
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    {isLoading ? 'Salvando...' : 'Salvar Analytics'}
                   </Button>
                 </CardContent>
               </Card>

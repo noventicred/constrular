@@ -16,6 +16,29 @@ interface Settings {
   primary_color_rgb: string;
   site_title: string;
   site_description: string;
+  // Layout e Visual
+  logo_url: string;
+  favicon_url: string;
+  font_family: string;
+  banner_text_1: string;
+  banner_text_2: string;
+  banner_text_3: string;
+  banner_text_4: string;
+  show_promo_banner: string;
+  // Redes Sociais
+  facebook_url: string;
+  instagram_url: string;
+  youtube_url: string;
+  twitter_url: string;
+  // Configurações da Loja
+  currency_symbol: string;
+  show_newsletter: string;
+  show_trust_badges: string;
+  show_categories_banner: string;
+  // SEO
+  meta_keywords: string;
+  google_analytics_id: string;
+  facebook_pixel_id: string;
 }
 
 export const useSettings = () => {
@@ -33,7 +56,30 @@ export const useSettings = () => {
     primary_color: '#2563eb',
     primary_color_rgb: '37, 99, 235',
     site_title: 'ConstrutorPro - Material de Construção',
-    site_description: 'Loja completa de material de construção com os melhores preços'
+    site_description: 'Loja completa de material de construção com os melhores preços',
+    // Layout e Visual
+    logo_url: '',
+    favicon_url: '',
+    font_family: 'Inter',
+    banner_text_1: 'Entrega em até 24h',
+    banner_text_2: 'Frete Grátis acima de R$ 299',
+    banner_text_3: 'Compra 100% Segura',
+    banner_text_4: '12x sem juros',
+    show_promo_banner: 'true',
+    // Redes Sociais
+    facebook_url: '',
+    instagram_url: '',
+    youtube_url: '',
+    twitter_url: '',
+    // Configurações da Loja
+    currency_symbol: 'R$',
+    show_newsletter: 'true',
+    show_trust_badges: 'true',
+    show_categories_banner: 'true',
+    // SEO
+    meta_keywords: 'material de construção, cimento, tijolo, tinta',
+    google_analytics_id: '',
+    facebook_pixel_id: ''
   });
   const [loading, setLoading] = useState(true);
 
@@ -122,6 +168,77 @@ export const useSettings = () => {
 
   const getSiteDescription = (): string => {
     return settings.site_description || 'Loja completa de material de construção com os melhores preços';
+  };
+
+  // Novos getters
+  const getLogoUrl = (): string => {
+    return settings.logo_url || '';
+  };
+
+  const getFaviconUrl = (): string => {
+    return settings.favicon_url || '';
+  };
+
+  const getFontFamily = (): string => {
+    return settings.font_family || 'Inter';
+  };
+
+  const getBannerText = (position: 1 | 2 | 3 | 4): string => {
+    const texts = {
+      1: settings.banner_text_1 || 'Entrega em até 24h',
+      2: settings.banner_text_2 || 'Frete Grátis acima de R$ 299',
+      3: settings.banner_text_3 || 'Compra 100% Segura',
+      4: settings.banner_text_4 || '12x sem juros'
+    };
+    return texts[position];
+  };
+
+  const getShowPromoBanner = (): boolean => {
+    return settings.show_promo_banner === 'true';
+  };
+
+  const getFacebookUrl = (): string => {
+    return settings.facebook_url || '';
+  };
+
+  const getInstagramUrl = (): string => {
+    return settings.instagram_url || '';
+  };
+
+  const getYoutubeUrl = (): string => {
+    return settings.youtube_url || '';
+  };
+
+  const getTwitterUrl = (): string => {
+    return settings.twitter_url || '';
+  };
+
+  const getCurrencySymbol = (): string => {
+    return settings.currency_symbol || 'R$';
+  };
+
+  const getShowNewsletter = (): boolean => {
+    return settings.show_newsletter === 'true';
+  };
+
+  const getShowTrustBadges = (): boolean => {
+    return settings.show_trust_badges === 'true';
+  };
+
+  const getShowCategoriesBanner = (): boolean => {
+    return settings.show_categories_banner === 'true';
+  };
+
+  const getMetaKeywords = (): string => {
+    return settings.meta_keywords || 'material de construção, cimento, tijolo, tinta';
+  };
+
+  const getGoogleAnalyticsId = (): string => {
+    return settings.google_analytics_id || '';
+  };
+
+  const getFacebookPixelId = (): string => {
+    return settings.facebook_pixel_id || '';
   };
 
   const updateCSSVariables = () => {
@@ -213,6 +330,23 @@ export const useSettings = () => {
     getPrimaryColorRgb,
     getSiteTitle,
     getSiteDescription,
+    // Novos getters
+    getLogoUrl,
+    getFaviconUrl,
+    getFontFamily,
+    getBannerText,
+    getShowPromoBanner,
+    getFacebookUrl,
+    getInstagramUrl,
+    getYoutubeUrl,
+    getTwitterUrl,
+    getCurrencySymbol,
+    getShowNewsletter,
+    getShowTrustBadges,
+    getShowCategoriesBanner,
+    getMetaKeywords,
+    getGoogleAnalyticsId,
+    getFacebookPixelId,
     updateCSSVariables,
     updateSettings,
     fetchSettings
