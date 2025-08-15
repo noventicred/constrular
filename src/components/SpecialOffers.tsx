@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Percent, Clock, ShoppingCart, Star } from "lucide-react";
+import { ArrowRight, Percent, Clock, ShoppingCart, Star, MessageCircle } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
+import { useSettings } from "@/hooks/useSettings";
 import { formatCurrency } from "@/lib/formatters";
 import { useNavigate } from "react-router-dom";
 
@@ -33,6 +34,7 @@ const SpecialOffers = () => {
   const { addItem } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { getWhatsAppNumber, getSetting } = useSettings();
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: false,
     dragFree: true,
@@ -141,6 +143,26 @@ const SpecialOffers = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleWhatsAppOrder = (e: React.MouseEvent, product: Product) => {
+    e.stopPropagation();
+    
+    const storeName = getSetting('store_name') || 'Minha Loja';
+    const productUrl = `${window.location.origin}/produto/${product.id}`;
+    
+    const message = `Olá! Gostaria de fazer um pedido desse item específico:\n\n` +
+                   `*${product.name}*\n` +
+                   `SKU: ${product.id}\n` +
+                   `Preço: ${formatCurrency(product.price)}\n` +
+                   `Loja: ${storeName}\n\n` +
+                   `Link do produto: ${productUrl}\n\n` +
+                   `Aguardo informações sobre disponibilidade e formas de pagamento!`;
+    
+    const phoneNumber = getWhatsAppNumber();
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+    
+    window.open(whatsappUrl, '_blank');
   };
 
   const scrollPrev = useCallback(() => {
@@ -311,16 +333,27 @@ const SpecialOffers = () => {
                             </div>
                           </div>
                         </div>
-                        
-                        {/* Action Button */}
-                        <Button 
-                          className="w-full mt-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base"
-                          disabled={!product.in_stock}
-                          onClick={(e) => handleAddToCart(e, product)}
-                        >
-                          <ShoppingCart className="h-4 w-4 mr-2" />
-                          {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
-                        </Button>
+                         
+                         {/* Action Buttons */}
+                         <div className="space-y-2 mt-4">
+                           <Button 
+                             className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base"
+                             disabled={!product.in_stock}
+                             onClick={(e) => handleAddToCart(e, product)}
+                           >
+                             <ShoppingCart className="h-4 w-4 mr-2" />
+                             {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
+                           </Button>
+                           
+                           <Button 
+                             className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base border-0"
+                             disabled={!product.in_stock}
+                             onClick={(e) => handleWhatsAppOrder(e, product)}
+                           >
+                             <MessageCircle className="h-4 w-4 mr-2" />
+                             Comprar pelo WhatsApp
+                           </Button>
+                         </div>
                       </div>
                     </CardContent>
                   </Card>
