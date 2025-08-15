@@ -48,9 +48,9 @@ interface Product {
   reviews: number | null;
   in_stock: boolean | null;
   is_special_offer: boolean | null;
+  sku: string | null;
   created_at: string;
   updated_at: string;
-  sku: string | null;
   categories?: {
     id: string;
     name: string;
@@ -250,7 +250,7 @@ const Produtos = () => {
         <main className="flex-1 container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 8 }, (_, i) => (
-              <div key={`loading-${i}`} className="h-96 bg-muted rounded-lg animate-pulse" />
+              <div key={`loading-skeleton-${i}`} className="h-96 bg-muted rounded-lg animate-pulse" />
             ))}
           </div>
         </main>
@@ -366,7 +366,7 @@ const Produtos = () => {
           </h1>
           <p className="text-muted-foreground">
             {totalResults} {totalResults === 1 ? 'produto encontrado' : 'produtos encontrados'}
-            {filters.onlyOffers && ' em oferta'}
+            {filters.onlyOffers ? ' em oferta' : ''}
           </p>
         </div>
 
@@ -414,7 +414,7 @@ const Produtos = () => {
               {/* Rating Filter */}
               <div>
                 <Label className="text-base font-medium mb-3 block">
-                  Avaliação mínima: {filters.minRating} {filters.minRating > 0 && '★'}
+                  Avaliação mínima: {filters.minRating} {filters.minRating > 0 ? '★' : ''}
                 </Label>
                 <Slider
                   value={[filters.minRating]}
@@ -472,11 +472,11 @@ const Produtos = () => {
                   {/* Badges Container */}
                   <div className="flex flex-wrap gap-2 mb-3">
                     {/* Discount Badge */}
-                    {product.discount && product.discount > 0 && (
+                    {product.discount && product.discount > 0 ? (
                       <Badge className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0 px-3 py-1 text-sm font-bold rounded-full">
                         -{product.discount}%
                       </Badge>
-                    )}
+                    ) : null}
 
                     {/* Stock Badge */}
                     <Badge 
@@ -505,9 +505,9 @@ const Produtos = () => {
                     {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 ? (
                       <div className="flex items-center gap-2">
                         <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
+                          {Array.from({ length: 5 }, (_, i) => (
                             <Star 
-                              key={i} 
+                              key={`star-${i}`} 
                               className={`h-4 w-4 ${
                                 i < Math.floor(product.rating!) 
                                   ? 'text-yellow-400 fill-current' 
@@ -531,21 +531,21 @@ const Produtos = () => {
                     {/* Price */}
                     <div className="space-y-1">
                       <div className="flex items-baseline gap-2">
-                        {product.original_price && product.original_price > product.price && (
+                        {product.original_price && product.original_price > product.price ? (
                           <span className="text-sm text-gray-500 line-through">
                             {formatCurrency(product.original_price)}
                           </span>
-                        )}
+                        ) : null}
                       </div>
                       <div className="flex items-baseline gap-2">
                         <span className="text-2xl font-bold text-gray-900 dark:text-white">
                           {formatCurrency(product.price)}
                         </span>
-                        {product.original_price && product.original_price > product.price && (
+                        {product.original_price && product.original_price > product.price ? (
                           <span className="text-sm text-green-600 font-medium">
                             -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off
                           </span>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -564,7 +564,7 @@ const Produtos = () => {
               </Card>
             ))}
           </div>
-        ) : !loading ? (
+        ) : (
           <div className="text-center py-12">
             <div className="max-w-md mx-auto">
               <div className="w-24 h-24 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
@@ -575,12 +575,12 @@ const Produtos = () => {
               </h3>
               <p className="text-muted-foreground mb-6">
                 Não encontramos produtos que correspondam aos seus critérios de busca.
-                {filters.searchTerm && " Tente usar palavras-chave diferentes ou "}
-                {(filters.category !== "todas" || filters.onlyOffers) && " Tente remover alguns filtros ou "}
+                {filters.searchTerm ? " Tente usar palavras-chave diferentes ou " : ""}
+                {(filters.category !== "todas" || filters.onlyOffers) ? " Tente remover alguns filtros ou " : ""}
                 navegar pelas categorias.
               </p>
               <div className="space-y-3">
-                {filters.searchTerm && (
+                {filters.searchTerm ? (
                   <Button 
                     variant="outline" 
                     onClick={() => updateFilters({ searchTerm: '' })}
@@ -588,24 +588,23 @@ const Produtos = () => {
                   >
                     Limpar busca
                   </Button>
-                )}
-                {activeFiltersCount > 0 && (
+                ) : null}
+                {activeFiltersCount > 0 ? (
                   <Button 
                     variant="outline" 
                     onClick={resetFilters}
                   >
                     Remover filtros
                   </Button>
-                )}
+                ) : null}
                 <Button onClick={() => navigate('/produtos')}>
                   Ver todos os produtos
                 </Button>
               </div>
             </div>
           </div>
-        ) : null}
+        )}
       </main>
-      
       <Footer />
       <FloatingCart />
     </div>
