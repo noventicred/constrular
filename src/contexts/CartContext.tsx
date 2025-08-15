@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { formatCurrency } from '@/lib/formatters';
 import { useToast } from '@/hooks/use-toast';
+import { useSettings } from '@/hooks/useSettings';
 
 export interface CartItem {
   id: string;
@@ -28,6 +29,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const { toast } = useToast();
+  const { getSetting } = useSettings();
 
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
@@ -101,9 +103,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const generateWhatsAppMessage = () => {
     const currentDate = new Date().toLocaleDateString('pt-BR');
+    const storeName = getSetting('store_name') || 'Minha Loja';
     
     // Mensagem mais limpa e compatível com WhatsApp
-    let message = `*ORCAMENTO - CARRINHO*\n\n`;
+    let message = `*ORÇAMENTO - ${storeName.toUpperCase()}*\n\n`;
     
     message += `*PRODUTOS:*\n`;
     items.forEach((item, index) => {
