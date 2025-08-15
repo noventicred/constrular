@@ -17,6 +17,7 @@ interface Product {
   id: string;
   name: string;
   description: string | null;
+  sku?: string | null;
   price: number;
   original_price: number | null;
   discount: number | null;
@@ -153,7 +154,7 @@ const SpecialOffers = () => {
     
     const message = `Olá! Gostaria de fazer um pedido desse item específico:\n\n` +
                    `*${product.name}*\n` +
-                   `SKU: ${product.id}\n` +
+                   `SKU: ${product.sku || product.id}\n` +
                    `Preço: ${formatCurrency(product.price)}\n` +
                    `Loja: ${storeName}\n\n` +
                    `Link do produto: ${productUrl}\n\n` +
