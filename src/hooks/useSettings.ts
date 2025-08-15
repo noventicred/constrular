@@ -58,6 +58,11 @@ export const useSettings = () => {
       }, {} as Partial<Settings>);
 
       setSettings(prev => ({ ...prev, ...settingsMap }));
+      
+      // Aplicar mudanças de cor imediatamente após carregar
+      setTimeout(() => {
+        updateCSSVariables();
+      }, 100);
     } catch (error) {
       console.error('Error fetching settings:', error);
     } finally {
@@ -123,7 +128,6 @@ export const useSettings = () => {
     if (typeof document !== 'undefined') {
       const root = document.documentElement;
       const primaryColor = getPrimaryColor();
-      const primaryColorRgb = getPrimaryColorRgb();
       
       // Converter hex para HSL
       const hexToHsl = (hex: string) => {
@@ -153,9 +157,43 @@ export const useSettings = () => {
 
       const [h, s, l] = hexToHsl(primaryColor);
       
+      // Aplicar cor primária e todas suas variações
       root.style.setProperty('--primary', `${h} ${s}% ${l}%`);
       root.style.setProperty('--primary-foreground', '0 0% 98%');
+      
+      // Accent usa a mesma cor primária
+      root.style.setProperty('--accent', `${h} ${s}% ${l}%`);
+      root.style.setProperty('--accent-foreground', '0 0% 98%');
+      
+      // Ring (foco) usa a cor primária
+      root.style.setProperty('--ring', `${h} ${s}% ${l}%`);
+      
+      // Variações para construção
+      root.style.setProperty('--construction-orange', `${h} ${s}% ${l}%`);
+      
+      // Gradientes dinâmicos
+      const lighterL = Math.min(100, l + 10);
+      root.style.setProperty('--hero-gradient', `linear-gradient(135deg, hsl(${h} ${s}% ${l}%), hsl(${h} ${s}% ${lighterL}%))`);
+      
+      // Sombras com a cor primária
+      root.style.setProperty('--shadow-soft', `0 2px 20px -5px hsl(${h} ${s}% ${l}% / 0.1)`);
+      root.style.setProperty('--shadow-strong', `0 10px 40px -10px hsl(${h} ${s}% ${l}% / 0.3)`);
+      
+      // Sidebar primary para admin
+      root.style.setProperty('--sidebar-primary', `${h} ${s}% ${Math.max(10, l - 20)}%`);
+      root.style.setProperty('--sidebar-ring', `${h} ${s}% ${l}%`);
+      
+      // Força atualização dos elementos
+      document.body.style.setProperty('--primary-computed', `hsl(${h}, ${s}%, ${l}%)`);
     }
+  };
+
+  const updateSettings = (newSettings: Partial<Settings>) => {
+    setSettings(prev => ({ ...prev, ...newSettings }));
+    // Aplicar cores imediatamente quando settings mudam
+    setTimeout(() => {
+      updateCSSVariables();
+    }, 50);
   };
 
   return {
@@ -175,6 +213,7 @@ export const useSettings = () => {
     getSiteTitle,
     getSiteDescription,
     updateCSSVariables,
+    updateSettings,
     fetchSettings
   };
 };

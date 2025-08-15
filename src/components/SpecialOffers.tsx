@@ -157,7 +157,7 @@ const SpecialOffers = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 flex items-center justify-center gap-2">
-              <Percent className="h-8 w-8 text-orange-500" />
+              <Percent className="h-8 w-8 text-primary" />
               Ofertas Especiais
             </h2>
             <p className="text-lg text-muted-foreground">Carregando ofertas...</p>
@@ -181,7 +181,7 @@ const SpecialOffers = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 flex items-center justify-center gap-2">
-            <Percent className="h-6 w-6 md:h-8 md:w-8 text-orange-500" />
+            <Percent className="h-6 w-6 md:h-8 md:w-8 text-primary" />
             Ofertas Especiais
           </h2>
           <p className="text-base md:text-lg text-muted-foreground">
@@ -265,7 +265,7 @@ const SpecialOffers = () => {
                       <div className="p-4 md:p-5 flex-1 flex flex-col">
                         <div className="space-y-2 flex-1">
                           <div>
-                            <h3 className="font-bold text-base md:text-lg mb-1 group-hover:text-orange-600 transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
+                            <h3 className="font-bold text-base md:text-lg mb-1 group-hover:text-primary transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
                               {product.name}
                             </h3>
                           </div>
@@ -300,7 +300,7 @@ const SpecialOffers = () => {
                           {/* Price */}
                           <div className="space-y-1">
                             <div className="flex items-baseline gap-2">
-                              <span className="text-xl md:text-2xl font-bold text-orange-600">
+                              <span className="text-xl md:text-2xl font-bold text-primary">
                                 {formatCurrency(product.price)}
                               </span>
                               {product.original_price && product.original_price > product.price && (

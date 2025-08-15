@@ -194,7 +194,7 @@ const AdminProducts = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-blue-500" />
+              <TrendingUp className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium text-muted-foreground">Total</span>
             </div>
             <div className="text-2xl font-bold">{products.length}</div>
@@ -250,9 +250,9 @@ const AdminProducts = () => {
       )}
       
       {specialOfferCount >= 20 && (
-        <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
-          <AlertTriangle className="h-4 w-4 text-orange-600" />
-          <AlertDescription className="text-orange-800 dark:text-orange-200">
+        <Alert className="border-primary/20 bg-primary/5 dark:bg-primary/10">
+          <AlertTriangle className="h-4 w-4 text-primary" />
+          <AlertDescription className="text-primary dark:text-primary">
             <strong>Limite atingido:</strong> Você já tem {specialOfferCount} ofertas especiais (máximo: 20). 
             Remova algumas para adicionar novas ofertas.
           </AlertDescription>
@@ -450,7 +450,7 @@ const AdminProducts = () => {
                     
                     <TableCell className="py-4 text-center">
                       {product.is_special_offer ? (
-                        <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100 gap-1">
+                        <Badge className="bg-primary/10 text-primary hover:bg-primary/10 gap-1">
                           <Percent className="h-3 w-3" />
                           Oferta
                         </Badge>

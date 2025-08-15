@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useSettings } from '@/hooks/useSettings';
+import { useRealTimeColorUpdate } from '@/hooks/useRealTimeColorUpdate';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Store, 
@@ -33,6 +35,10 @@ const AdminConfiguracoes = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [settings, setSettings] = useState<Record<string, string>>({});
+  const { updateCSSVariables } = useSettings();
+  
+  // Hook para atualização de cores em tempo real
+  useRealTimeColorUpdate(settings.primary_color || '#2563eb');
 
   useEffect(() => {
     fetchSettings();
@@ -607,6 +613,12 @@ const AdminConfiguracoes = () => {
                                     primary_color: hexColor,
                                     primary_color_rgb: rgbValue
                                   }));
+                                  
+                                  // Aplicar cores em tempo real
+                                  setTimeout(() => updateCSSVariables(), 50);
+                                
+                                // Aplicar cores em tempo real
+                                setTimeout(() => updateCSSVariables(), 50);
                                 }
                               }}
                               placeholder="#2563eb"
@@ -672,6 +684,9 @@ const AdminConfiguracoes = () => {
                                 primary_color: preset.color,
                                 primary_color_rgb: rgbValue
                               }));
+                              
+                              // Aplicar cores em tempo real
+                              setTimeout(() => updateCSSVariables(), 50);
                             }}
                             className="w-12 h-12 rounded-lg border-2 border-gray-200 hover:border-gray-400 transition-colors"
                             style={{ backgroundColor: preset.color }}

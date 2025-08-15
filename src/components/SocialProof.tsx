@@ -157,11 +157,11 @@ const SocialProof = () => {
         <div className="mt-16 text-center">
           <div className="flex flex-wrap items-center justify-center gap-8 opacity-60">
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
+              <CheckCircle className="h-5 w-5 text-primary" />
               <span className="text-sm font-semibold text-gray-700">Compra Segura</span>
             </div>
             <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-blue-600" />
+              <Shield className="h-5 w-5 text-primary" />
               <span className="text-sm font-semibold text-gray-700">SSL Certificado</span>
             </div>
             <div className="flex items-center gap-2">

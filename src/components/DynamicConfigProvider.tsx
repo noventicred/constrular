@@ -19,7 +19,14 @@ const DynamicConfigProvider = ({ children }: { children: React.ReactNode }) => {
         metaDescription.setAttribute('content', settings.site_description);
       }
     }
-  }, [loading, settings.primary_color, settings.site_title, settings.site_description, updateCSSVariables]);
+  }, [loading, settings, updateCSSVariables]);
+
+  // Também escutar mudanças específicas na cor primária
+  useEffect(() => {
+    if (settings.primary_color && !loading) {
+      updateCSSVariables();
+    }
+  }, [settings.primary_color, loading, updateCSSVariables]);
 
   return <>{children}</>;
 };

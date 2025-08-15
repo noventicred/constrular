@@ -187,7 +187,7 @@ export const CategoryForm = ({ categories, editingCategory, onSave, onCancel }: 
 
           <div className="space-y-2">
             <Label>Imagem da Categoria</Label>
-            <p className="text-xs text-blue-600 font-medium">
+            <p className="text-xs text-primary font-medium">
               💡 Tamanho ideal: 300x300px (quadrada) | Formato: JPG, PNG | Máx: 1MB
             </p>
             <div className="space-y-4">
@@ -214,7 +214,7 @@ export const CategoryForm = ({ categories, editingCategory, onSave, onCancel }: 
                   <span className="text-xs text-muted-foreground text-center">
                     Clique para enviar
                     <br />
-                    <span className="text-blue-600 font-medium">300x300px</span>
+                    <span className="text-primary font-medium">300x300px</span>
                   </span>
                   <input
                     type="file"

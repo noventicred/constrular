@@ -17,7 +17,7 @@ const Newsletter = () => {
                     Ofertas Exclusivas
                   </h2>
                 </div>
-                <p className="text-sm md:text-base lg:text-lg mb-6 text-orange-100">
+                <p className="text-sm md:text-base lg:text-lg mb-6 text-primary-foreground/90">
                   Cadastre-se e receba ofertas especiais, dicas de construção e lançamentos em primeira mão.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -37,7 +37,7 @@ const Newsletter = () => {
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </div>
-                <p className="text-xs md:text-sm text-orange-100 mt-3">
+                <p className="text-xs md:text-sm text-primary-foreground/80 mt-3">
                   🎁 Ganhe 10% de desconto na primeira compra
                 </p>
               </div>

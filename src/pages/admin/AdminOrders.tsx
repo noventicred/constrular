@@ -53,8 +53,8 @@ interface OrderItem {
 
 const statusOptions = [
   { value: 'pending', label: 'Pendente', icon: Clock, color: 'bg-yellow-500' },
-  { value: 'confirmed', label: 'Confirmado', icon: CheckCircle2, color: 'bg-blue-500' },
-  { value: 'processing', label: 'Processando', icon: Package, color: 'bg-blue-600' },
+  { value: 'confirmed', label: 'Confirmado', icon: CheckCircle2, color: 'bg-primary' },
+  { value: 'processing', label: 'Processando', icon: Package, color: 'bg-primary' },
   { value: 'shipped', label: 'Enviado', icon: Truck, color: 'bg-purple-500' },
   { value: 'delivered', label: 'Entregue', icon: CheckCircle2, color: 'bg-green-500' },
   { value: 'cancelled', label: 'Cancelado', icon: XCircle, color: 'bg-red-500' },
