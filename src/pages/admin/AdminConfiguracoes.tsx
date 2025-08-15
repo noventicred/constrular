@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -16,24 +15,17 @@ import { useRealTimeColorUpdate } from '@/hooks/useRealTimeColorUpdate';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Store, 
-  Bell, 
-  Shield, 
   Palette, 
-  Mail, 
-  Globe, 
-  CreditCard,
-  Users,
   Settings,
   Save,
   RefreshCw,
   MessageCircle,
   Phone,
-  Truck,
   Share2,
-  Layout,
-  BarChart,
   Search,
-  MessageSquare
+  MessageSquare,
+  Layout,
+  BarChart
 } from 'lucide-react';
 
 const AdminConfiguracoes = () => {
@@ -42,7 +34,6 @@ const AdminConfiguracoes = () => {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const { updateCSSVariables } = useSettings();
   
-  // Hook para atualização de cores em tempo real
   useRealTimeColorUpdate(settings.primary_color || '#2563eb');
 
   useEffect(() => {
@@ -104,6 +95,11 @@ const AdminConfiguracoes = () => {
           title: "Configurações salvas",
           description: `As configurações de ${section} foram atualizadas com sucesso.`,
         });
+        
+        // Atualizar cores se a cor primária foi alterada
+        if (settingsToUpdate.primary_color) {
+          setTimeout(() => updateCSSVariables(), 100);
+        }
       } else {
         throw new Error('Falha ao salvar algumas configurações');
       }
@@ -136,7 +132,7 @@ const AdminConfiguracoes = () => {
           </div>
 
           <Tabs defaultValue="geral" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6 lg:grid-cols-7">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="geral" className="flex items-center gap-2">
                 <Store className="h-4 w-4" />
                 Geral
@@ -149,21 +145,13 @@ const AdminConfiguracoes = () => {
                 <Palette className="h-4 w-4" />
                 Visual
               </TabsTrigger>
+              <TabsTrigger value="social" className="flex items-center gap-2">
+                <Share2 className="h-4 w-4" />
+                Social
+              </TabsTrigger>
               <TabsTrigger value="seo" className="flex items-center gap-2">
                 <Search className="h-4 w-4" />
                 SEO
-              </TabsTrigger>
-              <TabsTrigger value="notificacoes" className="flex items-center gap-2">
-                <Bell className="h-4 w-4" />
-                Notificações
-              </TabsTrigger>
-              <TabsTrigger value="seguranca" className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                Segurança
-              </TabsTrigger>
-              <TabsTrigger value="pagamentos" className="flex items-center gap-2">
-                <CreditCard className="h-4 w-4" />
-                Pagamentos
               </TabsTrigger>
             </TabsList>
 
@@ -234,42 +222,13 @@ const AdminConfiguracoes = () => {
                     />
                   </div>
 
-                  <Separator />
-
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Configurações do Site</h4>
-                    <div className="grid grid-cols-1 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="site-title">Título do Site (SEO)</Label>
-                        <Input 
-                          id="site-title" 
-                          placeholder="Nome da Empresa - Descrição"
-                          value={settings.site_title || ''}
-                          onChange={(e) => setSettings(prev => ({ ...prev, site_title: e.target.value }))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="site-description">Descrição do Site (SEO)</Label>
-                        <Textarea 
-                          id="site-description" 
-                          placeholder="Descrição para mecanismos de busca..."
-                          value={settings.site_description || ''}
-                          onChange={(e) => setSettings(prev => ({ ...prev, site_description: e.target.value }))}
-                          className="min-h-[80px]"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
                   <Button 
                     onClick={() => handleSave('informações da empresa', {
                       company_name: settings.company_name || '',
                       company_email: settings.company_email || '',
                       company_phone: settings.company_phone || '',
                       company_cnpj: settings.company_cnpj || '',
-                      company_address: settings.company_address || '',
-                      site_title: settings.site_title || '',
-                      site_description: settings.site_description || ''
+                      company_address: settings.company_address || ''
                     })} 
                     disabled={isLoading}
                     className="w-full sm:w-auto"
@@ -316,19 +275,6 @@ const AdminConfiguracoes = () => {
                       </p>
                     </div>
 
-                    <div className="bg-muted/30 p-4 rounded-lg space-y-2">
-                      <h4 className="font-medium flex items-center gap-2">
-                        <MessageCircle className="h-4 w-4" />
-                        Como funciona?
-                      </h4>
-                      <ul className="text-sm text-muted-foreground space-y-1">
-                        <li>• Clientes fazem pedidos no site</li>
-                        <li>• O pedido é salvo no sistema</li>
-                        <li>• Cliente é redirecionado para WhatsApp com detalhes do pedido</li>
-                        <li>• Você recebe a mensagem com todos os dados</li>
-                      </ul>
-                    </div>
-
                     {settings.whatsapp_number && (
                       <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
                         <h4 className="font-medium text-green-800 mb-2">
@@ -336,9 +282,6 @@ const AdminConfiguracoes = () => {
                         </h4>
                         <p className="text-sm text-green-700">
                           Número atual: <span className="font-mono">{settings.whatsapp_number}</span>
-                        </p>
-                        <p className="text-sm text-green-700 mt-1">
-                          Os pedidos serão enviados para este número.
                         </p>
                       </div>
                     )}
@@ -399,173 +342,6 @@ const AdminConfiguracoes = () => {
                 </CardContent>
               </Card>
             </TabsContent>
-            <TabsContent value="notificacoes" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Bell className="h-5 w-5" />
-                    Configurações de Notificações
-                  </CardTitle>
-                  <CardDescription>
-                    Configure como e quando receber notificações
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Novos Pedidos</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Receber notificação por e-mail para novos pedidos
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Produtos em Falta</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Notificar quando produtos ficarem sem estoque
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Novos Clientes</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Receber notificação para novos cadastros
-                        </p>
-                      </div>
-                      <Switch />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Relatórios Semanais</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Receber resumo semanal de vendas
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Configurações de E-mail</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="smtp-host">Servidor SMTP</Label>
-                        <Input id="smtp-host" placeholder="smtp.gmail.com" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="smtp-port">Porta</Label>
-                        <Input id="smtp-port" placeholder="587" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button 
-                    onClick={() => handleSave('notificações', {})} 
-                    disabled={isLoading}
-                    className="w-full sm:w-auto"
-                  >
-                    {isLoading ? (
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Save className="mr-2 h-4 w-4" />
-                    )}
-                    Salvar Configurações
-                  </Button>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Segurança */}
-            <TabsContent value="seguranca" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5" />
-                    Configurações de Segurança
-                  </CardTitle>
-                  <CardDescription>
-                    Gerencie a segurança e autenticação do sistema
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Autenticação de Dois Fatores</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Aumenta a segurança da conta admin
-                        </p>
-                      </div>
-                      <Switch />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Logs de Auditoria</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Registrar todas as ações administrativas
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Sessão Única</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Permitir apenas uma sessão ativa por usuário
-                        </p>
-                      </div>
-                      <Switch />
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Tempo de Sessão</h4>
-                    <div className="space-y-2">
-                      <Label htmlFor="session-timeout">Timeout da Sessão (minutos)</Label>
-                      <Select defaultValue="30">
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="15">15 minutos</SelectItem>
-                          <SelectItem value="30">30 minutos</SelectItem>
-                          <SelectItem value="60">1 hora</SelectItem>
-                          <SelectItem value="120">2 horas</SelectItem>
-                          <SelectItem value="480">8 horas</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <Button 
-                    onClick={() => handleSave('segurança', {})} 
-                    disabled={isLoading}
-                    className="w-full sm:w-auto"
-                  >
-                    {isLoading ? (
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Save className="mr-2 h-4 w-4" />
-                    )}
-                    Salvar Configurações
-                  </Button>
-                </CardContent>
-              </Card>
-            </TabsContent>
 
             {/* Aparência */}
             <TabsContent value="aparencia" className="space-y-6">
@@ -593,12 +369,12 @@ const AdminConfiguracoes = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="company_name">Nome da Empresa</Label>
+                      <Label htmlFor="store_name">Nome da Loja</Label>
                       <Input
-                        id="company_name"
-                        value={settings.company_name || ''}
-                        onChange={(e) => setSettings(prev => ({ ...prev, company_name: e.target.value }))}
-                        placeholder="Razão social da empresa"
+                        id="store_name"
+                        value={settings.store_name || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, store_name: e.target.value }))}
+                        placeholder="Nome que aparece na loja"
                       />
                     </div>
                   </div>
@@ -710,16 +486,28 @@ const AdminConfiguracoes = () => {
                     </p>
                   </div>
 
+                  <div className="space-y-2">
+                    <Label htmlFor="currency_symbol">Símbolo da Moeda</Label>
+                    <Input
+                      id="currency_symbol"
+                      value={settings.currency_symbol || 'R$'}
+                      onChange={(e) => setSettings(prev => ({ ...prev, currency_symbol: e.target.value }))}
+                      placeholder="R$"
+                      className="w-20"
+                    />
+                  </div>
+
                   <Button 
                     onClick={() => handleSave('identidade visual', {
                       site_title: settings.site_title || '',
-                      company_name: settings.company_name || '',
+                      store_name: settings.store_name || '',
                       site_description: settings.site_description || '',
                       logo_url: settings.logo_url || '',
                       favicon_url: settings.favicon_url || '',
                       font_family: settings.font_family || '',
                       primary_color: settings.primary_color || '',
-                      primary_color_rgb: settings.primary_color_rgb || ''
+                      primary_color_rgb: settings.primary_color_rgb || '',
+                      currency_symbol: settings.currency_symbol || ''
                     })} 
                     disabled={isLoading}
                     className="w-full"
@@ -803,12 +591,81 @@ const AdminConfiguracoes = () => {
                     disabled={isLoading}
                     className="w-full"
                   >
-                    {isLoading ? 'Salvando...' : 'Salvar Banner'}
+                    {isLoading ? 'Salvando...' : 'Salvar Banner Promocional'}
                   </Button>
                 </CardContent>
               </Card>
 
-              {/* Redes Sociais */}
+              {/* Configurações de Layout */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Layout className="h-5 w-5" />
+                    Configurações de Layout
+                  </CardTitle>
+                  <CardDescription>
+                    Configure quais elementos exibir na loja
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Newsletter</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Exibir seção de newsletter no site
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.show_newsletter === 'true'}
+                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, show_newsletter: checked ? 'true' : 'false' }))}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Selos de Confiança</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Exibir badges de segurança e qualidade
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.show_trust_badges === 'true'}
+                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, show_trust_badges: checked ? 'true' : 'false' }))}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Banner de Categorias</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Exibir seção de categorias em destaque
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.show_categories_banner === 'true'}
+                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, show_categories_banner: checked ? 'true' : 'false' }))}
+                      />
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={() => handleSave('layout', {
+                      show_newsletter: settings.show_newsletter || 'true',
+                      show_trust_badges: settings.show_trust_badges || 'true',
+                      show_categories_banner: settings.show_categories_banner || 'true'
+                    })} 
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    {isLoading ? 'Salvando...' : 'Salvar Configurações de Layout'}
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Redes Sociais */}
+            <TabsContent value="social" className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -837,7 +694,7 @@ const AdminConfiguracoes = () => {
                         id="instagram_url"
                         value={settings.instagram_url || ''}
                         onChange={(e) => setSettings(prev => ({ ...prev, instagram_url: e.target.value }))}
-                        placeholder="https://instagram.com/seuperfil"
+                        placeholder="https://instagram.com/seuusuario"
                       />
                     </div>
 
@@ -852,12 +709,12 @@ const AdminConfiguracoes = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="twitter_url">Twitter/X</Label>
+                      <Label htmlFor="twitter_url">Twitter</Label>
                       <Input
                         id="twitter_url"
                         value={settings.twitter_url || ''}
                         onChange={(e) => setSettings(prev => ({ ...prev, twitter_url: e.target.value }))}
-                        placeholder="https://twitter.com/seuperfil"
+                        placeholder="https://twitter.com/seuusuario"
                       />
                     </div>
                   </div>
@@ -876,263 +733,72 @@ const AdminConfiguracoes = () => {
                   </Button>
                 </CardContent>
               </Card>
-
-              {/* Layout e Componentes */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Layout className="h-5 w-5" />
-                    Layout e Componentes
-                  </CardTitle>
-                  <CardDescription>
-                    Configure quais seções exibir no site
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="show_newsletter"
-                        checked={settings.show_newsletter === 'true'}
-                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, show_newsletter: checked ? 'true' : 'false' }))}
-                      />
-                      <Label htmlFor="show_newsletter">Exibir newsletter</Label>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="show_trust_badges"
-                        checked={settings.show_trust_badges === 'true'}
-                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, show_trust_badges: checked ? 'true' : 'false' }))}
-                      />
-                      <Label htmlFor="show_trust_badges">Exibir selos de confiança</Label>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="show_categories_banner"
-                        checked={settings.show_categories_banner === 'true'}
-                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, show_categories_banner: checked ? 'true' : 'false' }))}
-                      />
-                      <Label htmlFor="show_categories_banner">Exibir banner de categorias</Label>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="currency_symbol">Símbolo da Moeda</Label>
-                      <Input
-                        id="currency_symbol"
-                        value={settings.currency_symbol || 'R$'}
-                        onChange={(e) => setSettings(prev => ({ ...prev, currency_symbol: e.target.value }))}
-                        placeholder="R$"
-                        className="w-20"
-                      />
-                    </div>
-                  </div>
-
-                  <Button 
-                    onClick={() => handleSave('layout', {
-                      show_newsletter: settings.show_newsletter || 'true',
-                      show_trust_badges: settings.show_trust_badges || 'true',
-                      show_categories_banner: settings.show_categories_banner || 'true',
-                      currency_symbol: settings.currency_symbol || 'R$'
-                    })} 
-                    disabled={isLoading}
-                    className="w-full"
-                  >
-                    {isLoading ? 'Salvando...' : 'Salvar Layout'}
-                  </Button>
-                </CardContent>
-              </Card>
             </TabsContent>
 
-            {/* SEO */}
+            {/* SEO e Analytics */}
             <TabsContent value="seo" className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Search className="h-5 w-5" />
-                    SEO e Meta Tags
+                    SEO e Analytics
                   </CardTitle>
                   <CardDescription>
-                    Configure otimizações para motores de busca
+                    Configure SEO e ferramentas de analytics
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="meta_description">Meta Descrição</Label>
-                    <Textarea
-                      id="meta_description"
-                      value={settings.site_description || ''}
-                      onChange={(e) => setSettings(prev => ({ ...prev, site_description: e.target.value }))}
-                      placeholder="Descrição que aparece nos resultados do Google"
-                      rows={3}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Máximo 160 caracteres. Atual: {(settings.site_description || '').length}
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="meta_keywords">Palavras-chave</Label>
+                    <Label htmlFor="meta_keywords">Palavras-chave (SEO)</Label>
                     <Textarea
                       id="meta_keywords"
                       value={settings.meta_keywords || ''}
                       onChange={(e) => setSettings(prev => ({ ...prev, meta_keywords: e.target.value }))}
-                      placeholder="material de construção, cimento, tijolo, tinta, ferramentas"
-                      rows={2}
+                      placeholder="material de construção, cimento, tijolo, tinta"
+                      rows={3}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Palavras-chave separadas por vírgula
+                      Separe as palavras-chave por vírgula
                     </p>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Analytics</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="google_analytics_id">Google Analytics ID</Label>
+                        <Input
+                          id="google_analytics_id"
+                          value={settings.google_analytics_id || ''}
+                          onChange={(e) => setSettings(prev => ({ ...prev, google_analytics_id: e.target.value }))}
+                          placeholder="G-XXXXXXXXXX"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="facebook_pixel_id">Facebook Pixel ID</Label>
+                        <Input
+                          id="facebook_pixel_id"
+                          value={settings.facebook_pixel_id || ''}
+                          onChange={(e) => setSettings(prev => ({ ...prev, facebook_pixel_id: e.target.value }))}
+                          placeholder="1234567890123456"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <Button 
-                    onClick={() => handleSave('SEO', {
-                      site_description: settings.site_description || '',
-                      meta_keywords: settings.meta_keywords || ''
-                    })} 
-                    disabled={isLoading}
-                    className="w-full"
-                  >
-                    {isLoading ? 'Salvando...' : 'Salvar SEO'}
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Analytics */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart className="h-5 w-5" />
-                    Analytics e Tracking
-                  </CardTitle>
-                  <CardDescription>
-                    Configure códigos de rastreamento
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="google_analytics_id">Google Analytics ID</Label>
-                    <Input
-                      id="google_analytics_id"
-                      value={settings.google_analytics_id || ''}
-                      onChange={(e) => setSettings(prev => ({ ...prev, google_analytics_id: e.target.value }))}
-                      placeholder="G-XXXXXXXXXX"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      ID do Google Analytics (formato: G-XXXXXXXXXX)
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="facebook_pixel_id">Facebook Pixel ID</Label>
-                    <Input
-                      id="facebook_pixel_id"
-                      value={settings.facebook_pixel_id || ''}
-                      onChange={(e) => setSettings(prev => ({ ...prev, facebook_pixel_id: e.target.value }))}
-                      placeholder="123456789012345"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      ID do Facebook Pixel para tracking de conversões
-                    </p>
-                  </div>
-
-                  <Button 
-                    onClick={() => handleSave('analytics', {
+                    onClick={() => handleSave('SEO e Analytics', {
+                      meta_keywords: settings.meta_keywords || '',
                       google_analytics_id: settings.google_analytics_id || '',
                       facebook_pixel_id: settings.facebook_pixel_id || ''
                     })} 
                     disabled={isLoading}
                     className="w-full"
                   >
-                    {isLoading ? 'Salvando...' : 'Salvar Analytics'}
-                  </Button>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Pagamentos */}
-            <TabsContent value="pagamentos" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="h-5 w-5" />
-                    Configurações de Pagamento
-                  </CardTitle>
-                  <CardDescription>
-                    Configure os métodos de pagamento aceitos
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>PIX</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Aceitar pagamentos via PIX
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Cartão de Crédito</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Aceitar pagamentos com cartão
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Boleto Bancário</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Aceitar pagamentos via boleto
-                        </p>
-                      </div>
-                      <Switch />
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Chave PIX</h4>
-                    <div className="space-y-2">
-                      <Label htmlFor="pix-key">Chave PIX</Label>
-                      <Input id="pix-key" placeholder="usuario@exemplo.com" />
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Taxas de Entrega</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="shipping-fee">Taxa Padrão (R$)</Label>
-                        <Input id="shipping-fee" type="number" placeholder="10.00" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="free-shipping">Frete Grátis Acima de (R$)</Label>
-                        <Input id="free-shipping" type="number" placeholder="100.00" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button 
-                    onClick={() => handleSave('pagamentos', {})} 
-                    disabled={isLoading}
-                    className="w-full sm:w-auto"
-                  >
-                    {isLoading ? (
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Save className="mr-2 h-4 w-4" />
-                    )}
-                    Salvar Configurações
+                    {isLoading ? 'Salvando...' : 'Salvar SEO e Analytics'}
                   </Button>
                 </CardContent>
               </Card>
