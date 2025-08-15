@@ -1,16 +1,30 @@
 import { useState, useEffect } from "react";
-import { Search, Filter, Grid, List, ShoppingCart, Star } from "lucide-react";
+import { Filter, Grid, List, ShoppingCart, Star, Sliders, SlidersHorizontal, Search } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SearchBar from "@/components/SearchBar";
+import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
-import { supabase } from "@/integrations/supabase/client";
+import { useAdvancedSearch } from "@/hooks/useAdvancedSearch";
 import { formatCurrency } from "@/lib/formatters";
 import FloatingCart from "@/components/FloatingCart";
 
@@ -44,137 +58,98 @@ interface Product {
 }
 
 const Produtos = () => {
-  const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState("todas");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [sortBy, setSortBy] = useState("relevancia");
-  const [offerFilter, setOfferFilter] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { addItem } = useCart();
   const navigate = useNavigate();
+  
+  // Use the advanced search hook
+  const {
+    products,
+    loading,
+    filters,
+    updateFilters,
+    resetFilters,
+    searchSuggestions,
+    totalResults
+  } = useAdvancedSearch();
 
   useEffect(() => {
-    // Verificar parâmetros da URL ao carregar a página
+    fetchCategories();
+    
+    // Handle URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const filterParam = urlParams.get('filter');
     const categoryParam = urlParams.get('categoria');
     const searchParam = urlParams.get('search');
     
     if (filterParam === 'ofertas') {
-      setOfferFilter(true);
+      updateFilters({ onlyOffers: true });
     }
     
     if (categoryParam) {
-      setSelectedCategory(categoryParam);
+      updateFilters({ category: categoryParam });
     }
     
     if (searchParam) {
-      setSearchTerm(decodeURIComponent(searchParam));
+      updateFilters({ searchTerm: decodeURIComponent(searchParam) });
     }
-    
-    fetchData();
   }, []);
 
-  // Atualizar URL quando filtros mudarem
+  // Update URL when filters change
   useEffect(() => {
     const url = new URL(window.location.href);
     
-    // Gerenciar parâmetro de ofertas
-    if (offerFilter) {
+    if (filters.onlyOffers) {
       url.searchParams.set('filter', 'ofertas');
     } else {
       url.searchParams.delete('filter');
     }
     
-    // Gerenciar parâmetro de categoria
-    if (selectedCategory && selectedCategory !== 'todas') {
-      url.searchParams.set('categoria', selectedCategory);
+    if (filters.category !== 'todas') {
+      url.searchParams.set('categoria', filters.category);
     } else {
       url.searchParams.delete('categoria');
     }
     
-    // Atualizar URL sem recarregar a página
+    if (filters.searchTerm) {
+      url.searchParams.set('search', encodeURIComponent(filters.searchTerm));
+    } else {
+      url.searchParams.delete('search');
+    }
+    
     window.history.replaceState({}, '', url.toString());
-  }, [offerFilter, selectedCategory]);
+  }, [filters.onlyOffers, filters.category, filters.searchTerm]);
 
-  const fetchData = async () => {
+  const fetchCategories = async () => {
     try {
-      const [productsResponse, categoriesResponse] = await Promise.all([
-        supabase
-          .from('products')
-          .select(`
-            *,
-            categories (
-              id,
-              name
-            )
-          `)
-          .eq('in_stock', true)
-          .limit(50)
-          .order('created_at', { ascending: false }),
-        supabase
-          .from('categories')
-          .select('*')
-          .is('parent_id', null)
-          .order('name', { ascending: true })
-      ]);
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .is('parent_id', null)
+        .order('name', { ascending: true });
 
-      if (productsResponse.error) throw productsResponse.error;
-      if (categoriesResponse.error) throw categoriesResponse.error;
-
-      setProducts(productsResponse.data || []);
-      setCategories(categoriesResponse.data || []);
+      if (error) throw error;
+      setCategories(data || []);
     } catch (error) {
-      console.error('Error fetching data:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível carregar os dados.',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
+      console.error('Error fetching categories:', error);
     }
   };
 
-  // Filter products based on category, search term, and offers
-  const filteredProducts = products.filter(product => {
-    const matchesCategory = selectedCategory === "todas" || 
-      (product.categories?.id === selectedCategory);
-    
-    const matchesSearch = !searchTerm || 
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Se offerFilter está ativo, só mostrar produtos marcados como oferta especial
-    if (offerFilter) {
-      return matchesCategory && matchesSearch && product.is_special_offer === true;
-    }
-    
-    // Se não há filtro de oferta, aplicar apenas categoria e busca
-    return matchesCategory && matchesSearch;
-  });
+  // Count active filters for UI
+  const activeFiltersCount = [
+    filters.category !== 'todas',
+    filters.onlyOffers,
+    !filters.inStock,
+    filters.minRating > 0,
+    filters.priceRange[0] > 0 || filters.priceRange[1] < 10000
+  ].filter(Boolean).length;
 
-  // Sort products
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
-      case "preco-menor":
-        return a.price - b.price;
-      case "preco-maior":
-        return b.price - a.price;
-      case "nome":
-        return a.name.localeCompare(b.name);
-      case "avaliacao":
-        return (b.rating || 0) - (a.rating || 0);
-      default:
-        return 0;
-    }
-  });
-
-  const getProductImageUrl = (imageUrl: string) => {
+  const getProductImageUrl = (imageUrl: string | null) => {
+    if (!imageUrl) return "/placeholder.svg";
     try {
       const parsed = JSON.parse(imageUrl);
       return Array.isArray(parsed) ? parsed[0] : imageUrl;
@@ -197,7 +172,6 @@ const Produtos = () => {
       
       addItem(cartItem);
       
-      // Notificação melhorada
       toast({
         title: "✅ Produto adicionado!",
         description: (
@@ -213,7 +187,6 @@ const Produtos = () => {
         duration: 3000,
       });
 
-      // Pequeno delay para mostrar a notificação antes de abrir o carrinho
       setTimeout(() => {
         const cartButton = document.querySelector('[data-cart-trigger]') as HTMLButtonElement;
         if (cartButton) {
@@ -229,6 +202,41 @@ const Produtos = () => {
         variant: "destructive",
       });
     }
+  };
+
+  // Generate SEO data
+  const seoTitle = filters.searchTerm 
+    ? `${filters.searchTerm} - Material de Construção | ConstrutorPro`
+    : filters.category !== 'todas'
+    ? `${categories.find(c => c.id === filters.category)?.name || 'Categoria'} - Material de Construção | ConstrutorPro`
+    : 'Produtos - Material de Construção | ConstrutorPro';
+
+  const seoDescription = filters.searchTerm
+    ? `Encontre ${filters.searchTerm} e outros materiais de construção com os melhores preços. ${totalResults} produtos encontrados.`
+    : `Loja completa de material de construção. Cimento, tijolos, tintas, ferramentas e muito mais. ${totalResults} produtos disponíveis.`;
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "numberOfItems": totalResults,
+    "itemListElement": products.slice(0, 10).map((product, index) => ({
+      "@type": "Product",
+      "position": index + 1,
+      "name": product.name,
+      "description": product.description,
+      "image": getProductImageUrl(product.image_url),
+      "offers": {
+        "@type": "Offer",
+        "price": product.price,
+        "priceCurrency": "BRL",
+        "availability": product.in_stock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+      },
+      "aggregateRating": product.rating && product.reviews ? {
+        "@type": "AggregateRating",
+        "ratingValue": product.rating,
+        "reviewCount": product.reviews
+      } : undefined
+    }))
   };
 
   if (loading) {
@@ -249,245 +257,349 @@ const Produtos = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+        structuredData={structuredData}
+        type="website"
+      />
       <Header />
       
       <main className="flex-1 container mx-auto px-4 py-4 md:py-8">
-        {/* Filters and Search */}
-        <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-8">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="Buscar produtos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+        {/* Advanced Search Bar */}
+        <div className="mb-6">
+          <SearchBar
+            value={filters.searchTerm}
+            onChange={(value) => updateFilters({ searchTerm: value })}
+            suggestions={searchSuggestions}
+            onSuggestionSelect={(suggestion) => updateFilters({ searchTerm: suggestion })}
+            showFilters
+            activeFiltersCount={activeFiltersCount}
+            onFiltersClick={() => setShowAdvancedFilters(true)}
+            className="mb-4"
+          />
+        </div>
 
-          {/* Filters Row */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            {/* Category Filter */}
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full sm:flex-1">
-                <SelectValue placeholder="Todas as categorias" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todas">Todas as categorias</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            {/* Offer Filter */}
+        {/* Quick Filters */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
+          <Select 
+            value={filters.category} 
+            onValueChange={(value) => updateFilters({ category: value })}
+          >
+            <SelectTrigger className="w-full sm:flex-1">
+              <SelectValue placeholder="Todas as categorias" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todas">Todas as categorias</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Button
+            variant={filters.onlyOffers ? "default" : "outline"}
+            onClick={() => updateFilters({ onlyOffers: !filters.onlyOffers })}
+            className="whitespace-nowrap sm:w-auto w-full"
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            {filters.onlyOffers ? "Mostrar Todos" : "Só Ofertas"}
+          </Button>
+        </div>
+
+        {/* Sort and View Controls */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
+          <Select 
+            value={filters.sortBy} 
+            onValueChange={(value) => updateFilters({ sortBy: value })}
+          >
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="relevancia">Relevância</SelectItem>
+              <SelectItem value="preco-menor">Menor Preço</SelectItem>
+              <SelectItem value="preco-maior">Maior Preço</SelectItem>
+              <SelectItem value="nome">Nome A-Z</SelectItem>
+              <SelectItem value="avaliacao">Melhor Avaliação</SelectItem>
+              <SelectItem value="desconto">Maior Desconto</SelectItem>
+              <SelectItem value="mais-vendido">Mais Vendidos</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="flex border rounded-lg self-start sm:self-auto">
             <Button
-              variant={offerFilter ? "default" : "outline"}
-              onClick={() => setOfferFilter(!offerFilter)}
-              className="whitespace-nowrap sm:w-auto w-full"
+              variant={viewMode === "grid" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("grid")}
+              className="rounded-r-none flex-1 sm:flex-none"
             >
-              <Filter className="h-4 w-4 mr-2" />
-              {offerFilter ? "Mostrar Todos" : "Só Ofertas"}
+              <Grid className="h-4 w-4" />
+              <span className="ml-2 sm:hidden">Grade</span>
             </Button>
-          </div>
-
-          {/* Sort and View Mode */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="relevancia">Relevância</SelectItem>
-                <SelectItem value="preco-menor">Menor Preço</SelectItem>
-                <SelectItem value="preco-maior">Maior Preço</SelectItem>
-                <SelectItem value="nome">Nome A-Z</SelectItem>
-                <SelectItem value="avaliacao">Melhor Avaliação</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <div className="flex border rounded-lg self-start sm:self-auto">
-              <Button
-                variant={viewMode === "grid" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setViewMode("grid")}
-                className="rounded-r-none flex-1 sm:flex-none"
-              >
-                <Grid className="h-4 w-4" />
-                <span className="ml-2 sm:hidden">Grade</span>
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setViewMode("list")}
-                className="rounded-l-none flex-1 sm:flex-none"
-              >
-                <List className="h-4 w-4" />
-                <span className="ml-2 sm:hidden">Lista</span>
-              </Button>
-            </div>
+            <Button
+              variant={viewMode === "list" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("list")}
+              className="rounded-l-none flex-1 sm:flex-none"
+            >
+              <List className="h-4 w-4" />
+              <span className="ml-2 sm:hidden">Lista</span>
+            </Button>
           </div>
         </div>
 
-        {/* Results Count */}
+        {/* Results Summary */}
         <div className="mb-6">
-          <h2 className="text-xl font-semibold mb-1">
-            {offerFilter ? 'Ofertas Especiais' : 
-             selectedCategory !== 'todas' ? 
-               `Categoria: ${categories.find(c => c.id === selectedCategory)?.name || 'Selecionada'}` : 
+          <h1 className="text-2xl font-bold mb-2">
+            {filters.searchTerm ? `Resultados para "${filters.searchTerm}"` :
+             filters.onlyOffers ? 'Ofertas Especiais' : 
+             filters.category !== 'todas' ? 
+               categories.find(c => c.id === filters.category)?.name || 'Categoria Selecionada' : 
                'Todos os Produtos'}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {sortedProducts.length} produtos encontrados
-            {offerFilter && ' em oferta'}
-            {selectedCategory !== 'todas' && !offerFilter && ` na categoria`}
+          </h1>
+          <p className="text-muted-foreground">
+            {totalResults} {totalResults === 1 ? 'produto encontrado' : 'produtos encontrados'}
+            {filters.onlyOffers && ' em oferta'}
           </p>
         </div>
 
+        {/* Advanced Filters Sheet */}
+        <Sheet open={showAdvancedFilters} onOpenChange={setShowAdvancedFilters}>
+          <SheetContent className="w-full sm:w-96">
+            <SheetHeader>
+              <SheetTitle>Filtros Avançados</SheetTitle>
+              <SheetDescription>
+                Refine sua busca com filtros específicos
+              </SheetDescription>
+            </SheetHeader>
+            
+            <div className="space-y-6 mt-6">
+              {/* Price Range */}
+              <div>
+                <Label className="text-base font-medium">
+                  Faixa de Preço: {formatCurrency(filters.priceRange[0])} - {formatCurrency(filters.priceRange[1])}
+                </Label>
+                <Slider
+                  value={filters.priceRange}
+                  onValueChange={(value) => updateFilters({ priceRange: value as [number, number] })}
+                  max={10000}
+                  step={50}
+                  className="mt-3"
+                />
+              </div>
+
+              <Separator />
+
+              {/* Stock Filter */}
+              <div className="flex items-center justify-between">
+                <Label htmlFor="stock-filter" className="text-base font-medium">
+                  Apenas em estoque
+                </Label>
+                <Switch
+                  id="stock-filter"
+                  checked={filters.inStock}
+                  onCheckedChange={(checked) => updateFilters({ inStock: checked })}
+                />
+              </div>
+
+              <Separator />
+
+              {/* Rating Filter */}
+              <div>
+                <Label className="text-base font-medium mb-3 block">
+                  Avaliação mínima: {filters.minRating} {filters.minRating > 0 && '★'}
+                </Label>
+                <Slider
+                  value={[filters.minRating]}
+                  onValueChange={([value]) => updateFilters({ minRating: value })}
+                  max={5}
+                  step={0.5}
+                  className="mt-3"
+                />
+              </div>
+
+              <Separator />
+
+              {/* Reset Filters */}
+              <Button 
+                variant="outline" 
+                onClick={resetFilters}
+                className="w-full"
+              >
+                <SlidersHorizontal className="h-4 w-4 mr-2" />
+                Limpar Filtros
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
+
         {/* Products Grid */}
-        <div className={`grid gap-6 ${
-          viewMode === "grid" 
-            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
-            : "grid-cols-1"
-        }`}>
-          {sortedProducts.map((product) => (
-            <Card 
-              key={product.id} 
-              className="group relative overflow-hidden bg-white dark:bg-gray-900 border-0 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 cursor-pointer"
-              onClick={() => navigate(`/produto/${product.id}`)}
-            >
-              <CardContent className="p-5">
-                {/* Product Image */}
-                <div className="aspect-square mb-4 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden relative">
-                  <img
-                    src={(() => {
-                      try {
-                        const parsed = JSON.parse(product.image_url || '""');
-                        return Array.isArray(parsed) ? parsed[0] : (product.image_url || "/placeholder.svg");
-                      } catch {
-                        return product.image_url || "/placeholder.svg";
-                      }
-                    })()}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => {
-                      e.currentTarget.src = "/placeholder.svg";
-                    }}
-                  />
-                  
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
+        {products.length > 0 ? (
+          <div className={`grid gap-6 ${
+            viewMode === "grid" 
+              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+              : "grid-cols-1"
+          }`}>
+            {products.map((product) => (
+              <Card 
+                key={product.id} 
+                className="group relative overflow-hidden bg-white dark:bg-gray-900 border-0 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 cursor-pointer"
+                onClick={() => navigate(`/produto/${product.id}`)}
+              >
+                <CardContent className="p-5">
+                  {/* Product Image */}
+                  <div className="aspect-square mb-4 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden relative">
+                    <img
+                      src={getProductImageUrl(product.image_url)}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.svg";
+                      }}
+                    />
+                    
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </div>
 
-                {/* Badges Container */}
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {/* Discount Badge */}
-                  {product.discount && product.discount > 0 && (
-                    <Badge className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0 px-3 py-1 text-sm font-bold rounded-full">
-                      -{product.discount}%
+                  {/* Badges Container */}
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {/* Discount Badge */}
+                    {product.discount && product.discount > 0 && (
+                      <Badge className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0 px-3 py-1 text-sm font-bold rounded-full">
+                        -{product.discount}%
+                      </Badge>
+                    )}
+
+                    {/* Stock Badge */}
+                    <Badge 
+                      className={`border-0 px-3 py-1 text-sm font-medium rounded-full ${
+                        product.in_stock 
+                          ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white' 
+                          : 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white'
+                      }`}
+                    >
+                      {product.in_stock ? 'Em Estoque' : 'Indisponível'}
                     </Badge>
-                  )}
-
-                  {/* Stock Badge */}
-                  <Badge 
-                    className={`border-0 px-3 py-1 text-sm font-medium rounded-full ${
-                      product.in_stock 
-                        ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white' 
-                        : 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white'
-                    }`}
-                  >
-                    {product.in_stock ? 'Em Estoque' : 'Indisponível'}
-                  </Badge>
-                </div>
-
-                {/* Product Info */}
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">
-                      {product.categories?.name || 'Produto'}
-                    </p>
-                    <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors duration-300">
-                      {product.name}
-                    </h3>
                   </div>
-                  
-                  {/* Rating */}
-                  {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 ? (
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className={`h-4 w-4 ${
-                              i < Math.floor(product.rating!) 
-                                ? 'text-yellow-400 fill-current' 
-                                : 'text-gray-300'
-                            }`} 
-                          />
-                        ))}
+
+                  {/* Product Info */}
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">
+                        {product.categories?.name || 'Produto'}
+                      </p>
+                      <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors duration-300">
+                        {product.name}
+                      </h3>
+                    </div>
+                    
+                    {/* Rating */}
+                    {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 ? (
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star 
+                              key={i} 
+                              className={`h-4 w-4 ${
+                                i < Math.floor(product.rating!) 
+                                  ? 'text-yellow-400 fill-current' 
+                                  : 'text-gray-300'
+                              }`} 
+                            />
+                          ))}
+                        </div>
+                        <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                          {product.rating} ({product.reviews} avaliações)
+                        </span>
                       </div>
-                      <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                        {product.rating} ({product.reviews} avaliações)
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500 dark:text-gray-400 italic">
-                        Seja o primeiro a avaliar
-                      </span>
-                    </div>
-                  )}
-                  
-                  {/* Price */}
-                  <div className="space-y-1">
-                    <div className="flex items-baseline gap-2">
-                      {product.original_price && product.original_price > product.price && (
-                        <span className="text-sm text-gray-500 line-through">
-                          {formatCurrency(product.original_price)}
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500 dark:text-gray-400 italic">
+                          Seja o primeiro a avaliar
                         </span>
-                      )}
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {formatCurrency(product.price)}
-                      </span>
-                      {product.original_price && product.original_price > product.price && (
-                        <span className="text-sm text-green-600 font-medium">
-                          -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off
+                      </div>
+                    )}
+                    
+                    {/* Price */}
+                    <div className="space-y-1">
+                      <div className="flex items-baseline gap-2">
+                        {product.original_price && product.original_price > product.price && (
+                          <span className="text-sm text-gray-500 line-through">
+                            {formatCurrency(product.original_price)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                          {formatCurrency(product.price)}
                         </span>
-                      )}
+                        {product.original_price && product.original_price > product.price && (
+                          <span className="text-sm text-green-600 font-medium">
+                            -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-              
-              <CardFooter className="p-5 pt-0">
-                <Button 
-                  className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg" 
-                  variant="construction"
-                  disabled={!product.in_stock}
-                  onClick={(e) => handleAddToCart(e, product)}
-                >
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-
-        {sortedProducts.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              {offerFilter 
-                ? 'Nenhuma oferta encontrada.'
-                : 'Nenhum produto encontrado.'
-              }
-            </p>
+                </CardContent>
+                
+                <CardFooter className="p-5 pt-0">
+                  <Button 
+                    onClick={(e) => handleAddToCart(e, product)}
+                    disabled={!product.in_stock}
+                    className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  >
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
-        )}
+        ) : !loading ? (
+          <div className="text-center py-12">
+            <div className="max-w-md mx-auto">
+              <div className="w-24 h-24 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                <Search className="h-12 w-12 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">
+                Nenhum produto encontrado
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Não encontramos produtos que correspondam aos seus critérios de busca.
+                {filters.searchTerm && " Tente usar palavras-chave diferentes ou "}
+                {(filters.category !== "todas" || filters.onlyOffers) && " Tente remover alguns filtros ou "}
+                navegar pelas categorias.
+              </p>
+              <div className="space-y-3">
+                {filters.searchTerm && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => updateFilters({ searchTerm: '' })}
+                    className="mr-3"
+                  >
+                    Limpar busca
+                  </Button>
+                )}
+                {activeFiltersCount > 0 && (
+                  <Button 
+                    variant="outline" 
+                    onClick={resetFilters}
+                  >
+                    Remover filtros
+                  </Button>
+                )}
+                <Button onClick={() => navigate('/produtos')}>
+                  Ver todos os produtos
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </main>
       
       <Footer />
