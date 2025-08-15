@@ -28,6 +28,7 @@ import AdminConfiguracoes from "./pages/admin/AdminConfiguracoes";
 import ProductForm from "./pages/admin/ProductForm";
 import ScrollToTop from "./components/ScrollToTop";
 import CookieConsent from "./components/CookieConsent";
+import DynamicConfigProvider from "./components/DynamicConfigProvider";
 import Checkout from "./pages/Checkout";
 
 import NotFound from "./pages/NotFound";
@@ -39,41 +40,43 @@ const App = () => (
     <AuthProvider>
       <CartProvider>
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
-        <BrowserRouter>
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/produtos" element={<Produtos />} />
-            <Route path="/produto/:id" element={<Produto />} />
-            <Route path="/carrinho" element={<Carrinho />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/sobre-nos" element={<SobreNos />} />
-            <Route path="/contato" element={<Contato />} />
-            <Route path="/entrega" element={<Entrega />} />
-            <Route path="/trocas-e-devolucoes" element={<TrocaseDevolucoes />} />
-            <Route path="/termos-uso" element={<TermosUso />} />
-            <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
-            <Route path="/cookies" element={<Cookies />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/minha-conta" element={<MinhaConta />} />
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="produtos" element={<AdminProducts />} />
-              <Route path="produtos/novo" element={<ProductForm />} />
-              <Route path="produtos/editar/:id" element={<ProductForm />} />
-              <Route path="categorias" element={<AdminCategories />} />
-              <Route path="clientes" element={<AdminClients />} />
-              <Route path="pedidos" element={<AdminOrders />} />
-              <Route path="configuracoes" element={<AdminConfiguracoes />} />
-            </Route>
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <CookieConsent />
-        </BrowserRouter>
-      </TooltipProvider>
+          <DynamicConfigProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <ScrollToTop />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/produtos" element={<Produtos />} />
+                <Route path="/produto/:id" element={<Produto />} />
+                <Route path="/carrinho" element={<Carrinho />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/sobre-nos" element={<SobreNos />} />
+                <Route path="/contato" element={<Contato />} />
+                <Route path="/entrega" element={<Entrega />} />
+                <Route path="/trocas-e-devolucoes" element={<TrocaseDevolucoes />} />
+                <Route path="/termos-uso" element={<TermosUso />} />
+                <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
+                <Route path="/cookies" element={<Cookies />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/minha-conta" element={<MinhaConta />} />
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="produtos" element={<AdminProducts />} />
+                  <Route path="produtos/novo" element={<ProductForm />} />
+                  <Route path="produtos/editar/:id" element={<ProductForm />} />
+                  <Route path="categorias" element={<AdminCategories />} />
+                  <Route path="clientes" element={<AdminClients />} />
+                  <Route path="pedidos" element={<AdminOrders />} />
+                  <Route path="configuracoes" element={<AdminConfiguracoes />} />
+                </Route>
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <CookieConsent />
+            </BrowserRouter>
+          </DynamicConfigProvider>
+        </TooltipProvider>
       </CartProvider>
     </AuthProvider>
   </QueryClientProvider>

@@ -158,71 +158,103 @@ const AdminConfiguracoes = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Store className="h-5 w-5" />
-                    Informações da Loja
+                    Informações da Empresa
                   </CardTitle>
                   <CardDescription>
-                    Configure as informações básicas da sua loja
+                    Configure as informações básicas da sua empresa
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="store-name">Nome da Loja</Label>
+                      <Label htmlFor="company-name">Nome da Empresa</Label>
                       <Input 
-                        id="store-name" 
-                        placeholder="Nome da sua loja" 
-                        value={settings.store_name || ''}
-                        onChange={(e) => setSettings(prev => ({ ...prev, store_name: e.target.value }))}
+                        id="company-name" 
+                        placeholder="Nome da sua empresa" 
+                        value={settings.company_name || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, company_name: e.target.value }))}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="store-email">E-mail de Contato</Label>
+                      <Label htmlFor="company-email">E-mail Principal</Label>
                       <Input 
-                        id="store-email" 
+                        id="company-email" 
                         type="email" 
-                        placeholder="contato@minhaloja.com"
-                        value={settings.store_email || ''}
-                        onChange={(e) => setSettings(prev => ({ ...prev, store_email: e.target.value }))}
+                        placeholder="contato@minhaempresa.com"
+                        value={settings.company_email || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, company_email: e.target.value }))}
                       />
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="store-description">Descrição da Loja</Label>
-                    <Textarea 
-                      id="store-description" 
-                      placeholder="Descreva sua loja..."
-                      className="min-h-[100px]"
-                    />
-                  </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="store-phone">Telefone</Label>
-                      <Input id="store-phone" placeholder="(11) 99999-9999" />
+                      <Label htmlFor="company-phone">Telefone Principal</Label>
+                      <Input 
+                        id="company-phone" 
+                        placeholder="(11) 99999-9999"
+                        value={settings.company_phone || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, company_phone: e.target.value }))}
+                      />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="store-address">Endereço</Label>
-                      <Input id="store-address" placeholder="Endereço completo" />
+                      <Label htmlFor="company-cnpj">CNPJ</Label>
+                      <Input 
+                        id="company-cnpj" 
+                        placeholder="12.345.678/0001-90"
+                        value={settings.company_cnpj || ''}
+                        onChange={(e) => setSettings(prev => ({ ...prev, company_cnpj: e.target.value }))}
+                      />
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="company-address">Endereço Completo</Label>
+                    <Textarea 
+                      id="company-address" 
+                      placeholder="Rua das Empresas, 123 - Centro - São Paulo/SP - CEP: 01234-567"
+                      value={settings.company_address || ''}
+                      onChange={(e) => setSettings(prev => ({ ...prev, company_address: e.target.value }))}
+                      className="min-h-[80px]"
+                    />
                   </div>
 
                   <Separator />
 
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Loja Ativa</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Permite que clientes façam pedidos
-                      </p>
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Configurações do Site</h4>
+                    <div className="grid grid-cols-1 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="site-title">Título do Site (SEO)</Label>
+                        <Input 
+                          id="site-title" 
+                          placeholder="Nome da Empresa - Descrição"
+                          value={settings.site_title || ''}
+                          onChange={(e) => setSettings(prev => ({ ...prev, site_title: e.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="site-description">Descrição do Site (SEO)</Label>
+                        <Textarea 
+                          id="site-description" 
+                          placeholder="Descrição para mecanismos de busca..."
+                          value={settings.site_description || ''}
+                          onChange={(e) => setSettings(prev => ({ ...prev, site_description: e.target.value }))}
+                          className="min-h-[80px]"
+                        />
+                      </div>
                     </div>
-                    <Switch defaultChecked />
                   </div>
 
                   <Button 
-                    onClick={() => handleSave('geral', {
-                      store_name: settings.store_name || '',
-                      store_email: settings.store_email || ''
+                    onClick={() => handleSave('informações da empresa', {
+                      company_name: settings.company_name || '',
+                      company_email: settings.company_email || '',
+                      company_phone: settings.company_phone || '',
+                      company_cnpj: settings.company_cnpj || '',
+                      company_address: settings.company_address || '',
+                      site_title: settings.site_title || '',
+                      site_description: settings.site_description || ''
                     })} 
                     disabled={isLoading}
                     className="w-full sm:w-auto"
@@ -232,7 +264,7 @@ const AdminConfiguracoes = () => {
                     ) : (
                       <Save className="mr-2 h-4 w-4" />
                     )}
-                    Salvar Configurações
+                    Salvar Informações da Empresa
                   </Button>
                 </CardContent>
               </Card>
@@ -526,51 +558,135 @@ const AdminConfiguracoes = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Palette className="h-5 w-5" />
-                    Configurações de Aparência
+                    Personalização Visual
                   </CardTitle>
                   <CardDescription>
-                    Personalize a aparência da loja
+                    Customize as cores e aparência do seu site
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="theme-color">Cor Principal</Label>
-                      <Input id="theme-color" type="color" defaultValue="#0ea5e9" className="w-20 h-10" />
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <h4 className="font-medium">Cor Principal do Site</h4>
+                      <div className="flex items-center gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="primary-color">Selecionar Cor</Label>
+                          <div className="flex items-center gap-2">
+                            <Input 
+                              id="primary-color" 
+                              type="color" 
+                              value={settings.primary_color || '#2563eb'}
+                              onChange={(e) => {
+                                const hexColor = e.target.value;
+                                // Converter hex para RGB
+                                const r = parseInt(hexColor.slice(1, 3), 16);
+                                const g = parseInt(hexColor.slice(3, 5), 16);
+                                const b = parseInt(hexColor.slice(5, 7), 16);
+                                const rgbValue = `${r}, ${g}, ${b}`;
+                                
+                                setSettings(prev => ({ 
+                                  ...prev, 
+                                  primary_color: hexColor,
+                                  primary_color_rgb: rgbValue
+                                }));
+                              }}
+                              className="w-16 h-10 border-2 cursor-pointer"
+                            />
+                            <Input 
+                              value={settings.primary_color || '#2563eb'}
+                              onChange={(e) => {
+                                const hexColor = e.target.value;
+                                if (hexColor.match(/^#[0-9A-F]{6}$/i)) {
+                                  const r = parseInt(hexColor.slice(1, 3), 16);
+                                  const g = parseInt(hexColor.slice(3, 5), 16);
+                                  const b = parseInt(hexColor.slice(5, 7), 16);
+                                  const rgbValue = `${r}, ${g}, ${b}`;
+                                  
+                                  setSettings(prev => ({ 
+                                    ...prev, 
+                                    primary_color: hexColor,
+                                    primary_color_rgb: rgbValue
+                                  }));
+                                }
+                              }}
+                              placeholder="#2563eb"
+                              className="font-mono"
+                            />
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Esta cor será aplicada a botões, links e elementos de destaque
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Preview da cor */}
+                      <div className="p-4 border rounded-lg space-y-3">
+                        <p className="text-sm font-medium">Prévia da cor:</p>
+                        <div className="flex items-center gap-3">
+                          <div 
+                            className="w-8 h-8 rounded border-2 border-gray-300"
+                            style={{ backgroundColor: settings.primary_color || '#2563eb' }}
+                          />
+                          <div className="space-y-1">
+                            <Button 
+                              style={{ 
+                                backgroundColor: settings.primary_color || '#2563eb',
+                                borderColor: settings.primary_color || '#2563eb'
+                              }}
+                              className="text-white"
+                              size="sm"
+                            >
+                              Botão de Exemplo
+                            </Button>
+                            <p className="text-xs text-muted-foreground">
+                              Assim ficarão os botões principais do site
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="logo-url">URL do Logo</Label>
-                      <Input id="logo-url" placeholder="https://exemplo.com/logo.png" />
-                    </div>
+                    <Separator />
 
-                    <div className="space-y-2">
-                      <Label htmlFor="favicon-url">URL do Favicon</Label>
-                      <Input id="favicon-url" placeholder="https://exemplo.com/favicon.ico" />
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Tema</h4>
-                    <div className="space-y-2">
-                      <Label htmlFor="theme-mode">Modo do Tema</Label>
-                      <Select defaultValue="light">
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="light">Claro</SelectItem>
-                          <SelectItem value="dark">Escuro</SelectItem>
-                          <SelectItem value="system">Sistema</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="space-y-4">
+                      <h4 className="font-medium">Cores Pré-definidas</h4>
+                      <div className="grid grid-cols-6 gap-2">
+                        {[
+                          { name: 'Azul', color: '#2563eb' },
+                          { name: 'Verde', color: '#16a34a' },
+                          { name: 'Roxo', color: '#9333ea' },
+                          { name: 'Rosa', color: '#e11d48' },
+                          { name: 'Laranja', color: '#ea580c' },
+                          { name: 'Cyan', color: '#0891b2' }
+                        ].map((preset) => (
+                          <button
+                            key={preset.name}
+                            onClick={() => {
+                              const r = parseInt(preset.color.slice(1, 3), 16);
+                              const g = parseInt(preset.color.slice(3, 5), 16);
+                              const b = parseInt(preset.color.slice(5, 7), 16);
+                              const rgbValue = `${r}, ${g}, ${b}`;
+                              
+                              setSettings(prev => ({ 
+                                ...prev, 
+                                primary_color: preset.color,
+                                primary_color_rgb: rgbValue
+                              }));
+                            }}
+                            className="w-12 h-12 rounded-lg border-2 border-gray-200 hover:border-gray-400 transition-colors"
+                            style={{ backgroundColor: preset.color }}
+                            title={preset.name}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </div>
 
                   <Button 
-                    onClick={() => handleSave('aparência', {})} 
+                    onClick={() => handleSave('aparência', {
+                      primary_color: settings.primary_color || '',
+                      primary_color_rgb: settings.primary_color_rgb || ''
+                    })} 
                     disabled={isLoading}
                     className="w-full sm:w-auto"
                   >
@@ -579,7 +695,7 @@ const AdminConfiguracoes = () => {
                     ) : (
                       <Save className="mr-2 h-4 w-4" />
                     )}
-                    Salvar Configurações
+                    Salvar Configurações de Aparência
                   </Button>
                 </CardContent>
               </Card>

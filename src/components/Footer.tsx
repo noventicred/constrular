@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { useSettings } from "@/hooks/useSettings";
 import { 
   Phone, 
   Mail, 
@@ -19,6 +20,8 @@ import {
 } from "lucide-react";
 
 const Footer = () => {
+  const { getCompanyName, getCompanyAddress, getCompanyPhone, getCompanyEmail } = useSettings();
+  
   return (
     <footer className="bg-construction-gray text-white">
       {/* Main footer content */}
@@ -26,7 +29,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {/* Company Info */}
           <div className="space-y-4 lg:col-span-1">
-            <h3 className="text-xl md:text-2xl font-bold text-primary">ConstrutorPro</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-primary">{getCompanyName()}</h3>
             <p className="text-gray-300 text-sm md:text-base">
               Materiais de construção de qualidade com os melhores preços da região. 
               Sua obra em boas mãos há mais de 20 anos.
@@ -35,15 +38,15 @@ const Footer = () => {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-sm md:text-base">(11) 4002-8922</span>
+                <span className="text-sm md:text-base">{getCompanyPhone()}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-sm md:text-base break-all">vendas@construtorpro.com.br</span>
+                <span className="text-sm md:text-base break-all">{getCompanyEmail()}</span>
               </div>
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm md:text-base">Rua das Construções, 123 - Centro, São Paulo - SP</span>
+                <span className="text-sm md:text-base">{getCompanyAddress()}</span>
               </div>
             </div>
           </div>
@@ -194,7 +197,7 @@ const Footer = () => {
         {/* Bottom */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs md:text-sm text-gray-400 pb-20 md:pb-4">
           <div>
-            <p>&copy; 2024 ConstrutorPro. Todos os direitos reservados.</p>
+            <p>&copy; 2024 {getCompanyName()}. Todos os direitos reservados.</p>
           </div>
           <div className="flex flex-wrap gap-4 md:gap-6 justify-center md:justify-end">
             <a href="/termos-uso" className="hover:text-primary transition-colors">Termos de Uso</a>

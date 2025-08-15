@@ -9,15 +9,18 @@ import Newsletter from "@/components/Newsletter";
 import Footer from "@/components/Footer";
 import FloatingCart from "@/components/FloatingCart";
 import SEO from "@/components/SEO";
+import { useSettings } from "@/hooks/useSettings";
 
 const Index = () => {
+  const { getCompanyName, getSiteTitle, getSiteDescription } = useSettings();
+  
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "ConstrutorPro",
+    "name": getCompanyName(),
     "url": window.location.origin,
     "logo": `${window.location.origin}/logo.png`,
-    "description": "Loja completa de material de construção com os melhores preços. Cimento, tijolos, tintas, ferramentas e muito mais.",
+    "description": getSiteDescription(),
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "customer service",
@@ -29,8 +32,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="ConstrutorPro - Material de Construção Online | Cimento, Tijolos, Tintas"
-        description="Loja completa de material de construção com os melhores preços. Cimento, tijolos, tintas, ferramentas e muito mais. Entrega rápida em São Paulo."
+        title={getSiteTitle()}
+        description={getSiteDescription()}
         keywords="material de construção, cimento, tijolo, tinta, ferramentas, construção, obra, reforma, loja online, São Paulo"
         structuredData={structuredData}
         type="website"
