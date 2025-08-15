@@ -17,7 +17,7 @@ import {
   TrendingUp, DollarSign, ShoppingCart, RefreshCw, FileText
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { formatCurrency } from '@/lib/formatters';
+import { formatCurrency, formatOrderNumber } from '@/lib/formatters';
 import { useSettings } from '@/hooks/useSettings';
 import jsPDF from 'jspdf';
 
@@ -481,7 +481,7 @@ export default function AdminOrders() {
       // Left column
       pdf.text('Pedido:', margin, yPos);
       pdf.setTextColor(0, 0, 0);
-      pdf.text(order.id.slice(0, 8).toUpperCase(), margin + 20, yPos);
+      pdf.text(`#${formatOrderNumber(order.id)}`, margin + 20, yPos);
       
       pdf.setTextColor(80, 80, 80);
       pdf.text('Data de:', margin, yPos + 5);
@@ -666,11 +666,11 @@ export default function AdminOrders() {
       // Save PDF
       const orderDate = new Date(order.created_at).toLocaleDateString('pt-BR').replace(/\//g, '-');
       const customerName = order.profiles?.full_name?.replace(/[^a-zA-Z0-9]/g, '_') || 'Cliente';
-      pdf.save(`Ordem_Compra_${order.id.slice(0, 8)}_${customerName}_${orderDate}.pdf`);
+      pdf.save(`Ordem_Compra_${formatOrderNumber(order.id)}_${customerName}_${orderDate}.pdf`);
       
       toast({
         title: 'PDF Gerado com Sucesso',
-        description: `Ordem de compra #${order.id.slice(0, 8)} foi criada.`,
+        description: `Ordem de compra #${formatOrderNumber(order.id)} foi criada.`,
       });
       
     } catch (error) {
@@ -876,7 +876,7 @@ export default function AdminOrders() {
               {filteredOrders.map((order) => (
                 <TableRow key={order.id} className="hover:bg-muted/50 transition-colors">
                   <TableCell className="font-mono text-sm">
-                    {order.id.slice(0, 8)}...
+                    #{formatOrderNumber(order.id)}
                   </TableCell>
                   <TableCell>
                     <div>
@@ -1021,7 +1021,7 @@ export default function AdminOrders() {
                     <CardContent className="space-y-3">
                       <div>
                         <span className="text-sm text-muted-foreground">ID do Pedido:</span>
-                        <p className="font-mono text-sm">{selectedOrder.id}</p>
+                        <p className="font-mono text-sm">#{formatOrderNumber(selectedOrder.id)}</p>
                       </div>
                       <div>
                         <span className="text-sm text-muted-foreground">Data de Criação:</span>

@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { User, MapPin, Phone, Mail, Calendar, Save, Package, Eye, ShoppingCart, CreditCard, Truck, CheckCircle, Clock, XCircle, TrendingUp, Star, Home, ArrowLeft, LogOut, X, MessageCircle } from 'lucide-react';
-import { formatCurrency } from '@/lib/formatters';
+import { formatCurrency, formatOrderNumber } from '@/lib/formatters';
 import { useSettings } from '@/hooks/useSettings';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -542,7 +542,7 @@ export default function MinhaConta() {
                                 {getStatusIcon(order.status)}
                               </div>
                               <div className="min-w-0 flex-1">
-                                <p className="font-medium">Pedido #{order.id.slice(0, 8)}</p>
+                                <p className="font-medium">Pedido #{formatOrderNumber(order.id)}</p>
                                 <p className="text-sm text-muted-foreground">
                                   {new Date(order.created_at).toLocaleDateString('pt-BR')}
                                 </p>
@@ -770,7 +770,7 @@ export default function MinhaConta() {
                                   {getStatusIcon(order.status)}
                                 </div>
                                 <div className="min-w-0">
-                                  <h4 className="font-semibold text-base sm:text-lg">Pedido #{order.id.slice(0, 8)}</h4>
+                                  <h4 className="font-semibold text-base sm:text-lg">Pedido #{formatOrderNumber(order.id)}</h4>
                                   <p className="text-xs sm:text-sm text-muted-foreground">
                                     {new Date(order.created_at).toLocaleDateString('pt-BR', {
                                       day: '2-digit',
@@ -883,7 +883,7 @@ export default function MinhaConta() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
-              Detalhes do Pedido #{selectedOrder?.id.slice(0, 8)}
+              Detalhes do Pedido #{selectedOrder ? formatOrderNumber(selectedOrder.id) : ''}
             </DialogTitle>
             <DialogDescription>
               Informações completas sobre seu pedido

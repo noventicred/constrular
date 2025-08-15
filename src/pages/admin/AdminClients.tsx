@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
-import { formatCurrency } from '@/lib/formatters';
+import { formatCurrency, formatOrderNumber } from '@/lib/formatters';
 import { Search, Eye, Users, ShoppingBag, Edit, Save, X, Mail, Phone, MapPin, Calendar, FileText, Filter, MoreHorizontal, CreditCard, Package, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -581,7 +581,7 @@ const AdminClients = () => {
                           <div className="flex items-center justify-between">
                             <div className="space-y-1">
                               <div className="font-medium">
-                                Pedido #{order.id.slice(0, 8)}
+                                Pedido #{formatOrderNumber(order.id)}
                               </div>
                               <div className="text-sm text-muted-foreground">
                                 {new Date(order.created_at).toLocaleDateString('pt-BR')}
