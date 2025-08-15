@@ -257,11 +257,21 @@ export default function MinhaConta() {
     message += `*PRODUTOS:*\n`;
     order.order_items?.forEach((item, index) => {
       message += `${index + 1}. ${item.product_name}\n`;
+      if (item.products?.sku) {
+        message += `   SKU: ${item.products.sku}\n`;
+      }
       message += `   Quantidade: ${item.quantity}\n`;
       message += `   Valor: ${formatCurrency(item.total_price)}\n\n`;
     });
     
     message += `*TOTAL: ${formatCurrency(order.total_amount)}*\n\n`;
+    
+    if (profile) {
+      message += `*DADOS DO CLIENTE:*\n`;
+      if (profile.full_name) message += `Nome: ${profile.full_name}\n`;
+      if (profile.phone) message += `Telefone: ${profile.phone}\n`;
+      if (profile.email) message += `Email: ${profile.email}\n\n`;
+    }
     
     if (order.shipping_address) {
       message += `*ENTREGA:*\n`;
@@ -269,7 +279,7 @@ export default function MinhaConta() {
     }
     
     message += `Data do pedido: ${currentDate}\n\n`;
-    message += `Gostaria de acompanhar este pedido!`;
+    message += `Gostaria de fazer esse pedido, e realizar o pagamento!`;
     
     return encodeURIComponent(message);
   };

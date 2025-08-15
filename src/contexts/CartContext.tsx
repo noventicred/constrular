@@ -111,6 +111,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (item.brand) {
         message += `   Marca: ${item.brand}\n`;
       }
+      message += `   SKU: ${item.id}\n`;
       message += `   Quantidade: ${item.quantity}\n`;
       message += `   Valor: ${formatCurrency(item.price * item.quantity)}\n\n`;
     });
@@ -123,7 +124,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     message += `- Prazo de entrega\n\n`;
     
     message += `Data: ${currentDate}\n\n`;
-    message += `Aguardo retorno para finalizar!`;
+    message += `Gostaria de fazer esse pedido, e realizar o pagamento!`;
     
     return encodeURIComponent(message);
   };

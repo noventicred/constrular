@@ -225,15 +225,21 @@ export default function Checkout() {
     message += `*PRODUTOS:*\n`;
     items.forEach((item, index) => {
       message += `${index + 1}. ${item.name}\n`;
+      if (item.brand) {
+        message += `   Marca: ${item.brand}\n`;
+      }
+      message += `   SKU: ${item.id}\n`;
       message += `   Quantidade: ${item.quantity}\n`;
       message += `   Valor: ${formatCurrency(item.price * item.quantity)}\n\n`;
     });
     
     message += `*TOTAL: ${formatCurrency(total)}*\n\n`;
     
-    message += `*ENTREGA:*\n`;
+    message += `*DADOS DO CLIENTE:*\n`;
     message += `Nome: ${shippingAddress.full_name}\n`;
-    message += `Telefone: ${shippingAddress.phone}\n`;
+    message += `Telefone: ${shippingAddress.phone}\n\n`;
+    
+    message += `*ENTREGA:*\n`;
     message += `Endereco: ${shippingAddress.street}, ${shippingAddress.number}`;
     if (shippingAddress.complement) {
       message += `, ${shippingAddress.complement}`;
@@ -242,7 +248,7 @@ export default function Checkout() {
     message += `CEP: ${shippingAddress.zip_code}\n\n`;
     
     message += `Data: ${currentDate}\n\n`;
-    message += `Gostaria de confirmar este pedido!`;
+    message += `Gostaria de fazer esse pedido, e realizar o pagamento!`;
     
     return encodeURIComponent(message);
   };
