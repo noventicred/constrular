@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Filter, Grid, List, ShoppingCart, Star, Sliders, SlidersHorizontal, Search } from "lucide-react";
+import { Filter, Grid, List, ShoppingCart, Star, Sliders, SlidersHorizontal, Search, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
+import { useSettings } from "@/hooks/useSettings";
 import { useAdvancedSearch } from "@/hooks/useAdvancedSearch";
 import { formatCurrency } from "@/lib/formatters";
 import FloatingCart from "@/components/FloatingCart";
@@ -65,6 +66,7 @@ const Produtos = () => {
   const { toast } = useToast();
   const { addItem } = useCart();
   const navigate = useNavigate();
+  const { getWhatsAppNumber, getSetting } = useSettings();
   
   // Use the advanced search hook
   const {
@@ -202,6 +204,26 @@ const Produtos = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleWhatsAppOrder = (e: React.MouseEvent, product: Product) => {
+    e.stopPropagation();
+    
+    const storeName = getSetting('store_name') || 'Minha Loja';
+    const productUrl = `${window.location.origin}/produto/${product.id}`;
+    
+    const message = `Olá! Gostaria de fazer um pedido desse item específico:\n\n` +
+                   `*${product.name}*\n` +
+                   `SKU: ${product.sku || product.id}\n` +
+                   `Preço: ${formatCurrency(product.price)}\n` +
+                   `Loja: ${storeName}\n\n` +
+                   `Link do produto: ${productUrl}\n\n` +
+                   `Aguardo informações sobre disponibilidade e formas de pagamento!`;
+    
+    const phoneNumber = getWhatsAppNumber();
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+    
+    window.open(whatsappUrl, '_blank');
   };
 
   // Generate SEO data
@@ -552,14 +574,25 @@ const Produtos = () => {
                 </CardContent>
                 
                 <CardFooter className="p-5 pt-0">
-                  <Button 
-                    onClick={(e) => handleAddToCart(e, product)}
-                    disabled={!product.in_stock}
-                    className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                  >
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
-                  </Button>
+                  <div className="w-full space-y-2">
+                    <Button 
+                      onClick={(e) => handleAddToCart(e, product)}
+                      disabled={!product.in_stock}
+                      className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
+                    </Button>
+                    
+                    <Button 
+                      onClick={(e) => handleWhatsAppOrder(e, product)}
+                      disabled={!product.in_stock}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 border-0"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      Comprar pelo WhatsApp
+                    </Button>
+                  </div>
                 </CardFooter>
               </Card>
             ))}

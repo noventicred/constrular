@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, ShoppingCart } from "lucide-react";
+import { Star, ShoppingCart, MessageCircle } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
+import { useSettings } from "@/hooks/useSettings";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
@@ -30,6 +31,7 @@ const FeaturedProducts = () => {
   const { addItem } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { getWhatsAppNumber, getSetting } = useSettings();
 
   useEffect(() => {
     fetchProducts();
@@ -134,6 +136,26 @@ const FeaturedProducts = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleWhatsAppOrder = (e: React.MouseEvent, product: Product) => {
+    e.stopPropagation();
+    
+    const storeName = getSetting('store_name') || 'Minha Loja';
+    const productUrl = `${window.location.origin}/produto/${product.id}`;
+    
+    const message = `Olá! Gostaria de fazer um pedido desse item específico:\n\n` +
+                   `*${product.name}*\n` +
+                   `SKU: ${product.id}\n` +
+                   `Preço: ${formatCurrency(product.price)}\n` +
+                   `Loja: ${storeName}\n\n` +
+                   `Link do produto: ${productUrl}\n\n` +
+                   `Aguardo informações sobre disponibilidade e formas de pagamento!`;
+    
+    const phoneNumber = getWhatsAppNumber();
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+    
+    window.open(whatsappUrl, '_blank');
   };
 
   if (loading) {
@@ -271,15 +293,26 @@ const FeaturedProducts = () => {
                       </div>
                     </div>
                     
-                    {/* Action Button */}
-                    <Button 
-                      className="w-full mt-4 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base"
-                      disabled={!product.in_stock}
-                      onClick={(e) => handleAddToCart(e, product)}
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
-                    </Button>
+                    {/* Action Buttons */}
+                    <div className="space-y-2">
+                      <Button 
+                        className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base"
+                        disabled={!product.in_stock}
+                        onClick={(e) => handleAddToCart(e, product)}
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
+                      </Button>
+                      
+                      <Button 
+                        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base border-0"
+                        disabled={!product.in_stock}
+                        onClick={(e) => handleWhatsAppOrder(e, product)}
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Comprar pelo WhatsApp
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
