@@ -131,8 +131,13 @@ const Footer = () => {
                 placeholder="Seu e-mail" 
                 className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 text-sm md:text-base h-10 md:h-12"
               />
-              <Button variant="hero" className="w-full text-sm md:text-base h-10 md:h-12">
-                Assinar Newsletter
+              <Button 
+                variant="hero" 
+                className="w-full text-sm md:text-base h-10 md:h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary border-0 font-bold transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 hover:scale-[1.02] transform rounded-xl"
+              >
+                <span className="flex items-center justify-center gap-2">
+                  ✉️ Assinar Newsletter
+                </span>
               </Button>
             </div>
 
