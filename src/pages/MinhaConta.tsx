@@ -148,29 +148,9 @@ export default function MinhaConta() {
 
     try {
       // TODO: Implementar API real
-          `
-          *,
-          order_items (
-            id,
-            product_name,
-            quantity,
-            unit_price,
-            total_price,
-            products!order_items_product_id_fkey(
-              id,
-              name,
-              image_url,
-              sku
-            )
-          )
-        `
-        )
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+      console.log('📦 Carregando pedidos do usuário (mockado):', user.id);
 
-      if (error) throw error;
-
-      const ordersData = data || [];
+      const ordersData = [];
       setOrders(ordersData);
 
       // Calculate statistics
@@ -198,20 +178,20 @@ export default function MinhaConta() {
     setIsLoading(true);
     try {
       // TODO: Implementar API real
-          full_name: profileData.full_name,
-          phone: profileData.phone,
-          birth_date: profileData.birth_date || null,
-          street: profileData.street,
-          number: profileData.number,
-          complement: profileData.complement,
-          city: profileData.city,
-          state: profileData.state,
-          zip_code: profileData.zip_code,
-          document_number: profileData.document_number,
-        })
-        .eq("id", user.id);
-
-      if (error) throw error;
+      const userData = {
+        full_name: profileData.full_name,
+        phone: profileData.phone,
+        birth_date: profileData.birth_date || null,
+        street: profileData.street,
+        number: profileData.number,
+        complement: profileData.complement,
+        city: profileData.city,
+        state: profileData.state,
+        zip_code: profileData.zip_code,
+        document_number: profileData.document_number,
+      };
+      
+      console.log('👤 Salvando perfil (mockado):', userData);
 
       await refreshProfile();
       toast({

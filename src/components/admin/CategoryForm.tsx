@@ -81,19 +81,12 @@ export const CategoryForm = ({ categories, editingCategory, onSave, onCancel }: 
         image_url: imageUrl || null,
       };
 
-      let error;
+      // TODO: Implementar API real de categorias
       if (editingCategory) {
-      // TODO: Migrar para API Neon/Prisma - ({ error } = await supabase
-          .from('categories')
-          .update(categoryData)
-          .eq('id', editingCategory.id));
+        console.log('📝 Atualizando categoria (mockado):', categoryData);
       } else {
-      // TODO: Migrar para API Neon/Prisma - ({ error } = await supabase
-          .from('categories')
-          .insert([categoryData]));
+        console.log('➕ Criando categoria (mockado):', categoryData);
       }
-
-      if (error) throw error;
 
       toast({
         title: 'Sucesso',

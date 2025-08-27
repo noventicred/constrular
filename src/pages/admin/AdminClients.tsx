@@ -138,21 +138,21 @@ const AdminClients = () => {
 
     try {
       // TODO: Implementar API real
-          full_name: editingClient.full_name,
-          email: editingClient.email,
-          phone: editingClient.phone,
-          street: editingClient.street,
-          number: editingClient.number,
-          complement: editingClient.complement,
-          city: editingClient.city,
-          state: editingClient.state,
-          zip_code: editingClient.zip_code,
-          birth_date: editingClient.birth_date,
-          document_number: editingClient.document_number,
-        })
-        .eq('id', editingClient.id);
-
-      if (error) throw error;
+      const clientData = {
+        full_name: editingClient.full_name,
+        email: editingClient.email,
+        phone: editingClient.phone,
+        street: editingClient.street,
+        number: editingClient.number,
+        complement: editingClient.complement,
+        city: editingClient.city,
+        state: editingClient.state,
+        zip_code: editingClient.zip_code,
+        birth_date: editingClient.birth_date,
+        document_number: editingClient.document_number,
+      };
+      
+      console.log('📝 Salvando cliente (mockado):', clientData);
 
       // Atualizar a lista local
       setClients(clients.map(client => 
