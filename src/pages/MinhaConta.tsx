@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -64,7 +64,9 @@ interface ProfileData {
 }
 
 export default function MinhaConta() {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, isLoading: authLoading, isAdmin } = useAuth();
+  
+  console.log('MinhaConta - Auth State:', { user: user?.id, isAdmin, authLoading, profile: profile?.is_admin });
   const { getWhatsAppNumber } = useSettings();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -298,6 +300,12 @@ export default function MinhaConta() {
   };
 
   const { signOut } = useAuth();
+
+  // Redirect admin users to the admin panel
+  if (!authLoading && user && isAdmin) {
+    console.log('Redirecting admin to admin panel', { user: user.id, isAdmin });
+    return <Navigate to="/admin" replace />;
+  }
 
   const handleSignOut = async () => {
     try {
