@@ -16,7 +16,7 @@
     "db:test": "tsx prisma/seed.ts",
     "setup:env": "node scripts/setup-env.js",
     "setup:db": "npm run db:generate && npm run db:deploy && npm run db:test",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate || true"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
