@@ -21,4 +21,5 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: {
     exclude: ["@prisma/client", "@neondatabase/serverless", "bcryptjs"]
   },
+
 }));

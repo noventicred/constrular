@@ -93,7 +93,8 @@ export function apiMockMiddleware() {
     name: 'api-mock',
     configureServer(server: ViteDevServer) {
       server.middlewares.use('/api', (req, res, next) => {
-        console.log(`🔧 API Mock: ${req.method} ${req.url}`);
+        console.log(`🔧 API Mock intercepted: ${req.method} ${req.url}`);
+        console.log(`🔧 Headers:`, req.headers);
         
         // Set CORS headers
         res.setHeader('Access-Control-Allow-Origin', '*');
