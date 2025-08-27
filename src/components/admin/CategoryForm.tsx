@@ -38,24 +38,11 @@ export const CategoryForm = ({ categories, editingCategory, onSave, onCancel }: 
   const { toast } = useToast();
 
   const handleImageUpload = async (file: File): Promise<string | null> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
-    const filePath = `categories/${fileName}`;
-
-      // TODO: Migrar para API Neon/Prisma - const { error: uploadError } = await supabase.storage
-      .from('product-images')
-      .upload(filePath, file);
-
-    if (uploadError) {
-      console.error('Error uploading image:', uploadError);
-      throw uploadError;
-    }
-
-      // TODO: Migrar para API Neon/Prisma - const { data } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(filePath);
-
-    return data.publicUrl;
+    // TODO: Implementar upload real de imagem
+    console.log('📸 Upload de imagem mockado para:', file.name);
+    
+    // Mock: retorna placeholder por enquanto
+    return '/placeholder.svg';
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
