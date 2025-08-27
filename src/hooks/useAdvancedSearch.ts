@@ -65,21 +65,34 @@ export const useAdvancedSearch = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      // TODO: Migrar para API Neon/Prisma - const { data, error } = await supabase
-        .from("products")
-        .select(
-          `
-          *,
-          categories (
-            id,
-            name
-          )
-        `
-        )
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setProducts(data || []);
+      
+      const response = await fetch('/api/products');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar produtos');
+      }
+      
+      const data = await response.json();
+      
+      // Mapear produtos para o formato esperado pelo hook
+      const mappedProducts = data.products?.map((product: any) => ({
+        id: product.id,
+        name: product.name,
+        price: Number(product.price),
+        description: product.description,
+        image_url: product.imageUrl,
+        brand: product.brand,
+        categories: { 
+          id: product.categoryId,
+          name: product.category 
+        },
+        rating: product.rating,
+        review_count: product.reviewCount || 0,
+        created_at: product.createdAt,
+        updated_at: product.updatedAt,
+        tags: product.tags || []
+      })) || [];
+      
+      setProducts(mappedProducts);
     } catch (error) {
       console.error("Erro ao carregar produtos:", error);
     } finally {
