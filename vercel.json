@@ -1,20 +1,10 @@
 {
-  "version": 2,
   "functions": {
     "api/**/*.js": {
       "runtime": "@vercel/node@18.x",
       "memory": 1024
     }
   },
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
@@ -39,5 +29,7 @@
         }
       ]
     }
-  ]
+  ],
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist"
 }
