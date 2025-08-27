@@ -26,22 +26,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
+        .rpc('get_user_complete_profile', { target_user_id: userId });
 
       if (error) {
         console.error('Error fetching user profile:', error);
         return null;
       }
 
-      if (!data) {
+      if (!data || data.length === 0) {
         console.log('No profile found for user:', userId);
         return null;
       }
 
-      return data;
+      return data[0];
     } catch (error) {
       console.error('Exception fetching user profile:', error);
       return null;
