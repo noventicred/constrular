@@ -1,24 +1,38 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useCart } from '@/contexts/CartContext';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { formatCurrency } from '@/lib/formatters';
-import { useSettings } from '@/hooks/useSettings';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { 
-  MapPin, CreditCard, Package, ArrowLeft, MessageCircle,
-  CheckCircle2, Loader2, ShoppingCart, User, Phone
-} from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/NewAuthContext";
+import { useCart } from "@/contexts/CartContext";
+// import { supabase } from '@/integrations/supabase/client';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { formatCurrency } from "@/lib/formatters";
+import { useSettings } from "@/hooks/useSettings";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import {
+  MapPin,
+  CreditCard,
+  Package,
+  ArrowLeft,
+  MessageCircle,
+  CheckCircle2,
+  Loader2,
+  ShoppingCart,
+  User,
+  Phone,
+} from "lucide-react";
 
 interface ShippingAddress {
   full_name: string;
@@ -37,34 +51,34 @@ export default function Checkout() {
   const { items, getTotalPrice, clearCart } = useCart();
   const { toast } = useToast();
   const { getWhatsAppNumber } = useSettings();
-  
+
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [redirectingToWhatsApp, setRedirectingToWhatsApp] = useState(false);
   const [orderData, setOrderData] = useState<any>(null);
-  const [whatsappUrl, setWhatsappUrl] = useState('');
+  const [whatsappUrl, setWhatsappUrl] = useState("");
   const [userProfile, setUserProfile] = useState<any>(null);
-  
+
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
-    full_name: '',
-    phone: '',
-    street: '',
-    number: '',
-    complement: '',
-    city: '',
-    state: '',
-    zip_code: ''
+    full_name: "",
+    phone: "",
+    street: "",
+    number: "",
+    complement: "",
+    city: "",
+    state: "",
+    zip_code: "",
   });
 
   useEffect(() => {
     if (!user) {
-      navigate('/auth');
+      navigate("/auth");
       return;
     }
 
     if (items.length === 0) {
-      navigate('/carrinho');
+      navigate("/carrinho");
       return;
     }
 
@@ -73,41 +87,41 @@ export default function Checkout() {
 
   const fetchUserProfile = async () => {
     if (!user) return;
-    
+
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error && error.code !== "PGRST116") {
         throw error;
       }
 
       if (data) {
         setUserProfile(data);
         setShippingAddress({
-          full_name: data.full_name || '',
-          phone: data.phone || '',
-          street: data.street || '',
-          number: data.number || '',
-          complement: data.complement || '',
-          city: data.city || '',
-          state: data.state || '',
-          zip_code: data.zip_code || ''
+          full_name: data.full_name || "",
+          phone: data.phone || "",
+          street: data.street || "",
+          number: data.number || "",
+          complement: data.complement || "",
+          city: data.city || "",
+          state: data.state || "",
+          zip_code: data.zip_code || "",
         });
       }
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error("Error fetching profile:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleInputChange = (field: keyof ShippingAddress, value: string) => {
-    setShippingAddress(prev => ({ ...prev, [field]: value }));
+    setShippingAddress((prev) => ({ ...prev, [field]: value }));
   };
 
   const getProductImageUrl = (imageUrl: string) => {
@@ -120,23 +134,33 @@ export default function Checkout() {
   };
 
   const validateForm = () => {
-    const required = ['full_name', 'phone', 'street', 'number', 'city', 'state', 'zip_code'];
-    const missing = required.filter(field => !shippingAddress[field as keyof ShippingAddress]);
-    
+    const required = [
+      "full_name",
+      "phone",
+      "street",
+      "number",
+      "city",
+      "state",
+      "zip_code",
+    ];
+    const missing = required.filter(
+      (field) => !shippingAddress[field as keyof ShippingAddress]
+    );
+
     if (missing.length > 0) {
       toast({
-        title: 'Campos obrigatórios',
-        description: 'Por favor, preencha todos os campos obrigatórios.',
-        variant: 'destructive',
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha todos os campos obrigatórios.",
+        variant: "destructive",
       });
       return false;
     }
 
     if (shippingAddress.phone.length < 10) {
       toast({
-        title: 'Telefone inválido',
-        description: 'Por favor, informe um telefone válido.',
-        variant: 'destructive',
+        title: "Telefone inválido",
+        description: "Por favor, informe um telefone válido.",
+        variant: "destructive",
       });
       return false;
     }
@@ -146,70 +170,81 @@ export default function Checkout() {
 
   const createOrder = async () => {
     if (!user || !validateForm()) {
-      console.log('❌ VALIDAÇÃO FALHOU - User:', !!user, 'Form válido:', validateForm());
+      console.log(
+        "❌ VALIDAÇÃO FALHOU - User:",
+        !!user,
+        "Form válido:",
+        validateForm()
+      );
       return null;
     }
 
     try {
-      console.log('📊 DADOS PARA CRIAÇÃO DO PEDIDO:');
-      console.log('- User ID:', user.id);
-      console.log('- Items:', items);
-      console.log('- Endereço:', shippingAddress);
-      
-      const totalAmount = getTotalPrice();
-      const addressString = `${shippingAddress.street}, ${shippingAddress.number}${shippingAddress.complement ? `, ${shippingAddress.complement}` : ''}, ${shippingAddress.city} - ${shippingAddress.state}, CEP: ${shippingAddress.zip_code}`;
+      console.log("📊 DADOS PARA CRIAÇÃO DO PEDIDO:");
+      console.log("- User ID:", user.id);
+      console.log("- Items:", items);
+      console.log("- Endereço:", shippingAddress);
 
-      console.log('💰 Total:', totalAmount);
-      console.log('📮 Endereço formatado:', addressString);
+      const totalAmount = getTotalPrice();
+      const addressString = `${shippingAddress.street}, ${
+        shippingAddress.number
+      }${
+        shippingAddress.complement ? `, ${shippingAddress.complement}` : ""
+      }, ${shippingAddress.city} - ${shippingAddress.state}, CEP: ${
+        shippingAddress.zip_code
+      }`;
+
+      console.log("💰 Total:", totalAmount);
+      console.log("📮 Endereço formatado:", addressString);
 
       // Create order
-      console.log('💾 INSERINDO PEDIDO...');
+      console.log("💾 INSERINDO PEDIDO...");
       const { data: order, error: orderError } = await supabase
-        .from('orders')
+        .from("orders")
         .insert({
           user_id: user.id,
           total_amount: totalAmount,
-          status: 'pending',
-          payment_status: 'pending',
-          payment_method: 'whatsapp',
-          shipping_address: addressString
+          status: "pending",
+          payment_status: "pending",
+          payment_method: "whatsapp",
+          shipping_address: addressString,
         })
         .select()
         .single();
 
       if (orderError) {
-        console.error('❌ ERRO AO CRIAR PEDIDO:', orderError);
+        console.error("❌ ERRO AO CRIAR PEDIDO:", orderError);
         throw orderError;
       }
 
-      console.log('✅ PEDIDO CRIADO:', order);
+      console.log("✅ PEDIDO CRIADO:", order);
 
       // Create order items
-      const orderItems = items.map(item => ({
+      const orderItems = items.map((item) => ({
         order_id: order.id,
         product_id: item.id,
         product_name: item.name,
         quantity: item.quantity,
         unit_price: item.price,
-        total_price: item.price * item.quantity
+        total_price: item.price * item.quantity,
       }));
 
-      console.log('📦 ITENS DO PEDIDO:', orderItems);
-      console.log('💾 INSERINDO ITENS...');
+      console.log("📦 ITENS DO PEDIDO:", orderItems);
+      console.log("💾 INSERINDO ITENS...");
 
       const { error: itemsError } = await supabase
-        .from('order_items')
+        .from("order_items")
         .insert(orderItems);
 
       if (itemsError) {
-        console.error('❌ ERRO AO CRIAR ITENS:', itemsError);
+        console.error("❌ ERRO AO CRIAR ITENS:", itemsError);
         throw itemsError;
       }
 
-      console.log('✅ ITENS CRIADOS COM SUCESSO');
+      console.log("✅ ITENS CRIADOS COM SUCESSO");
       return order;
     } catch (error) {
-      console.error('❌ ERRO GERAL NA CRIAÇÃO DO PEDIDO:', error);
+      console.error("❌ ERRO GERAL NA CRIAÇÃO DO PEDIDO:", error);
       throw error;
     }
   };
@@ -217,11 +252,11 @@ export default function Checkout() {
   const generateWhatsAppMessage = (orderId: string) => {
     const total = getTotalPrice();
     const orderNumber = orderId.slice(0, 8).toUpperCase();
-    const currentDate = new Date().toLocaleDateString('pt-BR');
-    
+    const currentDate = new Date().toLocaleDateString("pt-BR");
+
     // Mensagem mais limpa e compatível com WhatsApp
     let message = `*NOVO PEDIDO #${orderNumber}*\n\n`;
-    
+
     message += `*PRODUTOS:*\n`;
     items.forEach((item, index) => {
       message += `${index + 1}. ${item.name}\n`;
@@ -232,13 +267,13 @@ export default function Checkout() {
       message += `   Quantidade: ${item.quantity}\n`;
       message += `   Valor: ${formatCurrency(item.price * item.quantity)}\n\n`;
     });
-    
+
     message += `*TOTAL: ${formatCurrency(total)}*\n\n`;
-    
+
     message += `*DADOS DO CLIENTE:*\n`;
     message += `Nome: ${shippingAddress.full_name}\n`;
     message += `Telefone: ${shippingAddress.phone}\n\n`;
-    
+
     message += `*ENTREGA:*\n`;
     message += `Endereco: ${shippingAddress.street}, ${shippingAddress.number}`;
     if (shippingAddress.complement) {
@@ -246,58 +281,58 @@ export default function Checkout() {
     }
     message += `\n${shippingAddress.city} - ${shippingAddress.state}\n`;
     message += `CEP: ${shippingAddress.zip_code}\n\n`;
-    
+
     message += `Data: ${currentDate}\n\n`;
     message += `Gostaria de fazer esse pedido, e realizar o pagamento!`;
-    
+
     return encodeURIComponent(message);
   };
 
   const handleFinishOrder = async () => {
-    console.log('🚀 INICIANDO FINALIZAÇÃO DO PEDIDO');
+    console.log("🚀 INICIANDO FINALIZAÇÃO DO PEDIDO");
     setSubmitting(true);
-    
+
     try {
-      console.log('💾 CRIANDO PEDIDO NO BANCO...');
+      console.log("💾 CRIANDO PEDIDO NO BANCO...");
       const order = await createOrder();
-      
+
       if (order) {
-        console.log('✅ PEDIDO CRIADO:', order);
-        
+        console.log("✅ PEDIDO CRIADO:", order);
+
         // Generate WhatsApp message
-        console.log('📱 GERANDO MENSAGEM WHATSAPP...');
+        console.log("📱 GERANDO MENSAGEM WHATSAPP...");
         const whatsappMessage = generateWhatsAppMessage(order.id);
         const whatsappNumber = getWhatsAppNumber();
-        console.log('📞 NÚMERO WHATSAPP:', whatsappNumber);
+        console.log("📞 NÚMERO WHATSAPP:", whatsappNumber);
         const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
-        console.log('🔗 URL WHATSAPP:', whatsappUrl);
-        
+        console.log("🔗 URL WHATSAPP:", whatsappUrl);
+
         // Clear cart first
         clearCart();
-        
+
         // Change to redirecting state
         setSubmitting(false);
         setRedirectingToWhatsApp(true);
-        
+
         // Toast notification
         toast({
-          title: 'Pedido criado com sucesso!',
-          description: 'Redirecionando para o WhatsApp...',
+          title: "Pedido criado com sucesso!",
+          description: "Redirecionando para o WhatsApp...",
           duration: 4000,
         });
-        
+
         // Redirect after 2 seconds
         setTimeout(() => {
-          window.open(whatsappUrl, '_blank');
+          window.open(whatsappUrl, "_blank");
           setRedirectingToWhatsApp(false);
-          navigate('/minha-conta');
+          navigate("/minha-conta");
         }, 2000);
       }
     } catch (error) {
       toast({
-        title: 'Erro ao criar pedido',
-        description: 'Tente novamente em alguns instantes.',
-        variant: 'destructive',
+        title: "Erro ao criar pedido",
+        description: "Tente novamente em alguns instantes.",
+        variant: "destructive",
       });
       setSubmitting(false);
       setRedirectingToWhatsApp(false);
@@ -330,7 +365,9 @@ export default function Checkout() {
               <CheckCircle2 className="w-12 h-12 text-green-600" />
             </div>
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-green-800">Pedido Criado!</h1>
+              <h1 className="text-2xl font-bold text-green-800">
+                Pedido Criado!
+              </h1>
               <p className="text-muted-foreground">
                 Seu pedido foi criado com sucesso
               </p>
@@ -347,7 +384,9 @@ export default function Checkout() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Número do pedido:</span>
+                <span className="text-sm text-muted-foreground">
+                  Número do pedido:
+                </span>
                 <span className="font-mono text-sm font-medium">
                   #{orderData.id.slice(0, 8).toUpperCase()}
                 </span>
@@ -380,26 +419,28 @@ export default function Checkout() {
                 <p className="text-sm text-green-700">
                   Seu pedido será enviado automaticamente para nosso WhatsApp
                 </p>
-                
+
                 <div className="space-y-2">
-                  <Button 
-                    onClick={() => window.open(whatsappUrl, '_blank')}
+                  <Button
+                    onClick={() => window.open(whatsappUrl, "_blank")}
                     className="w-full bg-green-600 hover:bg-green-700"
                     size="lg"
                   >
                     <MessageCircle className="w-5 h-5 mr-2" />
                     Abrir WhatsApp Agora
                   </Button>
-                  
-                  <Button 
+
+                  <Button
                     onClick={() => {
-                      const whatsappMessage = generateWhatsAppMessage(orderData.id);
+                      const whatsappMessage = generateWhatsAppMessage(
+                        orderData.id
+                      );
                       const whatsappNumber = getWhatsAppNumber();
                       const newWhatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
-                      window.open(newWhatsappUrl, '_blank');
+                      window.open(newWhatsappUrl, "_blank");
                       toast({
-                        title: 'Mensagem reenviada',
-                        description: 'Abrindo WhatsApp novamente...',
+                        title: "Mensagem reenviada",
+                        description: "Abrindo WhatsApp novamente...",
                       });
                     }}
                     variant="outline"
@@ -408,10 +449,10 @@ export default function Checkout() {
                     <MessageCircle className="w-4 h-4 mr-2" />
                     Reenviar Mensagem
                   </Button>
-                  
-                  <Button 
+
+                  <Button
                     variant="outline"
-                    onClick={() => navigate('/minha-conta')}
+                    onClick={() => navigate("/minha-conta")}
                     className="w-full"
                   >
                     Ver Meus Pedidos
@@ -429,7 +470,10 @@ export default function Checkout() {
             <CardContent>
               <div className="space-y-2">
                 {items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center text-sm">
+                  <div
+                    key={item.id}
+                    className="flex justify-between items-center text-sm"
+                  >
                     <span className="truncate pr-2">
                       {item.quantity}x {item.name}
                     </span>
@@ -444,9 +488,9 @@ export default function Checkout() {
 
           {/* Back to home */}
           <div className="text-center pt-4">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/')}
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/")}
               className="text-muted-foreground"
             >
               Voltar ao Início
@@ -460,13 +504,13 @@ export default function Checkout() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-4 md:py-8 max-w-7xl">
         {/* Breadcrumb & Header */}
         <div className="mb-6 md:mb-8">
           <Button
             variant="ghost"
-            onClick={() => navigate('/carrinho')}
+            onClick={() => navigate("/carrinho")}
             className="mb-4 p-2"
             size="sm"
           >
@@ -474,7 +518,7 @@ export default function Checkout() {
             <span className="hidden sm:inline">Voltar ao Carrinho</span>
             <span className="sm:hidden">Voltar</span>
           </Button>
-          
+
           <div className="text-center mb-6">
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
               Finalizar Compra
@@ -535,7 +579,9 @@ export default function Checkout() {
                       <Input
                         id="full_name"
                         value={shippingAddress.full_name}
-                        onChange={(e) => handleInputChange('full_name', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("full_name", e.target.value)
+                        }
                         className="pl-10 h-11"
                         placeholder="Digite seu nome completo"
                       />
@@ -551,7 +597,9 @@ export default function Checkout() {
                       <Input
                         id="phone"
                         value={shippingAddress.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("phone", e.target.value)
+                        }
                         className="pl-10 h-11"
                         placeholder="(11) 99999-9999"
                       />
@@ -565,7 +613,9 @@ export default function Checkout() {
                     <Input
                       id="street"
                       value={shippingAddress.street}
-                      onChange={(e) => handleInputChange('street', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("street", e.target.value)
+                      }
                       className="mt-1 h-11"
                       placeholder="Nome da rua ou avenida"
                     />
@@ -578,7 +628,9 @@ export default function Checkout() {
                     <Input
                       id="number"
                       value={shippingAddress.number}
-                      onChange={(e) => handleInputChange('number', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("number", e.target.value)
+                      }
                       className="mt-1 h-11"
                       placeholder="123"
                     />
@@ -591,7 +643,9 @@ export default function Checkout() {
                     <Input
                       id="complement"
                       value={shippingAddress.complement}
-                      onChange={(e) => handleInputChange('complement', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("complement", e.target.value)
+                      }
                       className="mt-1 h-11"
                       placeholder="Apto, bloco, casa, etc... (opcional)"
                     />
@@ -604,7 +658,9 @@ export default function Checkout() {
                     <Input
                       id="city"
                       value={shippingAddress.city}
-                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("city", e.target.value)
+                      }
                       className="mt-1 h-11"
                       placeholder="Nome da cidade"
                     />
@@ -617,7 +673,9 @@ export default function Checkout() {
                     <Input
                       id="state"
                       value={shippingAddress.state}
-                      onChange={(e) => handleInputChange('state', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("state", e.target.value)
+                      }
                       className="mt-1 h-11"
                       placeholder="SP"
                       maxLength={2}
@@ -631,7 +689,9 @@ export default function Checkout() {
                     <Input
                       id="zip_code"
                       value={shippingAddress.zip_code}
-                      onChange={(e) => handleInputChange('zip_code', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("zip_code", e.target.value)
+                      }
                       className="mt-1 h-11"
                       placeholder="00000-000"
                     />
@@ -656,7 +716,10 @@ export default function Checkout() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   {items.map((item) => (
-                    <div key={item.id} className="flex gap-3 p-3 rounded-lg bg-muted/50">
+                    <div
+                      key={item.id}
+                      className="flex gap-3 p-3 rounded-lg bg-muted/50"
+                    >
                       <div className="w-12 h-12 bg-muted rounded-md flex-shrink-0 overflow-hidden">
                         <img
                           src={getProductImageUrl(item.image)}
@@ -664,7 +727,7 @@ export default function Checkout() {
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            target.src = '/placeholder.svg';
+                            target.src = "/placeholder.svg";
                           }}
                         />
                       </div>
@@ -684,12 +747,15 @@ export default function Checkout() {
                     </div>
                   ))}
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>Subtotal ({items.length} {items.length === 1 ? 'item' : 'itens'})</span>
+                    <span>
+                      Subtotal ({items.length}{" "}
+                      {items.length === 1 ? "item" : "itens"})
+                    </span>
                     <span>{formatCurrency(getTotalPrice())}</span>
                   </div>
                   <div className="flex justify-between text-sm">
@@ -697,9 +763,9 @@ export default function Checkout() {
                     <span className="text-green-600 font-medium">Grátis</span>
                   </div>
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="flex justify-between items-center font-bold text-lg">
                   <span>Total</span>
                   <span className="text-primary text-xl">
@@ -726,10 +792,11 @@ export default function Checkout() {
                     <span className="font-medium text-green-900">WhatsApp</span>
                   </div>
                   <p className="text-sm text-green-700">
-                    Finalize via WhatsApp para maior facilidade e suporte personalizado
+                    Finalize via WhatsApp para maior facilidade e suporte
+                    personalizado
                   </p>
                 </div>
-                
+
                 <div className="space-y-2 text-xs text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
@@ -748,7 +815,7 @@ export default function Checkout() {
             </Card>
 
             {/* Final Button */}
-            <Button 
+            <Button
               onClick={handleFinishOrder}
               disabled={submitting || redirectingToWhatsApp}
               className="w-full h-12 text-base font-medium"
@@ -771,14 +838,15 @@ export default function Checkout() {
                 </div>
               )}
             </Button>
-            
+
             <p className="text-xs text-center text-muted-foreground px-2">
-              Ao finalizar, você será redirecionado para o WhatsApp com todos os detalhes do seu pedido
+              Ao finalizar, você será redirecionado para o WhatsApp com todos os
+              detalhes do seu pedido
             </p>
           </div>
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

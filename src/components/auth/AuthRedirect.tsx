@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/NewAuthContext";
 
 export function AuthRedirect() {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
@@ -8,7 +8,7 @@ export function AuthRedirect() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      const redirectPath = isAdmin ? '/admin' : '/';
+      const redirectPath = isAdmin ? "/admin" : "/";
       navigate(redirectPath, { replace: true });
     }
   }, [isAuthenticated, isAdmin, isLoading, navigate]);

@@ -25,7 +25,7 @@ import {
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSettings } from "@/hooks/useSettings";
-import { supabase } from "@/integrations/supabase/client";
+// import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
 import FloatingCart from "@/components/FloatingCart";
 import { Skeleton } from "@/components/ui/skeleton";

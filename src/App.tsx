@@ -1,9 +1,8 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { NewAuthProvider } from "@/contexts/NewAuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import Index from "./pages/Index";
 import Produtos from "./pages/Produtos";
@@ -32,15 +31,12 @@ import Checkout from "./pages/Checkout";
 
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
-
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <CartProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
+  <NewAuthProvider>
+    <CartProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
@@ -52,9 +48,15 @@ const App = () => (
             <Route path="/sobre-nos" element={<SobreNos />} />
             <Route path="/contato" element={<Contato />} />
             <Route path="/entrega" element={<Entrega />} />
-            <Route path="/trocas-e-devolucoes" element={<TrocaseDevolucoes />} />
+            <Route
+              path="/trocas-e-devolucoes"
+              element={<TrocaseDevolucoes />}
+            />
             <Route path="/termos-uso" element={<TermosUso />} />
-            <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
+            <Route
+              path="/politica-privacidade"
+              element={<PoliticaPrivacidade />}
+            />
             <Route path="/cookies" element={<Cookies />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/minha-conta" element={<MinhaConta />} />
@@ -74,9 +76,8 @@ const App = () => (
           <CookieConsent />
         </BrowserRouter>
       </TooltipProvider>
-      </CartProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+    </CartProvider>
+  </NewAuthProvider>
 );
 
 export default App;

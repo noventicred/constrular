@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
-import { supabase } from '@/integrations/supabase/client';
+// import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency, formatOrderNumber } from '@/lib/formatters';
 import { Search, Eye, Users, ShoppingBag, Edit, Save, X, Mail, Phone, MapPin, Calendar, FileText, Filter, MoreHorizontal, CreditCard, Package, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';

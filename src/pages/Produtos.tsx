@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Filter, Grid, List, ShoppingCart, Star, Sliders, SlidersHorizontal, Search, MessageCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+// import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";

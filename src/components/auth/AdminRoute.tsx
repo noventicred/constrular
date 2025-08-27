@@ -1,13 +1,13 @@
-import { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { ReactNode } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/contexts/NewAuthContext";
 
 interface AdminRouteProps {
   children: ReactNode;
   fallback?: string;
 }
 
-export function AdminRoute({ children, fallback = '/' }: AdminRouteProps) {
+export function AdminRoute({ children, fallback = "/" }: AdminRouteProps) {
   const { isAuthenticated, isAdmin, isLoading, profile } = useAuth();
 
   if (isLoading) {

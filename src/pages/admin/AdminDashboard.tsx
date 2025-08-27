@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { supabase } from '@/integrations/supabase/client';
+// import { supabase } from '@/integrations/supabase/client';
 import { Package, FolderOpen, Users, TrendingUp, ShoppingCart, DollarSign, Eye, Plus, Activity, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 

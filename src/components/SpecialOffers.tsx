@@ -6,7 +6,7 @@ import { ArrowRight, Percent, Clock, ShoppingCart, Star, MessageCircle } from "l
 import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+// import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
 import { useSettings } from "@/hooks/useSettings";

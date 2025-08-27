@@ -1,21 +1,55 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { User, MapPin, Phone, Mail, Calendar, Save, Package, Eye, ShoppingCart, CreditCard, Truck, CheckCircle, Clock, XCircle, TrendingUp, Star, Home, ArrowLeft, LogOut, X, MessageCircle } from 'lucide-react';
-import { formatCurrency, formatOrderNumber } from '@/lib/formatters';
-import { useSettings } from '@/hooks/useSettings';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/NewAuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+// import { supabase } from '@/integrations/supabase/client';
+import {
+  User,
+  MapPin,
+  Phone,
+  Mail,
+  Calendar,
+  Save,
+  Package,
+  Eye,
+  ShoppingCart,
+  CreditCard,
+  Truck,
+  CheckCircle,
+  Clock,
+  XCircle,
+  TrendingUp,
+  Star,
+  Home,
+  ArrowLeft,
+  LogOut,
+  X,
+  MessageCircle,
+} from "lucide-react";
+import { formatCurrency, formatOrderNumber } from "@/lib/formatters";
+import { useSettings } from "@/hooks/useSettings";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 interface OrderItem {
   id: string;
@@ -77,33 +111,33 @@ export default function MinhaConta() {
   });
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [profileData, setProfileData] = useState<ProfileData>({
-    full_name: '',
-    email: '',
-    phone: '',
-    birth_date: '',
-    street: '',
-    number: '',
-    complement: '',
-    city: '',
-    state: '',
-    zip_code: '',
-    document_number: '',
+    full_name: "",
+    email: "",
+    phone: "",
+    birth_date: "",
+    street: "",
+    number: "",
+    complement: "",
+    city: "",
+    state: "",
+    zip_code: "",
+    document_number: "",
   });
 
   useEffect(() => {
     if (user) {
       setProfileData({
-        full_name: profile?.full_name || '',
-        email: profile?.email || user.email || '',
-        phone: profile?.phone || '',
-        birth_date: profile?.birth_date || '',
-        street: profile?.street || '',
-        number: profile?.number || '',
-        complement: profile?.complement || '',
-        city: profile?.city || '',
-        state: profile?.state || '',
-        zip_code: profile?.zip_code || '',
-        document_number: profile?.document_number || '',
+        full_name: profile?.full_name || "",
+        email: profile?.email || user.email || "",
+        phone: profile?.phone || "",
+        birth_date: profile?.birth_date || "",
+        street: profile?.street || "",
+        number: profile?.number || "",
+        complement: profile?.complement || "",
+        city: profile?.city || "",
+        state: profile?.state || "",
+        zip_code: profile?.zip_code || "",
+        document_number: profile?.document_number || "",
       });
     }
     fetchOrders();
@@ -114,8 +148,9 @@ export default function MinhaConta() {
 
     try {
       const { data, error } = await supabase
-        .from('orders')
-        .select(`
+        .from("orders")
+        .select(
+          `
           *,
           order_items (
             id,
@@ -130,35 +165,42 @@ export default function MinhaConta() {
               sku
             )
           )
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        `
+        )
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
-      
+
       const ordersData = data || [];
       setOrders(ordersData);
-      
+
       // Calculate statistics
       const stats = {
         total_orders: ordersData.length,
-        total_spent: ordersData.reduce((sum, order) => sum + order.total_amount, 0),
-        pending_orders: ordersData.filter(order => order.status === 'pending').length,
-        completed_orders: ordersData.filter(order => order.status === 'delivered').length,
+        total_spent: ordersData.reduce(
+          (sum, order) => sum + order.total_amount,
+          0
+        ),
+        pending_orders: ordersData.filter((order) => order.status === "pending")
+          .length,
+        completed_orders: ordersData.filter(
+          (order) => order.status === "delivered"
+        ).length,
       };
       setOrderStats(stats);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error("Error fetching orders:", error);
     }
   };
 
   const handleSaveProfile = async () => {
     if (!user) return;
-    
+
     setIsLoading(true);
     try {
       const { error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({
           full_name: profileData.full_name,
           phone: profileData.phone,
@@ -171,21 +213,21 @@ export default function MinhaConta() {
           zip_code: profileData.zip_code,
           document_number: profileData.document_number,
         })
-        .eq('id', user.id);
+        .eq("id", user.id);
 
       if (error) throw error;
 
       await refreshProfile();
       toast({
-        title: 'Sucesso',
-        description: 'Perfil atualizado com sucesso!',
+        title: "Sucesso",
+        description: "Perfil atualizado com sucesso!",
       });
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error);
       toast({
-        title: 'Erro',
-        description: 'Erro ao atualizar perfil. Tente novamente.',
-        variant: 'destructive',
+        title: "Erro",
+        description: "Erro ao atualizar perfil. Tente novamente.",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -194,66 +236,97 @@ export default function MinhaConta() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock className="h-4 w-4" />;
-      case 'confirmed': return <CheckCircle className="h-4 w-4" />;
-      case 'processing': return <Package className="h-4 w-4" />;
-      case 'shipped': return <Truck className="h-4 w-4" />;
-      case 'delivered': return <CheckCircle className="h-4 w-4" />;
-      case 'cancelled': return <XCircle className="h-4 w-4" />;
-      default: return <Clock className="h-4 w-4" />;
+      case "pending":
+        return <Clock className="h-4 w-4" />;
+      case "confirmed":
+        return <CheckCircle className="h-4 w-4" />;
+      case "processing":
+        return <Package className="h-4 w-4" />;
+      case "shipped":
+        return <Truck className="h-4 w-4" />;
+      case "delivered":
+        return <CheckCircle className="h-4 w-4" />;
+      case "cancelled":
+        return <XCircle className="h-4 w-4" />;
+      default:
+        return <Clock className="h-4 w-4" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'confirmed': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'processing': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'shipped': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'delivered': return 'bg-green-100 text-green-800 border-green-200';
-      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "confirmed":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "processing":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "shipped":
+        return "bg-purple-100 text-purple-800 border-purple-200";
+      case "delivered":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "cancelled":
+        return "bg-red-100 text-red-800 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Pendente';
-      case 'confirmed': return 'Confirmado';
-      case 'processing': return 'Processando';
-      case 'shipped': return 'Enviado';
-      case 'delivered': return 'Entregue';
-      case 'cancelled': return 'Cancelado';
-      default: return status;
+      case "pending":
+        return "Pendente";
+      case "confirmed":
+        return "Confirmado";
+      case "processing":
+        return "Processando";
+      case "shipped":
+        return "Enviado";
+      case "delivered":
+        return "Entregue";
+      case "cancelled":
+        return "Cancelado";
+      default:
+        return status;
     }
   };
 
   const getPaymentStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Aguardando Pagamento';
-      case 'paid': return 'Pago';
-      case 'cancelled': return 'Cancelado';
-      case 'refunded': return 'Reembolsado';
-      default: return status;
+      case "pending":
+        return "Aguardando Pagamento";
+      case "paid":
+        return "Pago";
+      case "cancelled":
+        return "Cancelado";
+      case "refunded":
+        return "Reembolsado";
+      default:
+        return status;
     }
   };
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'paid': return 'bg-green-100 text-green-800 border-green-200';
-      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
-      case 'refunded': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "paid":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "cancelled":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "refunded":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const generateWhatsAppMessage = (order: Order) => {
     const orderNumber = order.id.slice(0, 8).toUpperCase();
-    const currentDate = new Date(order.created_at).toLocaleDateString('pt-BR');
-    
+    const currentDate = new Date(order.created_at).toLocaleDateString("pt-BR");
+
     let message = `*PEDIDO #${orderNumber}*\n\n`;
-    
+
     message += `*PRODUTOS:*\n`;
     order.order_items?.forEach((item, index) => {
       message += `${index + 1}. ${item.product_name}\n`;
@@ -263,24 +336,24 @@ export default function MinhaConta() {
       message += `   Quantidade: ${item.quantity}\n`;
       message += `   Valor: ${formatCurrency(item.total_price)}\n\n`;
     });
-    
+
     message += `*TOTAL: ${formatCurrency(order.total_amount)}*\n\n`;
-    
+
     if (profile) {
       message += `*DADOS DO CLIENTE:*\n`;
       if (profile.full_name) message += `Nome: ${profile.full_name}\n`;
       if (profile.phone) message += `Telefone: ${profile.phone}\n`;
       if (profile.email) message += `Email: ${profile.email}\n\n`;
     }
-    
+
     if (order.shipping_address) {
       message += `*ENTREGA:*\n`;
       message += `${order.shipping_address}\n\n`;
     }
-    
+
     message += `Data do pedido: ${currentDate}\n\n`;
     message += `Gostaria de fazer esse pedido, e realizar o pagamento!`;
-    
+
     return encodeURIComponent(message);
   };
 
@@ -288,12 +361,12 @@ export default function MinhaConta() {
     const whatsappMessage = generateWhatsAppMessage(order);
     const whatsappNumber = getWhatsAppNumber();
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
-    
-    window.open(whatsappUrl, '_blank');
-    
+
+    window.open(whatsappUrl, "_blank");
+
     toast({
-      title: 'Mensagem enviada',
-      description: 'Redirecionando para o WhatsApp...',
+      title: "Mensagem enviada",
+      description: "Redirecionando para o WhatsApp...",
     });
   };
 
@@ -304,7 +377,7 @@ export default function MinhaConta() {
       await signOut();
       // Redirect will be handled by AuthRedirect component
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error("Error signing out:", error);
     }
   };
 
@@ -316,7 +389,9 @@ export default function MinhaConta() {
           <Card className="w-full max-w-md mx-4">
             <CardHeader className="text-center">
               <CardTitle>Acesso Negado</CardTitle>
-              <CardDescription>Você precisa estar logado para acessar sua conta.</CardDescription>
+              <CardDescription>
+                Você precisa estar logado para acessar sua conta.
+              </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
               <Link to="/auth">
@@ -333,12 +408,15 @@ export default function MinhaConta() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      
+
       {/* Breadcrumb Navigation */}
       <div className="bg-muted/30 border-b">
         <div className="container mx-auto px-4 py-3">
           <nav className="flex items-center space-x-2 text-sm">
-            <Link to="/" className="flex items-center text-muted-foreground hover:text-foreground transition-colors">
+            <Link
+              to="/"
+              className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
+            >
               <Home className="h-4 w-4 mr-1" />
               Início
             </Link>
@@ -358,21 +436,36 @@ export default function MinhaConta() {
                   <User className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Minha Conta</h1>
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">
+                    Minha Conta
+                  </h1>
                   <p className="text-sm sm:text-base text-muted-foreground">
-                    Olá, {profileData.full_name || user.email?.split('@')[0] || 'usuário'}!
+                    Olá,{" "}
+                    {profileData.full_name ||
+                      user.email?.split("@")[0] ||
+                      "usuário"}
+                    !
                   </p>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <Link to="/" className="w-full sm:w-auto">
-                  <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full sm:w-auto"
+                  >
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     <span className="hidden sm:inline">Voltar à loja</span>
                     <span className="sm:hidden">Voltar</span>
                   </Button>
                 </Link>
-                <Button variant="outline" size="sm" onClick={handleSignOut} className="w-full sm:w-auto">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="w-full sm:w-auto"
+                >
                   <LogOut className="h-4 w-4 mr-2" />
                   Sair
                 </Button>
@@ -382,15 +475,24 @@ export default function MinhaConta() {
 
           <Tabs defaultValue="dashboard" className="space-y-4 lg:space-y-6">
             <TabsList className="grid w-full grid-cols-3 h-auto p-1">
-              <TabsTrigger value="dashboard" className="flex items-center gap-1 sm:gap-2 py-2 sm:py-3 text-xs sm:text-sm">
+              <TabsTrigger
+                value="dashboard"
+                className="flex items-center gap-1 sm:gap-2 py-2 sm:py-3 text-xs sm:text-sm"
+              >
                 <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden xs:inline">Dashboard</span>
               </TabsTrigger>
-              <TabsTrigger value="profile" className="flex items-center gap-1 sm:gap-2 py-2 sm:py-3 text-xs sm:text-sm">
+              <TabsTrigger
+                value="profile"
+                className="flex items-center gap-1 sm:gap-2 py-2 sm:py-3 text-xs sm:text-sm"
+              >
                 <User className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden xs:inline">Perfil</span>
               </TabsTrigger>
-              <TabsTrigger value="orders" className="flex items-center gap-1 sm:gap-2 py-2 sm:py-3 text-xs sm:text-sm">
+              <TabsTrigger
+                value="orders"
+                className="flex items-center gap-1 sm:gap-2 py-2 sm:py-3 text-xs sm:text-sm"
+              >
                 <Package className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden xs:inline">Pedidos</span>
               </TabsTrigger>
@@ -404,8 +506,12 @@ export default function MinhaConta() {
                     <CardContent className="p-3 sm:p-4 lg:p-6">
                       <div className="flex items-center justify-between">
                         <div className="min-w-0 flex-1 mr-2">
-                          <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">Total de Pedidos</p>
-                          <p className="text-lg sm:text-xl lg:text-2xl font-bold">{orderStats.total_orders}</p>
+                          <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">
+                            Total de Pedidos
+                          </p>
+                          <p className="text-lg sm:text-xl lg:text-2xl font-bold">
+                            {orderStats.total_orders}
+                          </p>
                         </div>
                         <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg flex-shrink-0">
                           <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-primary" />
@@ -413,13 +519,17 @@ export default function MinhaConta() {
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   <Card className="hover:shadow-md transition-shadow">
                     <CardContent className="p-3 sm:p-4 lg:p-6">
                       <div className="flex items-center justify-between">
                         <div className="min-w-0 flex-1 mr-2">
-                          <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">Total Gasto</p>
-                          <p className="text-lg sm:text-xl lg:text-2xl font-bold">{formatCurrency(orderStats.total_spent)}</p>
+                          <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">
+                            Total Gasto
+                          </p>
+                          <p className="text-lg sm:text-xl lg:text-2xl font-bold">
+                            {formatCurrency(orderStats.total_spent)}
+                          </p>
                         </div>
                         <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg flex-shrink-0">
                           <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-600" />
@@ -427,13 +537,17 @@ export default function MinhaConta() {
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   <Card className="hover:shadow-md transition-shadow">
                     <CardContent className="p-3 sm:p-4 lg:p-6">
                       <div className="flex items-center justify-between">
                         <div className="min-w-0 flex-1 mr-2">
-                          <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">Pendentes</p>
-                          <p className="text-lg sm:text-xl lg:text-2xl font-bold">{orderStats.pending_orders}</p>
+                          <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">
+                            Pendentes
+                          </p>
+                          <p className="text-lg sm:text-xl lg:text-2xl font-bold">
+                            {orderStats.pending_orders}
+                          </p>
                         </div>
                         <div className="p-1.5 sm:p-2 bg-yellow-100 rounded-lg flex-shrink-0">
                           <Clock className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-yellow-600" />
@@ -441,13 +555,17 @@ export default function MinhaConta() {
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   <Card className="hover:shadow-md transition-shadow">
                     <CardContent className="p-3 sm:p-4 lg:p-6">
                       <div className="flex items-center justify-between">
                         <div className="min-w-0 flex-1 mr-2">
-                          <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">Concluídos</p>
-                          <p className="text-lg sm:text-xl lg:text-2xl font-bold">{orderStats.completed_orders}</p>
+                          <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">
+                            Concluídos
+                          </p>
+                          <p className="text-lg sm:text-xl lg:text-2xl font-bold">
+                            {orderStats.completed_orders}
+                          </p>
                         </div>
                         <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg flex-shrink-0">
                           <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-600" />
@@ -474,33 +592,39 @@ export default function MinhaConta() {
                           <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs sm:text-sm font-medium">Email</p>
+                          <p className="text-xs sm:text-sm font-medium">
+                            Email
+                          </p>
                           <p className="text-xs sm:text-sm text-muted-foreground truncate">
-                            {profileData.email || 'Não informado'}
+                            {profileData.email || "Não informado"}
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-muted/30 rounded-lg">
                         <div className="p-1.5 sm:p-2 bg-background rounded-lg shadow-sm flex-shrink-0">
                           <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs sm:text-sm font-medium">Telefone</p>
+                          <p className="text-xs sm:text-sm font-medium">
+                            Telefone
+                          </p>
                           <p className="text-xs sm:text-sm text-muted-foreground">
-                            {profileData.phone || 'Não informado'}
+                            {profileData.phone || "Não informado"}
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-muted/30 rounded-lg">
                         <div className="p-1.5 sm:p-2 bg-background rounded-lg shadow-sm flex-shrink-0">
                           <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs sm:text-sm font-medium">Cidade</p>
+                          <p className="text-xs sm:text-sm font-medium">
+                            Cidade
+                          </p>
                           <p className="text-xs sm:text-sm text-muted-foreground">
-                            {profileData.city || 'Não informado'}
+                            {profileData.city || "Não informado"}
                           </p>
                         </div>
                       </div>
@@ -524,8 +648,12 @@ export default function MinhaConta() {
                         <div className="p-4 bg-muted/30 rounded-full w-fit mx-auto mb-4">
                           <Package className="h-12 w-12 text-muted-foreground" />
                         </div>
-                        <h3 className="text-lg font-semibold mb-2">Nenhum pedido encontrado</h3>
-                        <p className="text-muted-foreground mb-4">Você ainda não fez nenhum pedido.</p>
+                        <h3 className="text-lg font-semibold mb-2">
+                          Nenhum pedido encontrado
+                        </h3>
+                        <p className="text-muted-foreground mb-4">
+                          Você ainda não fez nenhum pedido.
+                        </p>
                         <Link to="/produtos">
                           <Button>
                             <ShoppingCart className="mr-2 h-4 w-4" />
@@ -536,18 +664,28 @@ export default function MinhaConta() {
                     ) : (
                       <div className="space-y-3">
                         {orders.slice(0, 3).map((order) => (
-                          <div key={order.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors">
+                          <div
+                            key={order.id}
+                            className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors"
+                          >
                             <div className="flex items-center gap-4 mb-3 sm:mb-0">
                               <div className="p-2 bg-primary/10 rounded-lg">
                                 {getStatusIcon(order.status)}
                               </div>
                               <div className="min-w-0 flex-1">
-                                <p className="font-medium">Pedido #{formatOrderNumber(order.id)}</p>
+                                <p className="font-medium">
+                                  Pedido #{formatOrderNumber(order.id)}
+                                </p>
                                 <p className="text-sm text-muted-foreground">
-                                  {new Date(order.created_at).toLocaleDateString('pt-BR')}
+                                  {new Date(
+                                    order.created_at
+                                  ).toLocaleDateString("pt-BR")}
                                 </p>
                                 <div className="mt-1">
-                                  <Badge variant="outline" className={getStatusColor(order.status)}>
+                                  <Badge
+                                    variant="outline"
+                                    className={getStatusColor(order.status)}
+                                  >
                                     {getStatusText(order.status)}
                                   </Badge>
                                 </div>
@@ -555,10 +693,12 @@ export default function MinhaConta() {
                             </div>
                             <div className="flex items-center justify-between sm:justify-end gap-4">
                               <div className="text-left sm:text-right">
-                                <p className="font-bold text-lg">{formatCurrency(order.total_amount)}</p>
+                                <p className="font-bold text-lg">
+                                  {formatCurrency(order.total_amount)}
+                                </p>
                               </div>
-                              <Button 
-                                variant="outline" 
+                              <Button
+                                variant="outline"
                                 size="sm"
                                 onClick={() => setSelectedOrder(order)}
                                 className="shrink-0"
@@ -569,7 +709,7 @@ export default function MinhaConta() {
                             </div>
                           </div>
                         ))}
-                        
+
                         {orders.length > 3 && (
                           <div className="text-center pt-4">
                             <Button variant="outline">
@@ -600,17 +740,29 @@ export default function MinhaConta() {
                 <CardContent className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="full_name" className="text-sm font-medium">Nome Completo</Label>
+                      <Label
+                        htmlFor="full_name"
+                        className="text-sm font-medium"
+                      >
+                        Nome Completo
+                      </Label>
                       <Input
                         id="full_name"
                         value={profileData.full_name}
-                        onChange={(e) => setProfileData(prev => ({ ...prev, full_name: e.target.value }))}
+                        onChange={(e) =>
+                          setProfileData((prev) => ({
+                            ...prev,
+                            full_name: e.target.value,
+                          }))
+                        }
                         placeholder="Seu nome completo"
                         className="text-sm"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                      <Label htmlFor="email" className="text-sm font-medium">
+                        Email
+                      </Label>
                       <Input
                         id="email"
                         type="email"
@@ -623,33 +775,60 @@ export default function MinhaConta() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-sm font-medium">Telefone</Label>
+                      <Label htmlFor="phone" className="text-sm font-medium">
+                        Telefone
+                      </Label>
                       <Input
                         id="phone"
                         value={profileData.phone}
-                        onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                        onChange={(e) =>
+                          setProfileData((prev) => ({
+                            ...prev,
+                            phone: e.target.value,
+                          }))
+                        }
                         placeholder="(11) 99999-9999"
                         className="text-sm"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="birth_date" className="text-sm font-medium">Data de Nascimento</Label>
+                      <Label
+                        htmlFor="birth_date"
+                        className="text-sm font-medium"
+                      >
+                        Data de Nascimento
+                      </Label>
                       <Input
                         id="birth_date"
                         type="date"
                         value={profileData.birth_date}
-                        onChange={(e) => setProfileData(prev => ({ ...prev, birth_date: e.target.value }))}
+                        onChange={(e) =>
+                          setProfileData((prev) => ({
+                            ...prev,
+                            birth_date: e.target.value,
+                          }))
+                        }
                         className="text-sm"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="document_number" className="text-sm font-medium">CPF/CNPJ</Label>
+                    <Label
+                      htmlFor="document_number"
+                      className="text-sm font-medium"
+                    >
+                      CPF/CNPJ
+                    </Label>
                     <Input
                       id="document_number"
                       value={profileData.document_number}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, document_number: e.target.value }))}
+                      onChange={(e) =>
+                        setProfileData((prev) => ({
+                          ...prev,
+                          document_number: e.target.value,
+                        }))
+                      }
                       placeholder="000.000.000-00"
                       className="text-sm"
                     />
@@ -662,24 +841,38 @@ export default function MinhaConta() {
                       <MapPin className="h-5 w-5" />
                       Endereço de Entrega
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                       <div className="sm:col-span-2 space-y-2">
-                        <Label htmlFor="street" className="text-sm font-medium">Rua</Label>
+                        <Label htmlFor="street" className="text-sm font-medium">
+                          Rua
+                        </Label>
                         <Input
                           id="street"
                           value={profileData.street}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, street: e.target.value }))}
+                          onChange={(e) =>
+                            setProfileData((prev) => ({
+                              ...prev,
+                              street: e.target.value,
+                            }))
+                          }
                           placeholder="Nome da rua"
                           className="text-sm"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="number" className="text-sm font-medium">Número</Label>
+                        <Label htmlFor="number" className="text-sm font-medium">
+                          Número
+                        </Label>
                         <Input
                           id="number"
                           value={profileData.number}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, number: e.target.value }))}
+                          onChange={(e) =>
+                            setProfileData((prev) => ({
+                              ...prev,
+                              number: e.target.value,
+                            }))
+                          }
                           placeholder="123"
                           className="text-sm"
                         />
@@ -687,11 +880,21 @@ export default function MinhaConta() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="complement" className="text-sm font-medium">Complemento</Label>
+                      <Label
+                        htmlFor="complement"
+                        className="text-sm font-medium"
+                      >
+                        Complemento
+                      </Label>
                       <Input
                         id="complement"
                         value={profileData.complement}
-                        onChange={(e) => setProfileData(prev => ({ ...prev, complement: e.target.value }))}
+                        onChange={(e) =>
+                          setProfileData((prev) => ({
+                            ...prev,
+                            complement: e.target.value,
+                          }))
+                        }
                         placeholder="Apartamento, bloco, etc. (opcional)"
                         className="text-sm"
                       />
@@ -699,31 +902,55 @@ export default function MinhaConta() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="city" className="text-sm font-medium">Cidade</Label>
+                        <Label htmlFor="city" className="text-sm font-medium">
+                          Cidade
+                        </Label>
                         <Input
                           id="city"
                           value={profileData.city}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, city: e.target.value }))}
+                          onChange={(e) =>
+                            setProfileData((prev) => ({
+                              ...prev,
+                              city: e.target.value,
+                            }))
+                          }
                           placeholder="São Paulo"
                           className="text-sm"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="state" className="text-sm font-medium">Estado</Label>
+                        <Label htmlFor="state" className="text-sm font-medium">
+                          Estado
+                        </Label>
                         <Input
                           id="state"
                           value={profileData.state}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, state: e.target.value }))}
+                          onChange={(e) =>
+                            setProfileData((prev) => ({
+                              ...prev,
+                              state: e.target.value,
+                            }))
+                          }
                           placeholder="SP"
                           className="text-sm"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="zip_code" className="text-sm font-medium">CEP</Label>
+                        <Label
+                          htmlFor="zip_code"
+                          className="text-sm font-medium"
+                        >
+                          CEP
+                        </Label>
                         <Input
                           id="zip_code"
                           value={profileData.zip_code}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, zip_code: e.target.value }))}
+                          onChange={(e) =>
+                            setProfileData((prev) => ({
+                              ...prev,
+                              zip_code: e.target.value,
+                            }))
+                          }
                           placeholder="00000-000"
                           className="text-sm"
                         />
@@ -732,9 +959,13 @@ export default function MinhaConta() {
                   </div>
 
                   <div className="pt-4">
-                    <Button onClick={handleSaveProfile} disabled={isLoading} className="w-full sm:w-auto">
+                    <Button
+                      onClick={handleSaveProfile}
+                      disabled={isLoading}
+                      className="w-full sm:w-auto"
+                    >
                       <Save className="mr-2 h-4 w-4" />
-                      {isLoading ? 'Salvando...' : 'Salvar Alterações'}
+                      {isLoading ? "Salvando..." : "Salvar Alterações"}
                     </Button>
                   </div>
                 </CardContent>
@@ -756,8 +987,12 @@ export default function MinhaConta() {
                   {orders.length === 0 ? (
                     <div className="text-center py-8">
                       <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">Nenhum pedido encontrado</h3>
-                      <p className="text-muted-foreground">Você ainda não fez nenhum pedido.</p>
+                      <h3 className="text-lg font-semibold mb-2">
+                        Nenhum pedido encontrado
+                      </h3>
+                      <p className="text-muted-foreground">
+                        Você ainda não fez nenhum pedido.
+                      </p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -770,75 +1005,116 @@ export default function MinhaConta() {
                                   {getStatusIcon(order.status)}
                                 </div>
                                 <div className="min-w-0">
-                                  <h4 className="font-semibold text-base sm:text-lg">Pedido #{formatOrderNumber(order.id)}</h4>
+                                  <h4 className="font-semibold text-base sm:text-lg">
+                                    Pedido #{formatOrderNumber(order.id)}
+                                  </h4>
                                   <p className="text-xs sm:text-sm text-muted-foreground">
-                                    {new Date(order.created_at).toLocaleDateString('pt-BR', {
-                                      day: '2-digit',
-                                      month: '2-digit',
-                                      year: 'numeric',
-                                      hour: '2-digit',
-                                      minute: '2-digit'
+                                    {new Date(
+                                      order.created_at
+                                    ).toLocaleDateString("pt-BR", {
+                                      day: "2-digit",
+                                      month: "2-digit",
+                                      year: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
                                     })}
                                   </p>
                                 </div>
                               </div>
                               <div className="text-left sm:text-right">
-                                <p className="font-bold text-lg sm:text-xl">{formatCurrency(order.total_amount)}</p>
-                                <Badge variant="outline" className={getStatusColor(order.status)}>
+                                <p className="font-bold text-lg sm:text-xl">
+                                  {formatCurrency(order.total_amount)}
+                                </p>
+                                <Badge
+                                  variant="outline"
+                                  className={getStatusColor(order.status)}
+                                >
                                   {getStatusText(order.status)}
                                 </Badge>
                               </div>
                             </div>
-                            
+
                             {/* Order Items */}
-                            {order.order_items && order.order_items.length > 0 && (
-                              <div className="mb-4">
-                                <h5 className="font-medium mb-2 text-sm sm:text-base">Itens do Pedido:</h5>
-                                <div className="space-y-2">
-                                  {order.order_items.map((item) => (
-                                    <div key={item.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 p-2 sm:p-3 bg-muted/50 rounded">
-                                      <div className="min-w-0 flex-1">
-                                        <p className="font-medium text-sm sm:text-base">{item.product_name}</p>
-                                        <p className="text-xs sm:text-sm text-muted-foreground">
-                                          Qtd: {item.quantity} × {formatCurrency(item.unit_price)}
+                            {order.order_items &&
+                              order.order_items.length > 0 && (
+                                <div className="mb-4">
+                                  <h5 className="font-medium mb-2 text-sm sm:text-base">
+                                    Itens do Pedido:
+                                  </h5>
+                                  <div className="space-y-2">
+                                    {order.order_items.map((item) => (
+                                      <div
+                                        key={item.id}
+                                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 p-2 sm:p-3 bg-muted/50 rounded"
+                                      >
+                                        <div className="min-w-0 flex-1">
+                                          <p className="font-medium text-sm sm:text-base">
+                                            {item.product_name}
+                                          </p>
+                                          <p className="text-xs sm:text-sm text-muted-foreground">
+                                            Qtd: {item.quantity} ×{" "}
+                                            {formatCurrency(item.unit_price)}
+                                          </p>
+                                        </div>
+                                        <p className="font-medium text-sm sm:text-base">
+                                          {formatCurrency(item.total_price)}
                                         </p>
                                       </div>
-                                      <p className="font-medium text-sm sm:text-base">{formatCurrency(item.total_price)}</p>
-                                    </div>
-                                  ))}
+                                    ))}
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                            
+                              )}
+
                             {/* Payment and Shipping Info */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                               <div>
-                                <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">Status do Pagamento:</p>
-                                <Badge variant={order.payment_status === 'paid' ? 'default' : 'secondary'} className="text-xs">
-                                  {order.payment_status === 'pending' ? 'Pendente' : 'Pago'}
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">
+                                  Status do Pagamento:
+                                </p>
+                                <Badge
+                                  variant={
+                                    order.payment_status === "paid"
+                                      ? "default"
+                                      : "secondary"
+                                  }
+                                  className="text-xs"
+                                >
+                                  {order.payment_status === "pending"
+                                    ? "Pendente"
+                                    : "Pago"}
                                 </Badge>
                               </div>
-                              
+
                               {order.payment_method && (
                                 <div>
-                                  <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">Método de Pagamento:</p>
-                                  <p className="text-xs sm:text-sm">{order.payment_method}</p>
+                                  <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">
+                                    Método de Pagamento:
+                                  </p>
+                                  <p className="text-xs sm:text-sm">
+                                    {order.payment_method}
+                                  </p>
                                 </div>
                               )}
                             </div>
-                            
+
                             {order.shipping_address && (
                               <div className="mb-4">
-                                <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">Endereço de entrega:</p>
-                                <p className="text-xs sm:text-sm bg-muted/50 p-2 rounded break-words">{order.shipping_address}</p>
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">
+                                  Endereço de entrega:
+                                </p>
+                                <p className="text-xs sm:text-sm bg-muted/50 p-2 rounded break-words">
+                                  {order.shipping_address}
+                                </p>
                               </div>
                             )}
-                            
+
                             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 pt-4 border-t">
                               <div className="flex items-center gap-2">
                                 <Star className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                                 <span className="text-xs sm:text-sm text-muted-foreground">
-                                  {order.status === 'delivered' ? 'Avalie este pedido' : 'Aguardando entrega'}
+                                  {order.status === "delivered"
+                                    ? "Avalie este pedido"
+                                    : "Aguardando entrega"}
                                 </span>
                               </div>
                               <div className="flex flex-col gap-2">
@@ -849,10 +1125,14 @@ export default function MinhaConta() {
                                   className="w-full"
                                 >
                                   <Eye className="mr-1 h-3 w-3" />
-                                  <span className="sm:hidden">Ver Detalhes</span>
-                                  <span className="hidden sm:inline">Ver Detalhes Completos</span>
+                                  <span className="sm:hidden">
+                                    Ver Detalhes
+                                  </span>
+                                  <span className="hidden sm:inline">
+                                    Ver Detalhes Completos
+                                  </span>
                                 </Button>
-                                
+
                                 <Button
                                   variant="outline"
                                   size="sm"
@@ -861,7 +1141,9 @@ export default function MinhaConta() {
                                 >
                                   <MessageCircle className="mr-1 h-3 w-3" />
                                   <span className="sm:hidden">WhatsApp</span>
-                                  <span className="hidden sm:inline">Reenviar WhatsApp</span>
+                                  <span className="hidden sm:inline">
+                                    Reenviar WhatsApp
+                                  </span>
                                 </Button>
                               </div>
                             </div>
@@ -876,20 +1158,24 @@ export default function MinhaConta() {
           </Tabs>
         </div>
       </div>
-      
+
       {/* Order Details Modal */}
-      <Dialog open={selectedOrder !== null} onOpenChange={() => setSelectedOrder(null)}>
+      <Dialog
+        open={selectedOrder !== null}
+        onOpenChange={() => setSelectedOrder(null)}
+      >
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
-              Detalhes do Pedido #{selectedOrder ? formatOrderNumber(selectedOrder.id) : ''}
+              Detalhes do Pedido #
+              {selectedOrder ? formatOrderNumber(selectedOrder.id) : ""}
             </DialogTitle>
             <DialogDescription>
               Informações completas sobre seu pedido
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedOrder && (
             <div className="space-y-6">
               {/* Order Header */}
@@ -899,25 +1185,41 @@ export default function MinhaConta() {
                     {getStatusIcon(selectedOrder.status)}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg">Pedido #{selectedOrder.id.slice(0, 8)}</h3>
+                    <h3 className="font-semibold text-lg">
+                      Pedido #{selectedOrder.id.slice(0, 8)}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
-                      Realizado em {new Date(selectedOrder.created_at).toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                      Realizado em{" "}
+                      {new Date(selectedOrder.created_at).toLocaleDateString(
+                        "pt-BR",
+                        {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )}
                     </p>
                   </div>
                 </div>
                 <div className="text-left sm:text-right">
-                  <p className="text-2xl font-bold text-primary">{formatCurrency(selectedOrder.total_amount)}</p>
+                  <p className="text-2xl font-bold text-primary">
+                    {formatCurrency(selectedOrder.total_amount)}
+                  </p>
                   <div className="flex gap-2 mt-2">
-                    <Badge variant="outline" className={getStatusColor(selectedOrder.status)}>
+                    <Badge
+                      variant="outline"
+                      className={getStatusColor(selectedOrder.status)}
+                    >
                       {getStatusText(selectedOrder.status)}
                     </Badge>
-                    <Badge variant="outline" className={getPaymentStatusColor(selectedOrder.payment_status)}>
+                    <Badge
+                      variant="outline"
+                      className={getPaymentStatusColor(
+                        selectedOrder.payment_status
+                      )}
+                    >
                       {getPaymentStatusText(selectedOrder.payment_status)}
                     </Badge>
                   </div>
@@ -931,64 +1233,97 @@ export default function MinhaConta() {
                   Status do Pedido
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                  <div className={`p-3 rounded-lg border-2 ${
-                    ['pending', 'confirmed', 'processing', 'shipped', 'delivered'].includes(selectedOrder.status) 
-                      ? 'border-primary bg-primary/5' 
-                      : 'border-muted bg-muted/30'
-                  }`}>
+                  <div
+                    className={`p-3 rounded-lg border-2 ${
+                      [
+                        "pending",
+                        "confirmed",
+                        "processing",
+                        "shipped",
+                        "delivered",
+                      ].includes(selectedOrder.status)
+                        ? "border-primary bg-primary/5"
+                        : "border-muted bg-muted/30"
+                    }`}
+                  >
                     <div className="flex items-center gap-2 mb-1">
                       <Clock className="h-4 w-4" />
                       <span className="text-sm font-medium">Pendente</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">Aguardando confirmação</p>
+                    <p className="text-xs text-muted-foreground">
+                      Aguardando confirmação
+                    </p>
                   </div>
-                  
-                  <div className={`p-3 rounded-lg border-2 ${
-                    ['confirmed', 'processing', 'shipped', 'delivered'].includes(selectedOrder.status) 
-                      ? 'border-primary bg-primary/5' 
-                      : 'border-muted bg-muted/30'
-                  }`}>
+
+                  <div
+                    className={`p-3 rounded-lg border-2 ${
+                      [
+                        "confirmed",
+                        "processing",
+                        "shipped",
+                        "delivered",
+                      ].includes(selectedOrder.status)
+                        ? "border-primary bg-primary/5"
+                        : "border-muted bg-muted/30"
+                    }`}
+                  >
                     <div className="flex items-center gap-2 mb-1">
                       <CheckCircle className="h-4 w-4" />
                       <span className="text-sm font-medium">Confirmado</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">Pedido confirmado</p>
+                    <p className="text-xs text-muted-foreground">
+                      Pedido confirmado
+                    </p>
                   </div>
 
-                  <div className={`p-3 rounded-lg border-2 ${
-                    ['processing', 'shipped', 'delivered'].includes(selectedOrder.status) 
-                      ? 'border-primary bg-primary/5' 
-                      : 'border-muted bg-muted/30'
-                  }`}>
+                  <div
+                    className={`p-3 rounded-lg border-2 ${
+                      ["processing", "shipped", "delivered"].includes(
+                        selectedOrder.status
+                      )
+                        ? "border-primary bg-primary/5"
+                        : "border-muted bg-muted/30"
+                    }`}
+                  >
                     <div className="flex items-center gap-2 mb-1">
                       <Package className="h-4 w-4" />
                       <span className="text-sm font-medium">Processando</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">Preparando pedido</p>
+                    <p className="text-xs text-muted-foreground">
+                      Preparando pedido
+                    </p>
                   </div>
-                  
-                  <div className={`p-3 rounded-lg border-2 ${
-                    ['shipped', 'delivered'].includes(selectedOrder.status) 
-                      ? 'border-primary bg-primary/5' 
-                      : 'border-muted bg-muted/30'
-                  }`}>
+
+                  <div
+                    className={`p-3 rounded-lg border-2 ${
+                      ["shipped", "delivered"].includes(selectedOrder.status)
+                        ? "border-primary bg-primary/5"
+                        : "border-muted bg-muted/30"
+                    }`}
+                  >
                     <div className="flex items-center gap-2 mb-1">
                       <Truck className="h-4 w-4" />
                       <span className="text-sm font-medium">Enviado</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">Em transporte</p>
+                    <p className="text-xs text-muted-foreground">
+                      Em transporte
+                    </p>
                   </div>
-                  
-                  <div className={`p-3 rounded-lg border-2 ${
-                    selectedOrder.status === 'delivered' 
-                      ? 'border-green-500 bg-green-50' 
-                      : 'border-muted bg-muted/30'
-                  }`}>
+
+                  <div
+                    className={`p-3 rounded-lg border-2 ${
+                      selectedOrder.status === "delivered"
+                        ? "border-green-500 bg-green-50"
+                        : "border-muted bg-muted/30"
+                    }`}
+                  >
                     <div className="flex items-center gap-2 mb-1">
                       <CheckCircle className="h-4 w-4" />
                       <span className="text-sm font-medium">Entregue</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">Pedido entregue</p>
+                    <p className="text-xs text-muted-foreground">
+                      Pedido entregue
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1001,14 +1336,25 @@ export default function MinhaConta() {
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Status do Pagamento</p>
-                    <Badge variant="outline" className={getPaymentStatusColor(selectedOrder.payment_status)}>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Status do Pagamento
+                    </p>
+                    <Badge
+                      variant="outline"
+                      className={getPaymentStatusColor(
+                        selectedOrder.payment_status
+                      )}
+                    >
                       {getPaymentStatusText(selectedOrder.payment_status)}
                     </Badge>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Método de Pagamento</p>
-                    <p className="text-sm capitalize">{selectedOrder.payment_method || 'WhatsApp'}</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Método de Pagamento
+                    </p>
+                    <p className="text-sm capitalize">
+                      {selectedOrder.payment_method || "WhatsApp"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1021,15 +1367,22 @@ export default function MinhaConta() {
                 </h4>
                 <div className="space-y-3">
                   {selectedOrder.order_items?.map((item) => (
-                    <div key={item.id} className="flex items-start gap-4 p-4 border rounded-lg">
+                    <div
+                      key={item.id}
+                      className="flex items-start gap-4 p-4 border rounded-lg"
+                    >
                       {/* Product Image */}
                       <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                         {item.products?.image_url ? (
                           <img
                             src={(() => {
                               try {
-                                const parsed = JSON.parse(item.products.image_url);
-                                return Array.isArray(parsed) ? parsed[0] : item.products.image_url;
+                                const parsed = JSON.parse(
+                                  item.products.image_url
+                                );
+                                return Array.isArray(parsed)
+                                  ? parsed[0]
+                                  : item.products.image_url;
                               } catch {
                                 return item.products.image_url;
                               }
@@ -1046,28 +1399,35 @@ export default function MinhaConta() {
                           </div>
                         )}
                       </div>
-                      
+
                       {/* Product Info */}
                       <div className="flex-1 min-w-0">
                         <h5 className="font-medium">{item.product_name}</h5>
                         {item.products?.sku && (
-                          <p className="text-sm text-muted-foreground">SKU: {item.products.sku}</p>
+                          <p className="text-sm text-muted-foreground">
+                            SKU: {item.products.sku}
+                          </p>
                         )}
                         <div className="flex items-center justify-between mt-2">
                           <p className="text-sm text-muted-foreground">
-                            Quantidade: {item.quantity} × {formatCurrency(item.unit_price)}
+                            Quantidade: {item.quantity} ×{" "}
+                            {formatCurrency(item.unit_price)}
                           </p>
-                          <p className="font-semibold">{formatCurrency(item.total_price)}</p>
+                          <p className="font-semibold">
+                            {formatCurrency(item.total_price)}
+                          </p>
                         </div>
                       </div>
                     </div>
                   ))}
-                  
+
                   <Separator />
-                  
+
                   <div className="flex justify-between items-center font-bold text-lg p-4">
                     <span>Total do Pedido:</span>
-                    <span className="text-primary">{formatCurrency(selectedOrder.total_amount)}</span>
+                    <span className="text-primary">
+                      {formatCurrency(selectedOrder.total_amount)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -1087,15 +1447,18 @@ export default function MinhaConta() {
 
               {/* Actions */}
               <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4 border-t">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => handleResendWhatsApp(selectedOrder)}
                   className="bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
                 >
                   <MessageCircle className="mr-2 h-4 w-4" />
                   Reenviar no WhatsApp
                 </Button>
-                <Button variant="outline" onClick={() => setSelectedOrder(null)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedOrder(null)}
+                >
                   <X className="mr-2 h-4 w-4" />
                   Fechar
                 </Button>
