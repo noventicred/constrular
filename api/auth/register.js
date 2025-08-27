@@ -1,7 +1,17 @@
-// CommonJS version for Vercel compatibility
-const { VercelRequest, VercelResponse } = require("@vercel/node");
+// API de registro para Vercel
+export default async function handler(req, res) {
+  // Headers CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-module.exports = async function handler(req, res) {
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -25,12 +35,15 @@ module.exports = async function handler(req, res) {
       phone: phone || null,
       is_admin: false,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     };
 
     return res.status(201).json({ user });
   } catch (error) {
     console.error("Erro no registro:", error);
-    return res.status(500).json({ error: "Erro interno do servidor" });
+    return res.status(500).json({
+      error: "Erro interno do servidor",
+      details: error.message,
+    });
   }
-};
+}

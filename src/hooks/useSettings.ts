@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 // import { supabase } from '@/integrations/supabase/client';
 
 interface Settings {
@@ -11,11 +11,11 @@ interface Settings {
 
 export const useSettings = () => {
   const [settings, setSettings] = useState<Settings>({
-    whatsapp_number: '5511999999999',
-    store_name: 'Minha Loja',
-    store_email: 'contato@minhaloja.com',
-    free_shipping_threshold: '199',
-    default_shipping_cost: '29.90'
+    whatsapp_number: "5511999999999",
+    store_name: "Minha Loja",
+    store_email: "contato@minhaloja.com",
+    free_shipping_threshold: "199",
+    default_shipping_cost: "29.90",
   });
   const [loading, setLoading] = useState(true);
 
@@ -25,26 +25,37 @@ export const useSettings = () => {
 
   const fetchSettings = async () => {
     try {
-      // Por enquanto, usar configurações padrão até criar API de settings
-      // TODO: Implementar API /api/settings quando necessário
-      console.log('Usando configurações padrão (settings API não implementada ainda)');
-      
-      // Manter as configurações padrão que já estão definidas
-      setSettings(prev => prev);
+      console.log("⚙️ Carregando configurações da API...");
+
+      const response = await fetch("/api/settings");
+      if (!response.ok) {
+        throw new Error("Erro ao carregar configurações");
+      }
+
+      const data = await response.json();
+
+      if (data.settings) {
+        setSettings(data.settings);
+        console.log("✅ Configurações carregadas com sucesso");
+      } else {
+        console.log("⚠️ Usando configurações padrão");
+      }
     } catch (error) {
-      console.error('Erro ao carregar configurações:', error);
+      console.error("❌ Erro ao carregar configurações:", error);
+      console.log("⚠️ Usando configurações padrão devido ao erro");
+      // Manter configurações padrão em caso de erro
     } finally {
       setLoading(false);
     }
   };
 
   const getSetting = (key: keyof Settings): string => {
-    return settings[key] || '';
+    return settings[key] || "";
   };
 
   const getWhatsAppNumber = (): string => {
-    const number = settings.whatsapp_number || '5511999999999';
-    console.log('📞 BUSCANDO NÚMERO WHATSAPP:', number);
+    const number = settings.whatsapp_number || "5511999999999";
+    console.log("📞 BUSCANDO NÚMERO WHATSAPP:", number);
     return number;
   };
 
@@ -53,7 +64,7 @@ export const useSettings = () => {
   };
 
   const getDefaultShippingCost = (): number => {
-    return parseFloat(settings.default_shipping_cost) || 29.90;
+    return parseFloat(settings.default_shipping_cost) || 29.9;
   };
 
   return {
@@ -63,6 +74,6 @@ export const useSettings = () => {
     getWhatsAppNumber,
     getFreeShippingThreshold,
     getDefaultShippingCost,
-    fetchSettings
+    fetchSettings,
   };
 };
