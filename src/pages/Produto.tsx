@@ -425,7 +425,7 @@ const Produto = () => {
               )}
             </div>
 
-            {/* Quantity and Add to Cart */}
+            {/* Quantidade e Adicionar ao Carrinho */}
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                 <label className="text-sm font-medium shrink-0">Quantidade:</label>
