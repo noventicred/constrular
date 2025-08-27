@@ -325,6 +325,27 @@ export function apiMockMiddleware() {
           return;
         }
 
+        // Get user by ID
+        if (req.method === 'GET' && req.url?.startsWith('/users/')) {
+          const userId = req.url.split('/users/')[1];
+          console.log('👤 Getting user by ID:', userId);
+          
+          // Simular usuário mockado para qualquer ID
+          const user = {
+            id: userId,
+            email: 'usuario@teste.com',
+            full_name: 'Usuário Teste',
+            phone: '(11) 99999-9999',
+            is_admin: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+          
+          res.statusCode = 200;
+          res.end(JSON.stringify({ user }));
+          return;
+        }
+
         // Orders endpoints
         if (req.method === 'GET' && req.url === '/orders') {
           console.log('📋 Getting all orders:', mockOrders.length);
