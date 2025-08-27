@@ -5,8 +5,7 @@
   "installCommand": "npm install",
   "functions": {
     "src/api/**/*.ts": {
-      "runtime": "@vercel/node",
-      "maxDuration": 10
+      "runtime": "nodejs20.x"
     }
   },
   "rewrites": [
