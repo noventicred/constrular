@@ -234,20 +234,28 @@ export default function AdminOrders() {
   const fetchOrderItems = async (orderId: string) => {
     setLoadingItems(true);
     try {
-      // TODO: Implementar API real
-          *,
-          products!order_items_product_id_fkey(
-            id,
-            name,
-            image_url,
-            sku
-          )
-        `)
-        .eq('order_id', orderId);
-
-      if (error) throw error;
-      console.log('📦 ADMIN: Itens do pedido com produtos:', data);
-      setOrderItems(data || []);
+      // TODO: Implementar API real para itens do pedido
+      console.log('📦 ADMIN: Carregando itens do pedido:', orderId);
+      
+      // Mock data para desenvolvimento
+      const mockItems = [
+        {
+          id: '1',
+          order_id: orderId,
+          product_id: '1',
+          quantity: 1,
+          unit_price: 189.90,
+          total_price: 189.90,
+          products: {
+            id: '1',
+            name: 'Furadeira Black & Decker 500W',
+            image_url: '/placeholder.svg',
+            sku: 'BD-FUR-500'
+          }
+        }
+      ];
+      
+      setOrderItems(mockItems);
     } catch (error) {
       console.error('❌ ADMIN: Erro ao carregar itens:', error);
       toast({
