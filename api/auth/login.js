@@ -1,16 +1,15 @@
-// API de login para Vercel
-export default async function handler(req, res) {
-  // Headers CORS
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+// API de login para Vercel - Usando Prisma e banco real
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import { handleCors } from '../_lib/cors.js';
+import { successResponse, errorResponse, validationErrorResponse } from '../_lib/response.js';
+import { logger } from '../_lib/logger.js';
 
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
+const prisma = new PrismaClient();
+
+export default async function handler(req, res) {
+  // Aplicar CORS
+  if (handleCors(req, res)) return;
 
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -20,28 +19,39 @@ export default async function handler(req, res) {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ error: "Email e senha são obrigatórios" });
+      return validationErrorResponse(res, "Email e senha são obrigatórios");
     }
 
-    console.log("🔐 API Login - Autenticando usuário (mockado):", email);
+    logger.info('Tentativa de login', { email });
 
-    // Mock authentication - aceita qualquer email/senha para demonstração
-    const user = {
-      id: Date.now().toString(),
-      email: email,
-      full_name: "Usuário Teste",
-      phone: "(11) 99999-9999",
-      is_admin: email.includes("admin"),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    return res.status(200).json({ user });
-  } catch (error) {
-    console.error("Erro no login:", error);
-    return res.status(500).json({
-      error: "Erro interno do servidor",
-      details: error.message,
+    // Buscar usuário no banco
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() }
     });
+
+    if (!user) {
+      logger.warn('Tentativa de login com email não encontrado', { email });
+      return errorResponse(res, "Credenciais inválidas", 401);
+    }
+
+    // Verificar senha
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      logger.warn('Tentativa de login com senha incorreta', { email });
+      return errorResponse(res, "Credenciais inválidas", 401);
+    }
+
+    // Retornar dados do usuário (sem a senha)
+    const { password: _, ...userWithoutPassword } = user;
+
+    logger.info('Login realizado com sucesso', { userId: user.id, email: user.email });
+
+    return successResponse(res, { user: userWithoutPassword }, 'Login realizado com sucesso');
+  } catch (error) {
+    logger.error("Erro no login", error);
+    return errorResponse(res, "Erro interno do servidor", 500, error.message);
+  } finally {
+    await prisma.$disconnect();
   }
 }
