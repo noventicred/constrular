@@ -296,6 +296,45 @@ export type Database = {
         }
         Relationships: []
       }
+      sensitive_data_audit: {
+        Row: {
+          access_reason: string | null
+          accessed_by: string
+          created_at: string
+          field_accessed: string | null
+          id: string
+          ip_address: unknown | null
+          operation: string
+          table_name: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          access_reason?: string | null
+          accessed_by: string
+          created_at?: string
+          field_accessed?: string | null
+          id?: string
+          ip_address?: unknown | null
+          operation: string
+          table_name: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          access_reason?: string | null
+          accessed_by?: string
+          created_at?: string
+          field_accessed?: string | null
+          id?: string
+          ip_address?: unknown | null
+          operation?: string
+          table_name?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       settings: {
         Row: {
           created_at: string
@@ -328,6 +367,7 @@ export type Database = {
           birth_date: string | null
           created_at: string
           document_number: string | null
+          encrypted_document_number: string | null
           id: string
           updated_at: string
           user_id: string
@@ -336,6 +376,7 @@ export type Database = {
           birth_date?: string | null
           created_at?: string
           document_number?: string | null
+          encrypted_document_number?: string | null
           id?: string
           updated_at?: string
           user_id: string
@@ -344,6 +385,7 @@ export type Database = {
           birth_date?: string | null
           created_at?: string
           document_number?: string | null
+          encrypted_document_number?: string | null
           id?: string
           updated_at?: string
           user_id?: string
@@ -355,6 +397,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      decrypt_document_number: {
+        Args: {
+          access_reason?: string
+          encrypted_text: string
+          target_user_id: string
+        }
+        Returns: string
+      }
+      encrypt_document_number: {
+        Args: { plain_text: string }
+        Returns: string
+      }
       get_user_complete_profile: {
         Args: { target_user_id?: string }
         Returns: {
@@ -376,9 +430,30 @@ export type Database = {
           zip_code: string
         }[]
       }
+      get_user_sensitive_data_secure: {
+        Args: { access_reason?: string; target_user_id?: string }
+        Returns: {
+          birth_date: string
+          created_at: string
+          document_number: string
+          id: string
+          updated_at: string
+          user_id: string
+        }[]
+      }
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
+      }
+      log_sensitive_data_access: {
+        Args: {
+          access_reason?: string
+          field_accessed?: string
+          operation: string
+          table_name: string
+          target_user_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
