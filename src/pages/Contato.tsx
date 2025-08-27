@@ -6,22 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { 
-  Phone, 
-  Mail, 
-  MapPin, 
+import {
+  Phone,
+  Mail,
+  MapPin,
   Clock,
   MessageCircle,
   Navigation,
   Users,
-  Headphones
+  Headphones,
 } from "lucide-react";
 
 const Contato = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8 md:py-16">
         {/* Hero Section */}
         <div className="text-center mb-12 md:mb-16">
@@ -29,7 +29,8 @@ const Contato = () => {
             Fale Conosco
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Estamos aqui para ajudar você a realizar sua obra. Entre em contato conosco!
+            Estamos aqui para ajudar você a realizar sua obra. Entre em contato
+            conosco!
           </p>
         </div>
 
@@ -47,26 +48,26 @@ const Contato = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="name">Nome Completo *</Label>
-                    <Input 
-                      id="name" 
+                    <Input
+                      id="name"
                       placeholder="Seu nome completo"
                       className="mt-1"
                     />
                   </div>
                   <div>
                     <Label htmlFor="phone">Telefone *</Label>
-                    <Input 
-                      id="phone" 
+                    <Input
+                      id="phone"
                       placeholder="(11) 99999-9999"
                       className="mt-1"
                     />
                   </div>
                 </div>
-                
+
                 <div>
                   <Label htmlFor="email">E-mail *</Label>
-                  <Input 
-                    id="email" 
+                  <Input
+                    id="email"
                     type="email"
                     placeholder="seu@email.com"
                     className="mt-1"
@@ -75,8 +76,8 @@ const Contato = () => {
 
                 <div>
                   <Label htmlFor="subject">Assunto</Label>
-                  <Input 
-                    id="subject" 
+                  <Input
+                    id="subject"
                     placeholder="Qual o assunto da sua mensagem?"
                     className="mt-1"
                   />
@@ -84,8 +85,8 @@ const Contato = () => {
 
                 <div>
                   <Label htmlFor="message">Mensagem *</Label>
-                  <Textarea 
-                    id="message" 
+                  <Textarea
+                    id="message"
                     placeholder="Descreva como podemos ajudar você..."
                     className="mt-1 min-h-[120px]"
                   />
@@ -116,11 +117,15 @@ const Contato = () => {
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold">WhatsApp</p>
-                    <p className="text-sm text-muted-foreground">Resposta imediata</p>
+                    <p className="text-sm text-muted-foreground">
+                      Resposta imediata
+                    </p>
                   </div>
-                  <Button 
-                    size="sm" 
-                    onClick={() => window.open('https://wa.me/5511999999999', '_blank')}
+                  <Button
+                    size="sm"
+                    onClick={() =>
+                      window.open("https://wa.me/5511999999999", "_blank")
+                    }
                   >
                     Conversar
                   </Button>
@@ -132,12 +137,14 @@ const Contato = () => {
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold">Telefone</p>
-                    <p className="text-sm text-muted-foreground">(11) 4002-8922</p>
+                    <p className="text-sm text-muted-foreground">
+                      (11) 4002-8922
+                    </p>
                   </div>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
-                    onClick={() => window.open('tel:1140028922')}
+                    onClick={() => window.open("tel:1140028922")}
                   >
                     Ligar
                   </Button>
@@ -160,9 +167,11 @@ const Contato = () => {
                     <div>
                       <p className="font-semibold">Endereço</p>
                       <p className="text-muted-foreground">
-                        Rua das Construções, 123<br />
-                        Centro - São Paulo - SP<br />
-                        CEP: 01234-567
+                        Av Monsenhor Mauro Vallini, 240
+                        <br />
+                        Jardim Santa Esmeralda - Sorocaba - SP
+                        <br />
+                        CEP: 18.079-121
                       </p>
                     </div>
                   </div>
@@ -183,16 +192,20 @@ const Contato = () => {
                     <Mail className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="font-semibold">E-mail</p>
-                      <p className="text-muted-foreground">vendas@construtorpro.com.br</p>
+                      <p className="text-muted-foreground">
+                        contato@novacasaconstrucao.com.br
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="pt-4 border-t">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full"
-                    onClick={() => window.open('https://maps.google.com', '_blank')}
+                    onClick={() =>
+                      window.open("https://maps.google.com", "_blank")
+                    }
                   >
                     <Navigation className="h-4 w-4 mr-2" />
                     Ver no Mapa
@@ -200,12 +213,10 @@ const Contato = () => {
                 </div>
               </CardContent>
             </Card>
-
           </div>
         </div>
-
       </main>
-      
+
       <Footer />
       <FloatingCart />
     </div>

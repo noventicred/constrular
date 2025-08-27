@@ -1,5 +1,15 @@
 import { useState, useEffect } from "react";
-import { Filter, Grid, List, ShoppingCart, Star, Sliders, SlidersHorizontal, Search, MessageCircle } from "lucide-react";
+import {
+  Filter,
+  Grid,
+  List,
+  ShoppingCart,
+  Star,
+  Sliders,
+  SlidersHorizontal,
+  Search,
+  MessageCircle,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
@@ -7,7 +17,13 @@ import Footer from "@/components/Footer";
 import SearchBar from "@/components/SearchBar";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
@@ -67,7 +83,7 @@ const Produtos = () => {
   const { addItem } = useCart();
   const navigate = useNavigate();
   const { getWhatsAppNumber, getSetting } = useSettings();
-  
+
   // Use the advanced search hook
   const {
     products,
@@ -76,26 +92,26 @@ const Produtos = () => {
     updateFilters,
     resetFilters,
     searchSuggestions,
-    totalResults
+    totalResults,
   } = useAdvancedSearch();
 
   useEffect(() => {
     fetchCategories();
-    
+
     // Handle URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const filterParam = urlParams.get('filter');
-    const categoryParam = urlParams.get('categoria');
-    const searchParam = urlParams.get('search');
-    
-    if (filterParam === 'ofertas') {
+    const filterParam = urlParams.get("filter");
+    const categoryParam = urlParams.get("categoria");
+    const searchParam = urlParams.get("search");
+
+    if (filterParam === "ofertas") {
       updateFilters({ onlyOffers: true });
     }
-    
+
     if (categoryParam) {
       updateFilters({ category: categoryParam });
     }
-    
+
     if (searchParam) {
       updateFilters({ searchTerm: decodeURIComponent(searchParam) });
     }
@@ -104,50 +120,50 @@ const Produtos = () => {
   // Update URL when filters change
   useEffect(() => {
     const url = new URL(window.location.href);
-    
+
     if (filters.onlyOffers) {
-      url.searchParams.set('filter', 'ofertas');
+      url.searchParams.set("filter", "ofertas");
     } else {
-      url.searchParams.delete('filter');
+      url.searchParams.delete("filter");
     }
-    
-    if (filters.category !== 'todas') {
-      url.searchParams.set('categoria', filters.category);
+
+    if (filters.category !== "todas") {
+      url.searchParams.set("categoria", filters.category);
     } else {
-      url.searchParams.delete('categoria');
+      url.searchParams.delete("categoria");
     }
-    
+
     if (filters.searchTerm) {
-      url.searchParams.set('search', encodeURIComponent(filters.searchTerm));
+      url.searchParams.set("search", encodeURIComponent(filters.searchTerm));
     } else {
-      url.searchParams.delete('search');
+      url.searchParams.delete("search");
     }
-    
-    window.history.replaceState({}, '', url.toString());
+
+    window.history.replaceState({}, "", url.toString());
   }, [filters.onlyOffers, filters.category, filters.searchTerm]);
 
   const fetchCategories = async () => {
     try {
       const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .is('parent_id', null)
-        .order('name', { ascending: true });
+        .from("categories")
+        .select("*")
+        .is("parent_id", null)
+        .order("name", { ascending: true });
 
       if (error) throw error;
       setCategories(data || []);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error("Error fetching categories:", error);
     }
   };
 
   // Count active filters for UI
   const activeFiltersCount = [
-    filters.category !== 'todas',
+    filters.category !== "todas",
     filters.onlyOffers,
     !filters.inStock,
     filters.minRating > 0,
-    filters.priceRange[0] > 0 || filters.priceRange[1] < 10000
+    filters.priceRange[0] > 0 || filters.priceRange[1] < 10000,
   ].filter(Boolean).length;
 
   const getProductImageUrl = (imageUrl: string | null) => {
@@ -162,18 +178,18 @@ const Produtos = () => {
 
   const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
-    
+
     try {
       const cartItem = {
         id: product.id,
         name: product.name,
-        brand: '',
+        brand: "",
         price: product.price,
-        image: getProductImageUrl(product.image_url)
+        image: getProductImageUrl(product.image_url),
       };
-      
+
       addItem(cartItem);
-      
+
       toast({
         title: "✅ Produto adicionado!",
         description: (
@@ -190,14 +206,15 @@ const Produtos = () => {
       });
 
       setTimeout(() => {
-        const cartButton = document.querySelector('[data-cart-trigger]') as HTMLButtonElement;
+        const cartButton = document.querySelector(
+          "[data-cart-trigger]"
+        ) as HTMLButtonElement;
         if (cartButton) {
           cartButton.click();
         }
       }, 800);
-      
     } catch (error) {
-      console.error('Erro ao adicionar produto ao carrinho:', error);
+      console.error("Erro ao adicionar produto ao carrinho:", error);
       toast({
         title: "❌ Erro",
         description: "Não foi possível adicionar o produto ao carrinho.",
@@ -208,30 +225,35 @@ const Produtos = () => {
 
   const handleWhatsAppOrder = (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
-    
-    const storeName = getSetting('store_name') || 'Minha Loja';
+
+    const storeName = getSetting("store_name") || "Minha Loja";
     const productUrl = `${window.location.origin}/produto/${product.id}`;
-    
-    const message = `Olá! Gostaria de fazer um pedido desse item específico:\n\n` +
-                   `*${product.name}*\n` +
-                   `SKU: ${product.sku || product.id}\n` +
-                   `Preço: ${formatCurrency(product.price)}\n` +
-                   `Loja: ${storeName}\n\n` +
-                   `Link do produto: ${productUrl}\n\n` +
-                   `Aguardo informações sobre disponibilidade e formas de pagamento!`;
-    
+
+    const message =
+      `Olá! Gostaria de fazer um pedido desse item específico:\n\n` +
+      `*${product.name}*\n` +
+      `SKU: ${product.sku || product.id}\n` +
+      `Preço: ${formatCurrency(product.price)}\n` +
+      `Loja: ${storeName}\n\n` +
+      `Link do produto: ${productUrl}\n\n` +
+      `Aguardo informações sobre disponibilidade e formas de pagamento!`;
+
     const phoneNumber = getWhatsAppNumber();
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
-    
-    window.open(whatsappUrl, '_blank');
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
+      message
+    )}`;
+
+    window.open(whatsappUrl, "_blank");
   };
 
   // Generate SEO data
-  const seoTitle = filters.searchTerm 
-    ? `${filters.searchTerm} - Material de Construção | ConstrutorPro`
-    : filters.category !== 'todas'
-    ? `${categories.find(c => c.id === filters.category)?.name || 'Categoria'} - Material de Construção | ConstrutorPro`
-    : 'Produtos - Material de Construção | ConstrutorPro';
+  const seoTitle = filters.searchTerm
+    ? `${filters.searchTerm} - Material de Construção | Nova Casa Construção`
+    : filters.category !== "todas"
+    ? `${
+        categories.find((c) => c.id === filters.category)?.name || "Categoria"
+      } - Material de Construção | Nova Casa Construção`
+    : "Produtos - Material de Construção | Nova Casa Construção";
 
   const seoDescription = filters.searchTerm
     ? `Encontre ${filters.searchTerm} e outros materiais de construção com os melhores preços. ${totalResults} produtos encontrados.`
@@ -240,39 +262,47 @@ const Produtos = () => {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "numberOfItems": totalResults,
-    "itemListElement": products.slice(0, 10).map((product, index) => ({
+    numberOfItems: totalResults,
+    itemListElement: products.slice(0, 10).map((product, index) => ({
       "@type": "Product",
-      "position": index + 1,
-      "name": product.name,
-      "description": product.description,
-      "image": getProductImageUrl(product.image_url),
-      "offers": {
+      position: index + 1,
+      name: product.name,
+      description: product.description,
+      image: getProductImageUrl(product.image_url),
+      offers: {
         "@type": "Offer",
-        "price": product.price,
-        "priceCurrency": "BRL",
-        "availability": product.in_stock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+        price: product.price,
+        priceCurrency: "BRL",
+        availability: product.in_stock
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
       },
-      "aggregateRating": product.rating && product.reviews ? {
-        "@type": "AggregateRating",
-        "ratingValue": product.rating,
-        "reviewCount": product.reviews
-      } : undefined
-    }))
+      aggregateRating:
+        product.rating && product.reviews
+          ? {
+              "@type": "AggregateRating",
+              ratingValue: product.rating,
+              reviewCount: product.reviews,
+            }
+          : undefined,
+    })),
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <SEO 
-          title="Carregando Produtos - ConstrutorPro"
+        <SEO
+          title="Carregando Produtos - Nova Casa Construção"
           description="Carregando produtos de material de construção..."
         />
         <Header />
         <main className="flex-1 container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 8 }, (_, i) => (
-              <div key={`loading-skeleton-${i}`} className="h-96 bg-muted rounded-lg animate-pulse" />
+              <div
+                key={`loading-skeleton-${i}`}
+                className="h-96 bg-muted rounded-lg animate-pulse"
+              />
             ))}
           </div>
         </main>
@@ -283,14 +313,14 @@ const Produtos = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <SEO 
+      <SEO
         title={seoTitle}
         description={seoDescription}
         structuredData={structuredData}
         type="website"
       />
       <Header />
-      
+
       <main className="flex-1 container mx-auto px-4 py-4 md:py-8">
         {/* Advanced Search Bar */}
         <div className="mb-6">
@@ -298,7 +328,9 @@ const Produtos = () => {
             value={filters.searchTerm}
             onChange={(value) => updateFilters({ searchTerm: value })}
             suggestions={searchSuggestions}
-            onSuggestionSelect={(suggestion) => updateFilters({ searchTerm: suggestion })}
+            onSuggestionSelect={(suggestion) =>
+              updateFilters({ searchTerm: suggestion })
+            }
             showFilters
             activeFiltersCount={activeFiltersCount}
             onFiltersClick={() => setShowAdvancedFilters(true)}
@@ -308,8 +340,8 @@ const Produtos = () => {
 
         {/* Quick Filters */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
-          <Select 
-            value={filters.category} 
+          <Select
+            value={filters.category}
             onValueChange={(value) => updateFilters({ category: value })}
           >
             <SelectTrigger className="w-full sm:flex-1">
@@ -324,7 +356,7 @@ const Produtos = () => {
               ))}
             </SelectContent>
           </Select>
-          
+
           <Button
             variant={filters.onlyOffers ? "default" : "outline"}
             onClick={() => updateFilters({ onlyOffers: !filters.onlyOffers })}
@@ -337,8 +369,8 @@ const Produtos = () => {
 
         {/* Sort and View Controls */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
-          <Select 
-            value={filters.sortBy} 
+          <Select
+            value={filters.sortBy}
             onValueChange={(value) => updateFilters({ sortBy: value })}
           >
             <SelectTrigger className="w-full sm:w-[200px]">
@@ -380,15 +412,19 @@ const Produtos = () => {
         {/* Results Summary */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold mb-2">
-            {filters.searchTerm ? `Resultados para "${filters.searchTerm}"` :
-             filters.onlyOffers ? 'Ofertas Especiais' : 
-             filters.category !== 'todas' ? 
-               categories.find(c => c.id === filters.category)?.name || 'Categoria Selecionada' : 
-               'Todos os Produtos'}
+            {filters.searchTerm
+              ? `Resultados para "${filters.searchTerm}"`
+              : filters.onlyOffers
+              ? "Ofertas Especiais"
+              : filters.category !== "todas"
+              ? categories.find((c) => c.id === filters.category)?.name ||
+                "Categoria Selecionada"
+              : "Todos os Produtos"}
           </h1>
           <p className="text-muted-foreground">
-            {totalResults} {totalResults === 1 ? 'produto encontrado' : 'produtos encontrados'}
-            {filters.onlyOffers ? ' em oferta' : ''}
+            {totalResults}{" "}
+            {totalResults === 1 ? "produto encontrado" : "produtos encontrados"}
+            {filters.onlyOffers ? " em oferta" : ""}
           </p>
         </div>
 
@@ -401,16 +437,19 @@ const Produtos = () => {
                 Refine sua busca com filtros específicos
               </SheetDescription>
             </SheetHeader>
-            
+
             <div className="space-y-6 mt-6">
               {/* Price Range */}
               <div>
                 <Label className="text-base font-medium">
-                  Faixa de Preço: {formatCurrency(filters.priceRange[0])} - {formatCurrency(filters.priceRange[1])}
+                  Faixa de Preço: {formatCurrency(filters.priceRange[0])} -{" "}
+                  {formatCurrency(filters.priceRange[1])}
                 </Label>
                 <Slider
                   value={filters.priceRange}
-                  onValueChange={(value) => updateFilters({ priceRange: value as [number, number] })}
+                  onValueChange={(value) =>
+                    updateFilters({ priceRange: value as [number, number] })
+                  }
                   max={10000}
                   step={50}
                   className="mt-3"
@@ -427,7 +466,9 @@ const Produtos = () => {
                 <Switch
                   id="stock-filter"
                   checked={filters.inStock}
-                  onCheckedChange={(checked) => updateFilters({ inStock: checked })}
+                  onCheckedChange={(checked) =>
+                    updateFilters({ inStock: checked })
+                  }
                 />
               </div>
 
@@ -436,11 +477,14 @@ const Produtos = () => {
               {/* Rating Filter */}
               <div>
                 <Label className="text-base font-medium mb-3 block">
-                  Avaliação mínima: {filters.minRating} {filters.minRating > 0 ? '★' : ''}
+                  Avaliação mínima: {filters.minRating}{" "}
+                  {filters.minRating > 0 ? "★" : ""}
                 </Label>
                 <Slider
                   value={[filters.minRating]}
-                  onValueChange={([value]) => updateFilters({ minRating: value })}
+                  onValueChange={([value]) =>
+                    updateFilters({ minRating: value })
+                  }
                   max={5}
                   step={0.5}
                   className="mt-3"
@@ -450,8 +494,8 @@ const Produtos = () => {
               <Separator />
 
               {/* Reset Filters */}
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={resetFilters}
                 className="w-full"
               >
@@ -464,14 +508,16 @@ const Produtos = () => {
 
         {/* Products Grid */}
         {products.length > 0 ? (
-          <div className={`grid gap-6 ${
-            viewMode === "grid" 
-              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
-              : "grid-cols-1"
-          }`}>
+          <div
+            className={`grid gap-6 ${
+              viewMode === "grid"
+                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                : "grid-cols-1"
+            }`}
+          >
             {products.map((product) => (
-              <Card 
-                key={product.id} 
+              <Card
+                key={product.id}
                 className="group relative overflow-hidden bg-white dark:bg-gray-900 border-0 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 cursor-pointer"
                 onClick={() => navigate(`/produto/${product.id}`)}
               >
@@ -486,7 +532,7 @@ const Produtos = () => {
                         e.currentTarget.src = "/placeholder.svg";
                       }}
                     />
-                    
+
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
@@ -501,14 +547,14 @@ const Produtos = () => {
                     ) : null}
 
                     {/* Stock Badge */}
-                    <Badge 
+                    <Badge
                       className={`border-0 px-3 py-1 text-sm font-medium rounded-full ${
-                        product.in_stock 
-                          ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white' 
-                          : 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white'
+                        product.in_stock
+                          ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+                          : "bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white"
                       }`}
                     >
-                      {product.in_stock ? 'Em Estoque' : 'Indisponível'}
+                      {product.in_stock ? "Em Estoque" : "Indisponível"}
                     </Badge>
                   </div>
 
@@ -516,25 +562,28 @@ const Produtos = () => {
                   <div className="space-y-3">
                     <div>
                       <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">
-                        {product.categories?.name || 'Produto'}
+                        {product.categories?.name || "Produto"}
                       </p>
                       <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors duration-300">
                         {product.name}
                       </h3>
                     </div>
-                    
+
                     {/* Rating */}
-                    {product.rating && product.reviews && product.rating > 0 && product.reviews > 0 ? (
+                    {product.rating &&
+                    product.reviews &&
+                    product.rating > 0 &&
+                    product.reviews > 0 ? (
                       <div className="flex items-center gap-2">
                         <div className="flex items-center">
                           {Array.from({ length: 5 }, (_, i) => (
-                            <Star 
-                              key={`star-${i}`} 
+                            <Star
+                              key={`star-${i}`}
                               className={`h-4 w-4 ${
-                                i < Math.floor(product.rating!) 
-                                  ? 'text-yellow-400 fill-current' 
-                                  : 'text-gray-300'
-                              }`} 
+                                i < Math.floor(product.rating!)
+                                  ? "text-yellow-400 fill-current"
+                                  : "text-gray-300"
+                              }`}
                             />
                           ))}
                         </div>
@@ -549,11 +598,12 @@ const Produtos = () => {
                         </span>
                       </div>
                     )}
-                    
+
                     {/* Price */}
                     <div className="space-y-1">
                       <div className="flex items-baseline gap-2">
-                        {product.original_price && product.original_price > product.price ? (
+                        {product.original_price &&
+                        product.original_price > product.price ? (
                           <span className="text-sm text-gray-500 line-through">
                             {formatCurrency(product.original_price)}
                           </span>
@@ -563,28 +613,37 @@ const Produtos = () => {
                         <span className="text-2xl font-bold text-gray-900 dark:text-white">
                           {formatCurrency(product.price)}
                         </span>
-                        {product.original_price && product.original_price > product.price ? (
+                        {product.original_price &&
+                        product.original_price > product.price ? (
                           <span className="text-sm text-green-600 font-medium">
-                            -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off
+                            -
+                            {Math.round(
+                              ((product.original_price - product.price) /
+                                product.original_price) *
+                                100
+                            )}
+                            % off
                           </span>
                         ) : null}
                       </div>
                     </div>
                   </div>
                 </CardContent>
-                
+
                 <CardFooter className="p-5 pt-0">
                   <div className="w-full space-y-2">
-                    <Button 
+                    <Button
                       onClick={(e) => handleAddToCart(e, product)}
                       disabled={!product.in_stock}
                       className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
-                      {product.in_stock ? 'Adicionar ao Carrinho' : 'Indisponível'}
+                      {product.in_stock
+                        ? "Adicionar ao Carrinho"
+                        : "Indisponível"}
                     </Button>
-                    
-                    <Button 
+
+                    <Button
                       onClick={(e) => handleWhatsAppOrder(e, product)}
                       disabled={!product.in_stock}
                       className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 border-0"
@@ -607,30 +666,32 @@ const Produtos = () => {
                 Nenhum produto encontrado
               </h3>
               <p className="text-muted-foreground mb-6">
-                Não encontramos produtos que correspondam aos seus critérios de busca.
-                {filters.searchTerm ? " Tente usar palavras-chave diferentes ou " : ""}
-                {(filters.category !== "todas" || filters.onlyOffers) ? " Tente remover alguns filtros ou " : ""}
+                Não encontramos produtos que correspondam aos seus critérios de
+                busca.
+                {filters.searchTerm
+                  ? " Tente usar palavras-chave diferentes ou "
+                  : ""}
+                {filters.category !== "todas" || filters.onlyOffers
+                  ? " Tente remover alguns filtros ou "
+                  : ""}
                 navegar pelas categorias.
               </p>
               <div className="space-y-3">
                 {filters.searchTerm ? (
-                  <Button 
-                    variant="outline" 
-                    onClick={() => updateFilters({ searchTerm: '' })}
+                  <Button
+                    variant="outline"
+                    onClick={() => updateFilters({ searchTerm: "" })}
                     className="mr-3"
                   >
                     Limpar busca
                   </Button>
                 ) : null}
                 {activeFiltersCount > 0 ? (
-                  <Button 
-                    variant="outline" 
-                    onClick={resetFilters}
-                  >
+                  <Button variant="outline" onClick={resetFilters}>
                     Remover filtros
                   </Button>
                 ) : null}
-                <Button onClick={() => navigate('/produtos')}>
+                <Button onClick={() => navigate("/produtos")}>
                   Ver todos os produtos
                 </Button>
               </div>

@@ -2,23 +2,23 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FloatingCart from "@/components/FloatingCart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Shield, 
-  Eye, 
-  Lock, 
+import {
+  Shield,
+  Eye,
+  Lock,
   UserCheck,
   Clock,
   Mail,
   Phone,
   FileText,
-  AlertTriangle
+  AlertTriangle,
 } from "lucide-react";
 
 const PoliticaPrivacidade = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8 md:py-16">
         {/* Hero Section */}
         <div className="text-center mb-12 md:mb-16">
@@ -52,7 +52,9 @@ const PoliticaPrivacidade = () => {
                 <Eye className="h-8 w-8 text-primary-foreground" />
               </div>
               <h3 className="font-bold text-lg mb-2">Transparência</h3>
-              <p className="text-muted-foreground text-sm">Você sabe o que coletamos</p>
+              <p className="text-muted-foreground text-sm">
+                Você sabe o que coletamos
+              </p>
             </CardContent>
           </Card>
 
@@ -62,7 +64,9 @@ const PoliticaPrivacidade = () => {
                 <UserCheck className="h-8 w-8 text-primary-foreground" />
               </div>
               <h3 className="font-bold text-lg mb-2">Controle</h3>
-              <p className="text-muted-foreground text-sm">Você decide sobre seus dados</p>
+              <p className="text-muted-foreground text-sm">
+                Você decide sobre seus dados
+              </p>
             </CardContent>
           </Card>
 
@@ -72,14 +76,15 @@ const PoliticaPrivacidade = () => {
                 <Lock className="h-8 w-8 text-primary-foreground" />
               </div>
               <h3 className="font-bold text-lg mb-2">LGPD</h3>
-              <p className="text-muted-foreground text-sm">Conformidade total</p>
+              <p className="text-muted-foreground text-sm">
+                Conformidade total
+              </p>
             </CardContent>
           </Card>
         </div>
 
         {/* Main Content */}
         <div className="max-w-4xl mx-auto space-y-8">
-          
           {/* Introdução */}
           <Card className="p-6 md:p-8">
             <CardHeader className="px-0 pt-0">
@@ -90,8 +95,9 @@ const PoliticaPrivacidade = () => {
             </CardHeader>
             <CardContent className="px-0 pb-0">
               <p className="text-muted-foreground leading-relaxed">
-                A ConstrutorPro está comprometida em proteger suas informações pessoais. Esta política 
-                explica como coletamos, usamos e protegemos seus dados em conformidade com a LGPD.
+                A Nova Casa Construção está comprometida em proteger suas
+                informações pessoais. Esta política explica como coletamos,
+                usamos e protegemos seus dados em conformidade com a LGPD.
               </p>
             </CardContent>
           </Card>
@@ -153,20 +159,23 @@ const PoliticaPrivacidade = () => {
             <CardContent className="px-0 pb-0">
               <div className="space-y-4">
                 <p className="text-muted-foreground">
-                  Tratamos seus dados pessoais com base nas seguintes hipóteses legais previstas na LGPD:
+                  Tratamos seus dados pessoais com base nas seguintes hipóteses
+                  legais previstas na LGPD:
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
                       <div>
-                        <strong>Execução de contrato:</strong> Para processar pedidos e prestação de serviços
+                        <strong>Execução de contrato:</strong> Para processar
+                        pedidos e prestação de serviços
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
                       <div>
-                        <strong>Legítimo interesse:</strong> Para melhorar nossos serviços e segurança
+                        <strong>Legítimo interesse:</strong> Para melhorar
+                        nossos serviços e segurança
                       </div>
                     </div>
                   </div>
@@ -174,13 +183,15 @@ const PoliticaPrivacidade = () => {
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
                       <div>
-                        <strong>Consentimento:</strong> Para marketing e comunicações promocionais
+                        <strong>Consentimento:</strong> Para marketing e
+                        comunicações promocionais
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
                       <div>
-                        <strong>Cumprimento legal:</strong> Para obrigações fiscais e regulatórias
+                        <strong>Cumprimento legal:</strong> Para obrigações
+                        fiscais e regulatórias
                       </div>
                     </div>
                   </div>
@@ -200,18 +211,24 @@ const PoliticaPrivacidade = () => {
             <CardContent className="px-0 pb-0">
               <div className="space-y-4">
                 <p className="text-muted-foreground">
-                  Podemos compartilhar suas informações pessoais apenas nas seguintes situações:
+                  Podemos compartilhar suas informações pessoais apenas nas
+                  seguintes situações:
                 </p>
                 <div className="space-y-4">
                   <div className="p-4 bg-accent/10 rounded-lg border">
-                    <h5 className="font-semibold mb-2">Prestadores de Serviços</h5>
+                    <h5 className="font-semibold mb-2">
+                      Prestadores de Serviços
+                    </h5>
                     <p className="text-sm text-muted-foreground">
-                      Empresas de entrega, processamento de pagamentos e serviços de TI
+                      Empresas de entrega, processamento de pagamentos e
+                      serviços de TI
                     </p>
                   </div>
-                  
+
                   <div className="p-4 bg-destructive/10 rounded-lg border border-destructive/20">
-                    <h5 className="font-semibold text-destructive mb-2">Autoridades Legais</h5>
+                    <h5 className="font-semibold text-destructive mb-2">
+                      Autoridades Legais
+                    </h5>
                     <p className="text-sm text-muted-foreground">
                       Quando exigido por lei ou ordem judicial
                     </p>
@@ -232,7 +249,8 @@ const PoliticaPrivacidade = () => {
             <CardContent className="px-0 pb-0">
               <div className="space-y-4">
                 <p className="text-muted-foreground">
-                  Implementamos medidas técnicas e organizacionais adequadas para proteger seus dados:
+                  Implementamos medidas técnicas e organizacionais adequadas
+                  para proteger seus dados:
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <ul className="space-y-2 text-muted-foreground">
@@ -263,21 +281,43 @@ const PoliticaPrivacidade = () => {
             <CardContent className="px-0 pb-0">
               <div className="space-y-4">
                 <p className="text-muted-foreground">
-                  Você possui os seguintes direitos em relação aos seus dados pessoais:
+                  Você possui os seguintes direitos em relação aos seus dados
+                  pessoais:
                 </p>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <ul className="space-y-2 text-muted-foreground">
-                      <li>• <strong>Acesso:</strong> Saber quais dados temos sobre você</li>
-                      <li>• <strong>Correção:</strong> Corrigir dados incorretos</li>
-                      <li>• <strong>Eliminação:</strong> Solicitar exclusão dos dados</li>
-                      <li>• <strong>Portabilidade:</strong> Receber dados em formato legível</li>
+                      <li>
+                        • <strong>Acesso:</strong> Saber quais dados temos sobre
+                        você
+                      </li>
+                      <li>
+                        • <strong>Correção:</strong> Corrigir dados incorretos
+                      </li>
+                      <li>
+                        • <strong>Eliminação:</strong> Solicitar exclusão dos
+                        dados
+                      </li>
+                      <li>
+                        • <strong>Portabilidade:</strong> Receber dados em
+                        formato legível
+                      </li>
                     </ul>
                     <ul className="space-y-2 text-muted-foreground">
-                      <li>• <strong>Oposição:</strong> Opor-se ao tratamento</li>
-                      <li>• <strong>Revogação:</strong> Retirar consentimento</li>
-                      <li>• <strong>Informação:</strong> Saber sobre compartilhamentos</li>
-                      <li>• <strong>Revisão:</strong> Contestar decisões automatizadas</li>
+                      <li>
+                        • <strong>Oposição:</strong> Opor-se ao tratamento
+                      </li>
+                      <li>
+                        • <strong>Revogação:</strong> Retirar consentimento
+                      </li>
+                      <li>
+                        • <strong>Informação:</strong> Saber sobre
+                        compartilhamentos
+                      </li>
+                      <li>
+                        • <strong>Revisão:</strong> Contestar decisões
+                        automatizadas
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -296,23 +336,36 @@ const PoliticaPrivacidade = () => {
             <CardContent className="px-0 pb-0">
               <div className="space-y-4">
                 <p className="text-muted-foreground">
-                  Mantemos seus dados pessoais pelo tempo necessário para cumprir as finalidades descritas, observando:
+                  Mantemos seus dados pessoais pelo tempo necessário para
+                  cumprir as finalidades descritas, observando:
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="p-4 bg-accent/10 rounded-lg text-center border">
                     <h5 className="font-bold mb-2">Dados de Cadastro</h5>
-                    <p className="text-2xl font-bold text-primary mb-1">5 anos</p>
-                    <p className="text-xs text-muted-foreground">Após última compra</p>
+                    <p className="text-2xl font-bold text-primary mb-1">
+                      5 anos
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Após última compra
+                    </p>
                   </div>
                   <div className="p-4 bg-accent/10 rounded-lg text-center border">
                     <h5 className="font-bold mb-2">Dados Fiscais</h5>
-                    <p className="text-2xl font-bold text-primary mb-1">5 anos</p>
-                    <p className="text-xs text-muted-foreground">Conforme legislação</p>
+                    <p className="text-2xl font-bold text-primary mb-1">
+                      5 anos
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Conforme legislação
+                    </p>
                   </div>
                   <div className="p-4 bg-accent/10 rounded-lg text-center border">
                     <h5 className="font-bold mb-2">Dados de Marketing</h5>
-                    <p className="text-2xl font-bold text-primary mb-1">Até revogação</p>
-                    <p className="text-xs text-muted-foreground">Do consentimento</p>
+                    <p className="text-2xl font-bold text-primary mb-1">
+                      Até revogação
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Do consentimento
+                    </p>
                   </div>
                 </div>
               </div>
@@ -330,21 +383,26 @@ const PoliticaPrivacidade = () => {
             <CardContent className="px-0 pb-0">
               <div className="space-y-4">
                 <p className="text-muted-foreground">
-                  Para exercer seus direitos ou esclarecer dúvidas sobre esta política, entre em contato:
+                  Para exercer seus direitos ou esclarecer dúvidas sobre esta
+                  política, entre em contato:
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center gap-3 p-4 bg-card rounded-lg border">
                     <Mail className="h-5 w-5 text-primary" />
                     <div>
                       <p className="font-semibold">E-mail</p>
-                      <p className="text-sm text-muted-foreground">privacidade@construtorpro.com.br</p>
+                      <p className="text-sm text-muted-foreground">
+                        privacidade@novacasaconstrucao.com.br
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-4 bg-card rounded-lg border">
                     <Phone className="h-5 w-5 text-primary" />
                     <div>
                       <p className="font-semibold">WhatsApp</p>
-                      <p className="text-sm text-muted-foreground">(11) 9 9999-9999</p>
+                      <p className="text-sm text-muted-foreground">
+                        (11) 9 9999-9999
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -362,7 +420,8 @@ const PoliticaPrivacidade = () => {
             </CardHeader>
             <CardContent className="px-0 pb-0">
               <p className="text-muted-foreground mb-4">
-                Esta Política de Privacidade pode ser atualizada periodicamente. Quando houver alterações significativas, notificaremos você por:
+                Esta Política de Privacidade pode ser atualizada periodicamente.
+                Quando houver alterações significativas, notificaremos você por:
               </p>
               <ul className="space-y-2 text-muted-foreground">
                 <li>• E-mail (para alterações que afetem seus direitos)</li>
@@ -371,14 +430,15 @@ const PoliticaPrivacidade = () => {
               </ul>
               <div className="mt-4 p-4 bg-accent/10 rounded-lg border">
                 <p className="text-sm">
-                  <strong>Recomendamos</strong> que você revise esta política periodicamente.
+                  <strong>Recomendamos</strong> que você revise esta política
+                  periodicamente.
                 </p>
               </div>
             </CardContent>
           </Card>
         </div>
       </main>
-      
+
       <Footer />
       <FloatingCart />
     </div>
