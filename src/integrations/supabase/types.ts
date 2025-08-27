@@ -248,11 +248,9 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
-          birth_date: string | null
           city: string | null
           complement: string | null
           created_at: string
-          document_number: string | null
           email: string | null
           full_name: string | null
           id: string
@@ -266,11 +264,9 @@ export type Database = {
         }
         Insert: {
           address?: string | null
-          birth_date?: string | null
           city?: string | null
           complement?: string | null
           created_at?: string
-          document_number?: string | null
           email?: string | null
           full_name?: string | null
           id: string
@@ -284,11 +280,9 @@ export type Database = {
         }
         Update: {
           address?: string | null
-          birth_date?: string | null
           city?: string | null
           complement?: string | null
           created_at?: string
-          document_number?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
@@ -329,11 +323,59 @@ export type Database = {
         }
         Relationships: []
       }
+      user_sensitive_data: {
+        Row: {
+          birth_date: string | null
+          created_at: string
+          document_number: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          birth_date?: string | null
+          created_at?: string
+          document_number?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          birth_date?: string | null
+          created_at?: string
+          document_number?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      get_user_complete_profile: {
+        Args: { target_user_id?: string }
+        Returns: {
+          address: string
+          birth_date: string
+          city: string
+          complement: string
+          created_at: string
+          document_number: string
+          email: string
+          full_name: string
+          id: string
+          is_admin: boolean
+          number: string
+          phone: string
+          state: string
+          street: string
+          updated_at: string
+          zip_code: string
+        }[]
+      }
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
