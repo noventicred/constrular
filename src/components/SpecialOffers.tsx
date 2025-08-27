@@ -82,7 +82,7 @@ const SpecialOffers = () => {
       setProductComments(commentsData);
       
     } catch (error) {
-      console.error('Error fetching special offers:', error);
+      console.error('Erro ao carregar ofertas especiais:', error);
       toast({
         title: 'Erro',
         description: 'Não foi possível carregar as ofertas especiais.',

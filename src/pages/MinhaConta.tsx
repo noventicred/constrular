@@ -190,7 +190,7 @@ export default function MinhaConta() {
       };
       setOrderStats(stats);
     } catch (error) {
-      console.error("Error fetching orders:", error);
+      console.error("Erro ao carregar pedidos:", error);
     }
   };
 
@@ -223,7 +223,7 @@ export default function MinhaConta() {
         description: "Perfil atualizado com sucesso!",
       });
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("Erro ao atualizar perfil:", error);
       toast({
         title: "Erro",
         description: "Erro ao atualizar perfil. Tente novamente.",
@@ -377,7 +377,7 @@ export default function MinhaConta() {
       await signOut();
       // Redirect will be handled by AuthRedirect component
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error("Erro ao fazer logout:", error);
     }
   };
 

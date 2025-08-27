@@ -81,7 +81,7 @@ export const useAdvancedSearch = () => {
       if (error) throw error;
       setProducts(data || []);
     } catch (error) {
-      console.error("Error fetching products:", error);
+      console.error("Erro ao carregar produtos:", error);
     } finally {
       setLoading(false);
     }

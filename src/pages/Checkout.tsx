@@ -114,7 +114,7 @@ export default function Checkout() {
         });
       }
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      console.error("Erro ao carregar perfil:", error);
     } finally {
       setLoading(false);
     }

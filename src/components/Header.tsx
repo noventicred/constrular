@@ -104,7 +104,7 @@ const Header = () => {
       if (error) throw error;
       setCategories(data || []);
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error("Erro ao carregar categorias:", error);
     }
   };
 
@@ -125,7 +125,7 @@ const Header = () => {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error("Error searching products:", error);
+      console.error("Erro ao buscar produtos:", error);
       return [];
     }
   };

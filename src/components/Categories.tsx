@@ -85,7 +85,7 @@ const Categories = () => {
       const topLevelCategories = data.categories?.filter((cat: Category) => !cat.parent_id) || [];
       setCategories(topLevelCategories);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('Erro ao carregar categorias:', error);
       toast({
         title: 'Erro',
         description: 'Não foi possível carregar as categorias.',
