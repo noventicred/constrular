@@ -44,5 +44,19 @@ Durante desenvolvimento local, a pasta `/api` causa conflitos com o middleware d
 
 - ✅ Desenvolvimento local: Funcionando
 - ✅ Build: Funcionando
-- ✅ Deploy Vercel: Pronto
+- ✅ Deploy Vercel: **RESOLVIDO** (APIs CommonJS criadas)
 - ✅ Todas as funcionalidades: Operacionais
+
+### 🔧 **Solução Vercel**
+
+**Problema**: `ReferenceError: exports is not defined`
+**Causa**: Conflito ES modules vs CommonJS na Vercel
+**Solução**: Criadas versões `.js` CommonJS das APIs:
+
+- `api/categories/index.js`
+- `api/products/index.js`
+- `api/users/[id].js`
+- `api/auth/login.js`
+- `api/auth/register.js`
+
+**Configuração**: `vercel.json` especifica runtime Node.js para `.js`
