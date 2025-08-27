@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { ProductService } from "../../lib/services";
+import { ProductService } from "../../src/lib/services";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
