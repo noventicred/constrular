@@ -5,7 +5,7 @@ import React, {
   useState,
   ReactNode,
 } from "react";
-import { AuthService, User, LoginCredentials, RegisterData } from "@/lib/auth";
+import { AuthService, User, LoginCredentials, RegisterData } from "@/lib/auth-client";
 
 interface AuthContextType {
   user: User | null;
