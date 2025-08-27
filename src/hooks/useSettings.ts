@@ -25,23 +25,14 @@ export const useSettings = () => {
 
   const fetchSettings = async () => {
     try {
-      const { data, error } = await supabase
-        .from('settings')
-        .select('key, value');
-
-      if (error) {
-        console.error('Error fetching settings:', error);
-        return;
-      }
-
-      const settingsMap = data.reduce((acc, setting) => {
-        acc[setting.key as keyof Settings] = setting.value || '';
-        return acc;
-      }, {} as Partial<Settings>);
-
-      setSettings(prev => ({ ...prev, ...settingsMap }));
+      // Por enquanto, usar configurações padrão até criar API de settings
+      // TODO: Implementar API /api/settings quando necessário
+      console.log('Usando configurações padrão (settings API não implementada ainda)');
+      
+      // Manter as configurações padrão que já estão definidas
+      setSettings(prev => prev);
     } catch (error) {
-      console.error('Error fetching settings:', error);
+      console.error('Erro ao carregar configurações:', error);
     } finally {
       setLoading(false);
     }

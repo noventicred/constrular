@@ -95,14 +95,16 @@ const Header = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
-        .from("categories")
-        .select("id, name, description, image_url")
-        .is("parent_id", null)
-        .order("name");
-
-      if (error) throw error;
-      setCategories(data || []);
+      const response = await fetch('/api/categories');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar categorias');
+      }
+      
+      const data = await response.json();
+      
+      // Filtrar apenas categorias principais (sem parent_id)
+      const topLevelCategories = data.categories?.filter((cat: Category) => !cat.parent_id) || [];
+      setCategories(topLevelCategories);
     } catch (error) {
       console.error("Erro ao carregar categorias:", error);
     }
@@ -115,15 +117,23 @@ const Header = () => {
     }
 
     try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("id, name, price, image_url, sku")
-        .or(`name.ilike.%${query}%, description.ilike.%${query}%`)
-        .eq("in_stock", true)
-        .limit(5);
-
-      if (error) throw error;
-      return data || [];
+      const response = await fetch(`/api/products?search=${encodeURIComponent(query)}`);
+      if (!response.ok) {
+        throw new Error('Erro ao buscar produtos');
+      }
+      
+      const data = await response.json();
+      
+      // Mapear produtos para o formato esperado e limitar a 5 resultados
+      const mappedProducts = data.products?.slice(0, 5).map((product: any) => ({
+        id: product.id,
+        name: product.name,
+        price: Number(product.price),
+        image_url: product.imageUrl,
+        sku: product.sku,
+      })) || [];
+      
+      return mappedProducts;
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
       return [];
