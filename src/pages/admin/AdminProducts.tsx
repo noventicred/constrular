@@ -57,40 +57,37 @@ const AdminProducts = () => {
 
   const fetchProducts = async () => {
     try {
-      // TODO: Implementar busca de produtos via API
-      console.log('⚠️ AdminProducts: Usando dados mock - implementar API');
+      const response = await fetch('/api/products');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar produtos');
+      }
       
-      // Mock data para desenvolvimento
-      const mockData = [
-        {
-          id: '1',
-          name: 'Furadeira Black & Decker 500W',
-          price: 189.90,
-          categories: { name: 'Ferramentas' },
-          is_featured: true,
-          is_special_offer: true,
-          in_stock: true,
-          stock_quantity: 25,
-          image_url: '/placeholder.svg'
-        },
-        {
-          id: '2', 
-          name: 'Cabo Flexível 2,5mm²',
-          price: 285.00,
-          categories: { name: 'Material Elétrico' },
-          is_featured: true,
-          is_special_offer: false,
-          in_stock: true,
-          stock_quantity: 15,
-          image_url: '/placeholder.svg'
-        }
-      ];
+      const data = await response.json();
+      const products = data.products || [];
       
-      setProducts(mockData);
+      // Mapear produtos para o formato esperado pela interface
+      const formattedProducts = products.map((product: any) => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        categories: { name: product.category },
+        is_featured: product.isFeatured,
+        is_special_offer: product.isSpecialOffer,
+        in_stock: product.inStock,
+        stock_quantity: product.stockQuantity,
+        image_url: product.imageUrl,
+        brand: product.brand,
+        description: product.description,
+        sku: product.sku,
+        created_at: product.createdAt,
+        updated_at: product.updatedAt
+      }));
+      
+      setProducts(formattedProducts);
       
       // Count featured and special offer products
-      const featured = mockData.filter(p => p.is_featured).length;
-      const specialOffers = mockData.filter(p => p.is_special_offer).length;
+      const featured = formattedProducts.filter((p: any) => p.is_featured).length;
+      const specialOffers = formattedProducts.filter((p: any) => p.is_special_offer).length;
       setFeaturedCount(featured);
       setSpecialOfferCount(specialOffers);
     } catch (error) {
@@ -128,8 +125,13 @@ const AdminProducts = () => {
     if (!confirm('Tem certeza que deseja excluir este produto?')) return;
 
     try {
-      // TODO: Implementar delete via API
-      console.log('⚠️ AdminProducts: Delete mock - implementar API para produto:', id);
+      const response = await fetch(`/api/products/${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erro ao excluir produto');
+      }
 
       toast({
         title: 'Sucesso',

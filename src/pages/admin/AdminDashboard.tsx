@@ -48,56 +48,26 @@ const AdminDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const [
-        productsResult, 
-        categoriesResult, 
-        usersResult, 
-        activeProductsResult, 
-        ordersResult,
-        pendingOrdersResult,
-        revenueResult
-      ] = await Promise.all([
-      // TODO: Migrar para API Neon/Prisma - supabase.from('products').select('*', { count: 'exact', head: true }),
-      // TODO: Migrar para API Neon/Prisma - supabase.from('categories').select('*', { count: 'exact', head: true }),
-      // TODO: Migrar para API Neon/Prisma - supabase.from('profiles').select('*', { count: 'exact', head: true }),
-      // TODO: Migrar para API Neon/Prisma - supabase.from('products').select('*', { count: 'exact', head: true }).eq('in_stock', true),
-      // TODO: Migrar para API Neon/Prisma - supabase.from('orders').select('*', { count: 'exact', head: true }),
-      // TODO: Migrar para API Neon/Prisma - supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-      // TODO: Migrar para API Neon/Prisma - supabase.from('orders').select('total_amount').gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
-      ]);
-
-      // Calculando receita real do mês atual
-      const monthlyRevenue = revenueResult.data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
+      const response = await fetch('/api/dashboard/stats');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar estatísticas');
+      }
       
-      // Calculando crescimento com base nos últimos 7 dias vs 7 dias anteriores
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
+      const data = await response.json();
+      const statsData = data.stats;
       
-      const twoWeeksAgo = new Date();
-      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-
-      const [thisWeekOrders, lastWeekOrders] = await Promise.all([
-      // TODO: Migrar para API Neon/Prisma - supabase.from('orders').select('total_amount').gte('created_at', weekAgo.toISOString()),
-      // TODO: Migrar para API Neon/Prisma - supabase.from('orders').select('total_amount').gte('created_at', twoWeeksAgo.toISOString()).lt('created_at', weekAgo.toISOString())
-      ]);
-
-      const thisWeekRevenue = thisWeekOrders.data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
-      const lastWeekRevenue = lastWeekOrders.data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
-      
-      const weeklyGrowth = lastWeekRevenue > 0 ? Math.round(((thisWeekRevenue - lastWeekRevenue) / lastWeekRevenue) * 100) : 0;
-
       setStats({
-        totalProducts: productsResult.count || 0,
-        totalCategories: categoriesResult.count || 0,
-        totalUsers: usersResult.count || 0,
-        activeProducts: activeProductsResult.count || 0,
-        totalOrders: ordersResult.count || 0,
-        pendingOrders: pendingOrdersResult.count || 0,
-        monthlyRevenue,
-        weeklyGrowth: Math.max(weeklyGrowth, 0),
+        totalProducts: statsData.totalProducts,
+        totalCategories: statsData.totalCategories,
+        totalUsers: statsData.totalUsers,
+        activeProducts: statsData.totalProducts, // Simplificação para desenvolvimento
+        totalOrders: statsData.totalOrders,
+        pendingOrders: statsData.totalOrders, // Simplificação para desenvolvimento
+        monthlyRevenue: statsData.revenue,
+        weeklyGrowth: 15.5, // Mock para desenvolvimento
       });
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error('Erro ao carregar estatísticas do dashboard:', error);
     } finally {
       setLoading(false);
     }
