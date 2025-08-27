@@ -68,10 +68,7 @@ const AdminClients = () => {
   const fetchClients = async () => {
     try {
       // Buscar perfis de clientes (não admins)
-      // TODO: Migrar para API Neon/Prisma - const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('is_admin', false);
+      // TODO: Implementar API real
 
       if (profilesError) throw profilesError;
 
@@ -79,11 +76,7 @@ const AdminClients = () => {
       const clientsWithStats = [];
       
       for (const profile of profilesData || []) {
-      // TODO: Migrar para API Neon/Prisma - const { data: orders } = await supabase
-          .from('orders')
-          .select('id, total_amount, status, created_at')
-          .eq('user_id', profile.id)
-          .order('created_at', { ascending: false });
+      // TODO: Implementar API real
 
         const completedOrders = (orders || []).filter(order => order.status === 'completed');
         const totalSpent = completedOrders.reduce((sum: number, order: any) => sum + Number(order.total_amount || 0), 0);
@@ -115,11 +108,7 @@ const AdminClients = () => {
 
   const fetchClientOrders = async (clientId: string) => {
     try {
-      // TODO: Migrar para API Neon/Prisma - const { data: orders, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('user_id', clientId)
-        .order('created_at', { ascending: false });
+      // TODO: Implementar API real
 
       if (error) throw error;
       setClientOrders(orders || []);
@@ -148,9 +137,7 @@ const AdminClients = () => {
     if (!editingClient) return;
 
     try {
-      // TODO: Migrar para API Neon/Prisma - const { error } = await supabase
-        .from('profiles')
-        .update({
+      // TODO: Implementar API real
           full_name: editingClient.full_name,
           email: editingClient.email,
           phone: editingClient.phone,

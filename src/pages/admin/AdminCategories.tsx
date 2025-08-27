@@ -30,10 +30,7 @@ const AdminCategories = () => {
 
   const fetchCategories = async () => {
     try {
-      // TODO: Migrar para API Neon/Prisma - const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name');
+      // TODO: Implementar API real
 
       if (error) throw error;
       setCategories(data || []);
@@ -63,10 +60,7 @@ const AdminCategories = () => {
     if (!confirm('Tem certeza que deseja excluir esta categoria?')) return;
 
     try {
-      // TODO: Migrar para API Neon/Prisma - const { error } = await supabase
-        .from('categories')
-        .delete()
-        .eq('id', id);
+      // TODO: Implementar API real
 
       if (error) throw error;
 

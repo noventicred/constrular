@@ -76,25 +76,13 @@ const AdminDashboard = () => {
   const fetchRecentActivity = async () => {
     try {
       // Buscar pedidos recentes
-      // TODO: Migrar para API Neon/Prisma - const { data: recentOrders } = await supabase
-        .from('orders')
-        .select('id, status, created_at')
-        .order('created_at', { ascending: false })
-        .limit(3);
+      // TODO: Implementar API real
 
       // Buscar usuários recentes
-      // TODO: Migrar para API Neon/Prisma - const { data: recentUsers } = await supabase
-        .from('profiles')
-        .select('id, full_name, created_at')
-        .order('created_at', { ascending: false })
-        .limit(2);
+      // TODO: Implementar API real
 
       // Buscar produtos com estoque baixo (simulando estoque < 5)
-      // TODO: Migrar para API Neon/Prisma - const { data: lowStockProducts } = await supabase
-        .from('products')
-        .select('id, name')
-        .eq('in_stock', false)
-        .limit(2);
+      // TODO: Implementar API real
 
       const activities: RecentActivity[] = [];
 

@@ -232,7 +232,6 @@ export default function Checkout() {
 
       // Mock order items creation - TODO: Implement real order items API
       console.log("✅ ITENS CRIADOS (MOCK):", orderItems.length, "itens");
-      }
 
       console.log("✅ ITENS CRIADOS COM SUCESSO");
       return order;

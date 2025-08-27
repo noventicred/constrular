@@ -111,10 +111,7 @@ export default function AdminOrders() {
     console.log('🚀 ADMIN: NOVA VERSÃO - Iniciando busca de pedidos...');
     try {
       // First get all orders
-      // TODO: Migrar para API Neon/Prisma - const { data: ordersData, error: ordersError } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // TODO: Implementar API real
 
       if (ordersError) {
         console.error('❌ ADMIN: Erro ao buscar pedidos:', ordersError);
@@ -130,10 +127,7 @@ export default function AdminOrders() {
       // Get profiles for these users
       let profilesData = [];
       if (userIds.length > 0) {
-      // TODO: Migrar para API Neon/Prisma - const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, full_name, email, phone, street, number, city, state, zip_code')
-          .in('id', userIds);
+      // TODO: Implementar API real
 
         if (profilesError) {
           console.warn('⚠️ ADMIN: Erro ao buscar profiles (continuando sem eles):', profilesError);
@@ -240,9 +234,7 @@ export default function AdminOrders() {
   const fetchOrderItems = async (orderId: string) => {
     setLoadingItems(true);
     try {
-      // TODO: Migrar para API Neon/Prisma - const { data, error } = await supabase
-        .from('order_items')
-        .select(`
+      // TODO: Implementar API real
           *,
           products!order_items_product_id_fkey(
             id,
@@ -279,10 +271,7 @@ export default function AdminOrders() {
     }
 
     try {
-      // TODO: Migrar para API Neon/Prisma - const { error } = await supabase
-        .from('orders')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', orderId);
+      // TODO: Implementar API real
 
       if (error) throw error;
 
@@ -318,10 +307,7 @@ export default function AdminOrders() {
     }
 
     try {
-      // TODO: Migrar para API Neon/Prisma - const { error } = await supabase
-        .from('orders')
-        .update({ payment_status: paymentStatus, updated_at: new Date().toISOString() })
-        .eq('id', orderId);
+      // TODO: Implementar API real
 
       if (error) throw error;
 
@@ -348,10 +334,7 @@ export default function AdminOrders() {
 
   const updateOrderDetails = async (orderId: string, updates: Partial<Order>) => {
     try {
-      // TODO: Migrar para API Neon/Prisma - const { error } = await supabase
-        .from('orders')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', orderId);
+      // TODO: Implementar API real
 
       if (error) throw error;
 
@@ -555,10 +538,7 @@ export default function AdminOrders() {
       yPos += 15;
 
       // Get order items
-      // TODO: Migrar para API Neon/Prisma - const { data: items } = await supabase
-        .from('order_items')
-        .select('*')
-        .eq('order_id', order.id);
+      // TODO: Implementar API real
 
       // Items section
       yPos = addSectionTitle('ITENS DO PEDIDO', yPos);
