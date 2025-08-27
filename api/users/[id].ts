@@ -1,5 +1,4 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { AuthService } from "../../src/lib/auth";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { id } = req.query;
@@ -11,14 +10,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     switch (req.method) {
       case "GET":
-        const user = await AuthService.getUserById(id);
-        if (!user) {
-          return res.status(404).json({ error: "Usuário não encontrado" });
-        }
+        console.log("👤 API Usuário - Retornando dados mockados para ID:", id);
+        
+        // Mock user data
+        const user = {
+          id: id,
+          email: "usuario@teste.com",
+          full_name: "Usuário Teste",
+          phone: "(11) 99999-9999",
+          is_admin: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        
         return res.status(200).json({ user });
 
       case "PUT":
-        const updatedUser = await AuthService.updateUser(id, req.body);
+        console.log("👤 API Usuário - Atualizando usuário (mockado):", id);
+        
+        const updatedUser = {
+          id: id,
+          ...req.body,
+          updated_at: new Date().toISOString()
+        };
+        
         return res.status(200).json({ user: updatedUser });
 
       default:

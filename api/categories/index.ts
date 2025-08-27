@@ -1,15 +1,51 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { CategoryService } from "../../src/lib/services";
+
+// Mock data para demonstração
+const mockCategories = [
+  {
+    id: "1",
+    name: "Ferramentas",
+    description: "Ferramentas para construção",
+    imageUrl: "/placeholder.svg",
+    parentId: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "2", 
+    name: "Material Elétrico",
+    description: "Materiais elétricos e eletrônicos",
+    imageUrl: "/placeholder.svg",
+    parentId: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "3",
+    name: "Cimento e Argamassa", 
+    description: "Cimentos, argamassas e materiais de base",
+    imageUrl: "/placeholder.svg",
+    parentId: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  }
+];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     switch (req.method) {
       case "GET":
-        const categories = await CategoryService.getAllCategories();
-        return res.status(200).json({ categories });
+        console.log("📂 API Categorias - Retornando dados mockados");
+        return res.status(200).json({ categories: mockCategories });
 
       case "POST":
-        const newCategory = await CategoryService.createCategory(req.body);
+        console.log("📂 API Categorias - Criando categoria (mockado)");
+        const newCategory = {
+          id: Date.now().toString(),
+          ...req.body,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
         return res.status(201).json({ category: newCategory });
 
       default:

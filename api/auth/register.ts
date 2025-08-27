@@ -1,5 +1,4 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { AuthService } from "../../src/lib/auth";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
@@ -15,21 +14,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .json({ error: "Email, senha e nome completo são obrigatórios" });
     }
 
-    const user = await AuthService.createUser({
-      email,
-      password,
-      fullName,
-      phone,
-    });
+    console.log("📝 API Registro - Criando usuário (mockado):", email);
+
+    // Mock user creation
+    const user = {
+      id: Date.now().toString(),
+      email: email,
+      full_name: fullName,
+      phone: phone || null,
+      is_admin: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
 
     return res.status(201).json({ user });
   } catch (error: any) {
     console.error("Erro no registro:", error);
-
-    if (error.code === "P2002") {
-      return res.status(400).json({ error: "Email já está em uso" });
-    }
-
     return res.status(500).json({ error: "Erro interno do servidor" });
   }
 }

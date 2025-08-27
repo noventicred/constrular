@@ -1,5 +1,4 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { AuthService } from "../../src/lib/auth";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
@@ -13,11 +12,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: "Email e senha são obrigatórios" });
     }
 
-    const user = await AuthService.loginUser({ email, password });
+    console.log("🔐 API Login - Autenticando usuário (mockado):", email);
 
-    if (!user) {
-      return res.status(401).json({ error: "Credenciais inválidas" });
-    }
+    // Mock authentication - aceita qualquer email/senha para demonstração
+    const user = {
+      id: Date.now().toString(),
+      email: email,
+      full_name: "Usuário Teste",
+      phone: "(11) 99999-9999",
+      is_admin: email.includes("admin"),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
 
     return res.status(200).json({ user });
   } catch (error) {
