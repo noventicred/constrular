@@ -1,115 +1,137 @@
-// API de configurações para Vercel
+/**
+ * API de Configurações - Vercel Serverless Function
+ * Gerenciamento das configurações da loja
+ */
+
+import { handleCors } from '../_lib/cors.js';
+import { successResponse, errorResponse, methodNotAllowedResponse } from '../_lib/response.js';
+import { sanitizeString } from '../_lib/validation.js';
+import { logger } from '../_lib/logger.js';
+import { mockSettings } from '../_lib/data.js';
+
 export default async function handler(req, res) {
-  // Headers CORS
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  // Aplicar CORS
+  if (handleCors(req, res)) return;
 
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  // Mock data para configurações da loja
-  const mockSettings = {
-    whatsapp_number: "5511999999999",
-    store_name: "ConstrutorPro",
-    store_email: "contato@construtorpro.com",
-    free_shipping_threshold: "199.00",
-    default_shipping_cost: "29.90",
-    store_address: "Rua das Construções, 123 - São Paulo, SP",
-    store_phone: "(11) 3456-7890",
-    business_hours: "Segunda a Sexta: 8h às 18h | Sábado: 8h às 12h",
-    payment_methods: ["PIX", "Cartão de Crédito", "Cartão de Débito", "Boleto"],
-    delivery_areas: ["São Paulo Capital", "Grande São Paulo", "ABC Paulista"],
-    social_media: {
-      facebook: "https://facebook.com/construtorpro",
-      instagram: "https://instagram.com/construtorpro",
-      youtube: "https://youtube.com/construtorpro",
-    },
-    seo: {
-      meta_title: "ConstrutorPro - Material de Construção Online",
-      meta_description:
-        "Loja completa de material de construção com os melhores preços. Cimento, tijolos, tintas, ferramentas e muito mais.",
-      keywords: "material de construção, cimento, tijolo, tinta, ferramentas",
-    },
-    updated_at: new Date().toISOString(),
-  };
+  // Log da requisição
+  logger.request(req);
 
   try {
     switch (req.method) {
-      case "GET":
-        console.log("⚙️ API Settings - Retornando configurações mockadas");
-        return res.status(200).json({ settings: mockSettings });
-
-      case "PUT":
-        console.log("⚙️ API Settings - Atualizando configurações (mockado)");
-
-        let body = "";
-        req.on("data", (chunk) => {
-          body += chunk.toString();
-        });
-
-        req.on("end", () => {
-          try {
-            const updatedData = JSON.parse(body);
-            const updatedSettings = {
-              ...mockSettings,
-              ...updatedData,
-              updated_at: new Date().toISOString(),
-            };
-
-            return res.status(200).json({
-              settings: updatedSettings,
-              message: "Configurações atualizadas com sucesso",
-            });
-          } catch (error) {
-            console.error("Erro ao parsear dados:", error);
-            return res.status(400).json({ error: "Dados inválidos" });
-          }
-        });
-        break;
-
-      case "POST":
-        console.log("⚙️ API Settings - Criando configurações (mockado)");
-
-        let postBody = "";
-        req.on("data", (chunk) => {
-          postBody += chunk.toString();
-        });
-
-        req.on("end", () => {
-          try {
-            const newData = JSON.parse(postBody);
-            const newSettings = {
-              ...mockSettings,
-              ...newData,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            };
-
-            return res.status(201).json({
-              settings: newSettings,
-              message: "Configurações criadas com sucesso",
-            });
-          } catch (error) {
-            console.error("Erro ao parsear dados:", error);
-            return res.status(400).json({ error: "Dados inválidos" });
-          }
-        });
-        break;
-
+      case 'GET':
+        return await handleGetSettings(req, res);
+      
+      case 'PUT':
+        return await handleUpdateSettings(req, res);
+      
       default:
-        return res.status(405).json({ error: "Method not allowed" });
+        return methodNotAllowedResponse(res, ['GET', 'PUT']);
     }
   } catch (error) {
-    console.error("Erro na API de configurações:", error);
-    return res.status(500).json({
-      error: "Erro interno do servidor",
-      details: error.message,
-      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
-    });
+    logger.error('Erro na API de configurações', error);
+    return errorResponse(res, 'Erro interno do servidor', 500, error.message);
   }
+}
+
+/**
+ * GET /api/settings
+ * Retorna as configurações da loja
+ */
+async function handleGetSettings(req, res) {
+  const { category } = req.query;
+  
+  let settings = { ...mockSettings };
+  
+  // Filtrar por categoria se especificado
+  if (category) {
+    const validCategories = ['store', 'shipping', 'payment', 'seo', 'social', 'features'];
+    
+    if (validCategories.includes(category)) {
+      const categorySettings = {};
+      
+      switch (category) {
+        case 'store':
+          categorySettings.store = {
+            name: settings.store_name,
+            email: settings.store_email,
+            phone: settings.store_phone,
+            address: settings.store_address,
+            business_hours: settings.business_hours
+          };
+          break;
+        case 'shipping':
+          categorySettings.shipping = {
+            free_shipping_threshold: settings.free_shipping_threshold,
+            default_shipping_cost: settings.default_shipping_cost,
+            delivery_areas: settings.delivery_areas
+          };
+          break;
+        case 'payment':
+          categorySettings.payment = {
+            methods: settings.payment_methods
+          };
+          break;
+        case 'seo':
+          categorySettings.seo = settings.seo;
+          break;
+        case 'social':
+          categorySettings.social_media = settings.social_media;
+          break;
+        case 'features':
+          categorySettings.features = settings.features;
+          break;
+      }
+      
+      settings = categorySettings;
+    }
+  }
+
+  logger.info('Configurações recuperadas', { category });
+
+  return successResponse(res, {
+    settings,
+    category: category || 'all'
+  }, 'Configurações recuperadas com sucesso');
+}
+
+/**
+ * PUT /api/settings
+ * Atualiza as configurações da loja
+ */
+async function handleUpdateSettings(req, res) {
+  const updates = req.body;
+  
+  if (!updates || typeof updates !== 'object') {
+    return errorResponse(res, 'Dados de atualização inválidos', 400);
+  }
+
+  // Sanitizar strings nos updates
+  const sanitizedUpdates = {};
+  
+  for (const [key, value] of Object.entries(updates)) {
+    if (typeof value === 'string') {
+      sanitizedUpdates[key] = sanitizeString(value);
+    } else if (typeof value === 'object' && value !== null) {
+      sanitizedUpdates[key] = value;
+    } else {
+      sanitizedUpdates[key] = value;
+    }
+  }
+
+  // Simular atualização das configurações
+  const updatedSettings = {
+    ...mockSettings,
+    ...sanitizedUpdates,
+    updated_at: new Date().toISOString()
+  };
+
+  logger.info('Configurações atualizadas', { 
+    updates: Object.keys(sanitizedUpdates),
+    timestamp: updatedSettings.updated_at
+  });
+
+  return successResponse(res, {
+    settings: updatedSettings,
+    updated_fields: Object.keys(sanitizedUpdates)
+  }, 'Configurações atualizadas com sucesso');
 }
