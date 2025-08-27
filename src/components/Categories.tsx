@@ -74,14 +74,16 @@ const Categories = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .is('parent_id', null) // Only get top-level categories
-        .order('name');
-
-      if (error) throw error;
-      setCategories(data || []);
+      const response = await fetch('/api/categories');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar categorias');
+      }
+      
+      const data = await response.json();
+      
+      // Filtrar apenas categorias principais (sem parent_id)
+      const topLevelCategories = data.categories?.filter((cat: Category) => !cat.parent_id) || [];
+      setCategories(topLevelCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
       toast({

@@ -31,54 +31,39 @@ const FeaturedProducts = () => {
   const { addItem } = useCart();
 
   useEffect(() => {
-    // Produtos mockados para demonstração
-    const mockProducts: Product[] = [
-      {
-        id: "1",
-        name: "Cimento Portland CP II-E 50kg",
-        price: 29.9,
-        original_price: 35.9,
-        image_url: "/placeholder.svg",
-        rating: 4.8,
-        review_count: 125,
-        is_featured: true,
-        description: "Cimento de alta qualidade para construção civil",
-      },
-      {
-        id: "2",
-        name: "Tijolo Cerâmico 9 Furos",
-        price: 0.89,
-        image_url: "/placeholder.svg",
-        rating: 4.6,
-        review_count: 89,
-        is_featured: true,
-        description: "Tijolo cerâmico de alta resistência",
-      },
-      {
-        id: "3",
-        name: "Tinta Acrílica Premium 18L",
-        price: 189.9,
-        original_price: 220.0,
-        image_url: "/placeholder.svg",
-        rating: 4.9,
-        review_count: 67,
-        is_featured: true,
-        description: "Tinta acrílica lavável de alta cobertura",
-      },
-      {
-        id: "4",
-        name: "Areia Média para Construção",
-        price: 45.9,
-        image_url: "/placeholder.svg",
-        rating: 4.5,
-        review_count: 203,
-        is_featured: true,
-        description: "Areia lavada e peneirada para construção",
-      },
-    ];
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await fetch('/api/products?featured=true');
+        if (!response.ok) {
+          throw new Error('Erro ao carregar produtos');
+        }
+        
+        const data = await response.json();
+        
+        // Mapear os dados do banco para o formato do componente
+        const mappedProducts: Product[] = data.products.map((product: any) => ({
+          id: product.id,
+          name: product.name,
+          price: Number(product.price),
+          original_price: product.originalPrice ? Number(product.originalPrice) : undefined,
+          image_url: product.imageUrl || "/placeholder.svg",
+          rating: product.rating ? Number(product.rating) : undefined,
+          review_count: product.reviewCount || 0,
+          is_featured: product.isFeatured,
+          description: product.description,
+        }));
+        
+        setProducts(mappedProducts);
+      } catch (error) {
+        console.error('Erro ao carregar produtos em destaque:', error);
+        // Fallback: não mostrar produtos se der erro
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setProducts(mockProducts);
-    setLoading(false);
+    fetchFeaturedProducts();
   }, []);
 
   const handleAddToCart = (product: Product) => {

@@ -48,37 +48,39 @@ const SpecialOffers = () => {
 
   const fetchProducts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('is_special_offer', true)
-        .eq('in_stock', true)
-        .limit(20)
-        .order('discount', { ascending: false });
-
-      if (error) throw error;
-      setProducts(data || []);
-
-      // Buscar comentários para cada produto
-      if (data && data.length > 0) {
-        const commentsData: Record<string, number> = {};
-        
-        for (const product of data) {
-          const { data: comments } = await supabase
-            .from('product_comments')
-            .select('rating')
-            .eq('product_id', product.id);
-          
-          if (comments && comments.length > 0) {
-            const averageRating = comments.reduce((acc, comment) => acc + comment.rating, 0) / comments.length;
-            commentsData[product.id] = averageRating;
-          } else {
-            commentsData[product.id] = 0;
-          }
-        }
-        
-        setProductComments(commentsData);
+      const response = await fetch('/api/products?specialOffers=true');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar ofertas especiais');
       }
+      
+      const data = await response.json();
+      
+      // Mapear os dados do banco para o formato do componente
+      const mappedProducts: Product[] = data.products?.map((product: any) => ({
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        sku: product.sku,
+        price: Number(product.price),
+        original_price: product.originalPrice ? Number(product.originalPrice) : null,
+        discount: product.originalPrice && product.price ? 
+          Math.round(((Number(product.originalPrice) - Number(product.price)) / Number(product.originalPrice)) * 100) : null,
+        image_url: product.imageUrl,
+        rating: product.rating ? Number(product.rating) : null,
+        reviews: product.reviewCount || null,
+        in_stock: product.inStock,
+        is_special_offer: product.isSpecialOffer,
+      })) || [];
+      
+      setProducts(mappedProducts);
+      
+      // Para comentários, usar os dados já disponíveis do produto (rating e reviewCount)
+      const commentsData: Record<string, number> = {};
+      mappedProducts.forEach(product => {
+        commentsData[product.id] = product.rating || 0;
+      });
+      setProductComments(commentsData);
+      
     } catch (error) {
       console.error('Error fetching special offers:', error);
       toast({
