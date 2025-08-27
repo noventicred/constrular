@@ -90,31 +90,34 @@ export default function Checkout() {
 
     setLoading(true);
     try {
-      // TODO: Migrar para API Neon/Prisma - const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (error && error.code !== "PGRST116") {
-        throw error;
+      const response = await fetch(`/api/users/${user.id}`);
+      if (!response.ok) {
+        if (response.status === 404) {
+          // Usuário não encontrado - usar dados padrão
+          setUserProfile(null);
+          return;
+        }
+        throw new Error('Erro ao carregar perfil');
       }
-
-      if (data) {
-        setUserProfile(data);
+      
+      const { user: userData } = await response.json();
+      
+      if (userData) {
+        setUserProfile(userData);
         setShippingAddress({
-          full_name: data.full_name || "",
-          phone: data.phone || "",
-          street: data.street || "",
-          number: data.number || "",
-          complement: data.complement || "",
-          city: data.city || "",
-          state: data.state || "",
-          zip_code: data.zip_code || "",
+          full_name: userData.fullName || "",
+          phone: userData.phone || "",
+          street: userData.street || "",
+          number: userData.number || "",
+          complement: userData.complement || "",
+          neighborhood: userData.neighborhood || "",
+          city: userData.city || "",
+          state: userData.state || "",
+          zip_code: userData.zipCode || "",
         });
       }
     } catch (error) {
-      console.error("Erro ao carregar perfil:", error);
+      console.error("Erro ao carregar perfil do usuário:", error);
     } finally {
       setLoading(false);
     }
@@ -199,25 +202,20 @@ export default function Checkout() {
 
       // Create order
       console.log("💾 INSERINDO PEDIDO...");
-      // TODO: Migrar para API Neon/Prisma - const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({
-          user_id: user.id,
-          total_amount: totalAmount,
-          status: "pending",
-          payment_status: "pending",
-          payment_method: "whatsapp",
-          shipping_address: addressString,
-        })
-        .select()
-        .single();
-
-      if (orderError) {
-        console.error("❌ ERRO AO CRIAR PEDIDO:", orderError);
-        throw orderError;
-      }
-
-      console.log("✅ PEDIDO CRIADO:", order);
+      
+      // Mock order creation for now - TODO: Implement real order API
+      const order = {
+        id: Date.now().toString(),
+        user_id: user.id,
+        total_amount: totalAmount,
+        status: "pending",
+        payment_status: "pending", 
+        payment_method: "whatsapp",
+        shipping_address: addressString,
+        created_at: new Date().toISOString()
+      };
+      
+      console.log("✅ PEDIDO CRIADO (MOCK):", order);
 
       // Create order items
       const orderItems = items.map((item) => ({
@@ -230,15 +228,10 @@ export default function Checkout() {
       }));
 
       console.log("📦 ITENS DO PEDIDO:", orderItems);
-      console.log("💾 INSERINDO ITENS...");
+      console.log("💾 INSERINDO ITENS (MOCK)...");
 
-      // TODO: Migrar para API Neon/Prisma - const { error: itemsError } = await supabase
-        .from("order_items")
-        .insert(orderItems);
-
-      if (itemsError) {
-        console.error("❌ ERRO AO CRIAR ITENS:", itemsError);
-        throw itemsError;
+      // Mock order items creation - TODO: Implement real order items API
+      console.log("✅ ITENS CRIADOS (MOCK):", orderItems.length, "itens");
       }
 
       console.log("✅ ITENS CRIADOS COM SUCESSO");
