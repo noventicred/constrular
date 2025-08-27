@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Filter, Grid, List, ShoppingCart, Star, Sliders, SlidersHorizontal, Search, MessageCircle } from "lucide-react";
-// import { supabase } from "@/integrations/supabase/client";
+
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -128,16 +128,18 @@ const Produtos = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .is('parent_id', null)
-        .order('name', { ascending: true });
-
-      if (error) throw error;
-      setCategories(data || []);
+      const response = await fetch('/api/categories');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar categorias');
+      }
+      
+      const data = await response.json();
+      
+      // Filtrar apenas categorias principais (sem parent_id)
+      const topLevelCategories = data.categories?.filter((cat: any) => !cat.parent_id) || [];
+      setCategories(topLevelCategories);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('Erro ao carregar categorias:', error);
     }
   };
 

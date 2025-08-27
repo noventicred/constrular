@@ -40,7 +40,7 @@ const AdminConfiguracoes = () => {
 
   const fetchSettings = async () => {
     try {
-      const { data, error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data, error } = await supabase
         .from('settings')
         .select('key, value');
 
@@ -64,7 +64,7 @@ const AdminConfiguracoes = () => {
 
   const updateSetting = async (key: string, value: string) => {
     try {
-      const { error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { error } = await supabase
         .from('settings')
         .upsert({ key, value }, { onConflict: 'key' });
 

@@ -42,7 +42,7 @@ export const CategoryForm = ({ categories, editingCategory, onSave, onCancel }: 
     const fileName = `${Math.random()}.${fileExt}`;
     const filePath = `categories/${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
+      // TODO: Migrar para API Neon/Prisma - const { error: uploadError } = await supabase.storage
       .from('product-images')
       .upload(filePath, file);
 
@@ -51,7 +51,7 @@ export const CategoryForm = ({ categories, editingCategory, onSave, onCancel }: 
       throw uploadError;
     }
 
-    const { data } = supabase.storage
+      // TODO: Migrar para API Neon/Prisma - const { data } = supabase.storage
       .from('product-images')
       .getPublicUrl(filePath);
 
@@ -96,12 +96,12 @@ export const CategoryForm = ({ categories, editingCategory, onSave, onCancel }: 
 
       let error;
       if (editingCategory) {
-        ({ error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - ({ error } = await supabase
           .from('categories')
           .update(categoryData)
           .eq('id', editingCategory.id));
       } else {
-        ({ error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - ({ error } = await supabase
           .from('categories')
           .insert([categoryData]));
       }

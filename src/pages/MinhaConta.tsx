@@ -147,7 +147,7 @@ export default function MinhaConta() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data, error } = await supabase
         .from("orders")
         .select(
           `
@@ -199,7 +199,7 @@ export default function MinhaConta() {
 
     setIsLoading(true);
     try {
-      const { error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { error } = await supabase
         .from("profiles")
         .update({
           full_name: profileData.full_name,

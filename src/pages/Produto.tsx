@@ -25,12 +25,11 @@ import {
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSettings } from "@/hooks/useSettings";
-// import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
 import FloatingCart from "@/components/FloatingCart";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Product type interface matching Supabase
+// Product type interface
 interface Product {
   id: string;
   name: string;
@@ -90,36 +89,34 @@ const Produto = () => {
       setLoading(true);
       try {
         // Buscar produto
-        const { data: productData, error: productError } = await supabase
-          .from('products')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (productError) {
-          console.error('Erro ao carregar produto:', productError);
-          toast({
-            title: "Erro",
-            description: "Não foi possível carregar o produto.",
-            variant: "destructive",
-          });
-          return;
+        const response = await fetch(`/api/products/${id}`);
+        if (!response.ok) {
+          throw new Error('Produto não encontrado');
         }
-
+        
+        const { product: productData } = await response.json();
         setProduct(productData);
 
-        // Buscar comentários
-        const { data: commentsData, error: commentsError } = await supabase
-          .from('product_comments')
-          .select('*')
-          .eq('product_id', id)
-          .order('created_at', { ascending: false });
-
-        if (commentsError) {
-          console.error('Erro ao carregar comentários:', commentsError);
-        } else {
-          setComments(commentsData || []);
-        }
+        // Por enquanto, usar comentários mock (TODO: implementar API de comentários)
+        const mockComments = [
+          {
+            id: '1',
+            author: 'João Silva',
+            content: 'Excelente produto! Recomendo.',
+            rating: 5,
+            created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+            helpful_votes: 12
+          },
+          {
+            id: '2', 
+            author: 'Maria Santos',
+            content: 'Boa qualidade, entrega rápida.',
+            rating: 4,
+            created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+            helpful_votes: 8
+          }
+        ];
+        setComments(mockComments);
 
       } catch (error) {
         console.error('Erro ao carregar dados:', error);

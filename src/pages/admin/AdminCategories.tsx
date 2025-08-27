@@ -30,7 +30,7 @@ const AdminCategories = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data, error } = await supabase
         .from('categories')
         .select('*')
         .order('name');
@@ -63,7 +63,7 @@ const AdminCategories = () => {
     if (!confirm('Tem certeza que deseja excluir esta categoria?')) return;
 
     try {
-      const { error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { error } = await supabase
         .from('categories')
         .delete()
         .eq('id', id);

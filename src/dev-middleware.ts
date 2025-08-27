@@ -56,7 +56,25 @@ export function apiMockMiddleware() {
           return;
         }
 
-        // Products
+        // Products by ID
+        if (req.method === 'GET' && req.url?.match(/^\/products\/[^\/]+$/)) {
+          const productId = req.url.split('/').pop();
+          const product = mockProducts.find(p => p.id === productId);
+          
+          if (!product) {
+            console.log('❌ Product not found:', productId);
+            res.statusCode = 404;
+            res.end(JSON.stringify({ error: 'Produto não encontrado' }));
+            return;
+          }
+          
+          console.log('📦 Product found:', product.name);
+          res.statusCode = 200;
+          res.end(JSON.stringify({ product }));
+          return;
+        }
+
+        // Products listing
         if (req.method === 'GET' && req.url?.startsWith('/products')) {
           const url = new URL(req.url, 'http://localhost:3000');
           const featured = url.searchParams.get('featured');

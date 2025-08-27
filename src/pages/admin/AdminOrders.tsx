@@ -111,7 +111,7 @@ export default function AdminOrders() {
     console.log('🚀 ADMIN: NOVA VERSÃO - Iniciando busca de pedidos...');
     try {
       // First get all orders
-      const { data: ordersData, error: ordersError } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
         .select('*')
         .order('created_at', { ascending: false });
@@ -130,7 +130,7 @@ export default function AdminOrders() {
       // Get profiles for these users
       let profilesData = [];
       if (userIds.length > 0) {
-        const { data: profiles, error: profilesError } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
           .select('id, full_name, email, phone, street, number, city, state, zip_code')
           .in('id', userIds);
@@ -240,7 +240,7 @@ export default function AdminOrders() {
   const fetchOrderItems = async (orderId: string) => {
     setLoadingItems(true);
     try {
-      const { data, error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data, error } = await supabase
         .from('order_items')
         .select(`
           *,
@@ -279,7 +279,7 @@ export default function AdminOrders() {
     }
 
     try {
-      const { error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { error } = await supabase
         .from('orders')
         .update({ status, updated_at: new Date().toISOString() })
         .eq('id', orderId);
@@ -318,7 +318,7 @@ export default function AdminOrders() {
     }
 
     try {
-      const { error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { error } = await supabase
         .from('orders')
         .update({ payment_status: paymentStatus, updated_at: new Date().toISOString() })
         .eq('id', orderId);
@@ -348,7 +348,7 @@ export default function AdminOrders() {
 
   const updateOrderDetails = async (orderId: string, updates: Partial<Order>) => {
     try {
-      const { error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { error } = await supabase
         .from('orders')
         .update({ ...updates, updated_at: new Date().toISOString() })
         .eq('id', orderId);
@@ -555,7 +555,7 @@ export default function AdminOrders() {
       yPos += 15;
 
       // Get order items
-      const { data: items } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data: items } = await supabase
         .from('order_items')
         .select('*')
         .eq('order_id', order.id);

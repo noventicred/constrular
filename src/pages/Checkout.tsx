@@ -90,7 +90,7 @@ export default function Checkout() {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user.id)
@@ -199,7 +199,7 @@ export default function Checkout() {
 
       // Create order
       console.log("💾 INSERINDO PEDIDO...");
-      const { data: order, error: orderError } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
           user_id: user.id,
@@ -232,7 +232,7 @@ export default function Checkout() {
       console.log("📦 ITENS DO PEDIDO:", orderItems);
       console.log("💾 INSERINDO ITENS...");
 
-      const { error: itemsError } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { error: itemsError } = await supabase
         .from("order_items")
         .insert(orderItems);
 

@@ -57,13 +57,13 @@ const AdminDashboard = () => {
         pendingOrdersResult,
         revenueResult
       ] = await Promise.all([
-        supabase.from('products').select('*', { count: 'exact', head: true }),
-        supabase.from('categories').select('*', { count: 'exact', head: true }),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('products').select('*', { count: 'exact', head: true }).eq('in_stock', true),
-        supabase.from('orders').select('*', { count: 'exact', head: true }),
-        supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('orders').select('total_amount').gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
+      // TODO: Migrar para API Neon/Prisma - supabase.from('products').select('*', { count: 'exact', head: true }),
+      // TODO: Migrar para API Neon/Prisma - supabase.from('categories').select('*', { count: 'exact', head: true }),
+      // TODO: Migrar para API Neon/Prisma - supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      // TODO: Migrar para API Neon/Prisma - supabase.from('products').select('*', { count: 'exact', head: true }).eq('in_stock', true),
+      // TODO: Migrar para API Neon/Prisma - supabase.from('orders').select('*', { count: 'exact', head: true }),
+      // TODO: Migrar para API Neon/Prisma - supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+      // TODO: Migrar para API Neon/Prisma - supabase.from('orders').select('total_amount').gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
       ]);
 
       // Calculando receita real do mês atual
@@ -77,8 +77,8 @@ const AdminDashboard = () => {
       twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
       const [thisWeekOrders, lastWeekOrders] = await Promise.all([
-        supabase.from('orders').select('total_amount').gte('created_at', weekAgo.toISOString()),
-        supabase.from('orders').select('total_amount').gte('created_at', twoWeeksAgo.toISOString()).lt('created_at', weekAgo.toISOString())
+      // TODO: Migrar para API Neon/Prisma - supabase.from('orders').select('total_amount').gte('created_at', weekAgo.toISOString()),
+      // TODO: Migrar para API Neon/Prisma - supabase.from('orders').select('total_amount').gte('created_at', twoWeeksAgo.toISOString()).lt('created_at', weekAgo.toISOString())
       ]);
 
       const thisWeekRevenue = thisWeekOrders.data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
@@ -106,21 +106,21 @@ const AdminDashboard = () => {
   const fetchRecentActivity = async () => {
     try {
       // Buscar pedidos recentes
-      const { data: recentOrders } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data: recentOrders } = await supabase
         .from('orders')
         .select('id, status, created_at')
         .order('created_at', { ascending: false })
         .limit(3);
 
       // Buscar usuários recentes
-      const { data: recentUsers } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data: recentUsers } = await supabase
         .from('profiles')
         .select('id, full_name, created_at')
         .order('created_at', { ascending: false })
         .limit(2);
 
       // Buscar produtos com estoque baixo (simulando estoque < 5)
-      const { data: lowStockProducts } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data: lowStockProducts } = await supabase
         .from('products')
         .select('id, name')
         .eq('in_stock', false)

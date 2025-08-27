@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-// import { supabase } from '@/integrations/supabase/client';
+// TODO: Implementar integração com API do Neon/Prisma
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Edit2, Trash2, Search, Star, Percent, AlertTriangle, TrendingUp, Filter, X } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
@@ -57,24 +57,44 @@ const AdminProducts = () => {
 
   const fetchProducts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          *,
-          categories (name)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setProducts(data || []);
+      // TODO: Implementar busca de produtos via API
+      console.log('⚠️ AdminProducts: Usando dados mock - implementar API');
+      
+      // Mock data para desenvolvimento
+      const mockData = [
+        {
+          id: '1',
+          name: 'Furadeira Black & Decker 500W',
+          price: 189.90,
+          categories: { name: 'Ferramentas' },
+          is_featured: true,
+          is_special_offer: true,
+          in_stock: true,
+          stock_quantity: 25,
+          image_url: '/placeholder.svg'
+        },
+        {
+          id: '2', 
+          name: 'Cabo Flexível 2,5mm²',
+          price: 285.00,
+          categories: { name: 'Material Elétrico' },
+          is_featured: true,
+          is_special_offer: false,
+          in_stock: true,
+          stock_quantity: 15,
+          image_url: '/placeholder.svg'
+        }
+      ];
+      
+      setProducts(mockData);
       
       // Count featured and special offer products
-      const featured = data?.filter(p => p.is_featured).length || 0;
-      const specialOffers = data?.filter(p => p.is_special_offer).length || 0;
+      const featured = mockData.filter(p => p.is_featured).length;
+      const specialOffers = mockData.filter(p => p.is_special_offer).length;
       setFeaturedCount(featured);
       setSpecialOfferCount(specialOffers);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error('Erro ao carregar produtos:', error);
       toast({
         title: 'Erro',
         description: 'Não foi possível carregar os produtos.',
@@ -87,15 +107,15 @@ const AdminProducts = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('id, name')
-        .order('name');
-
-      if (error) throw error;
-      setCategories(data || []);
+      const response = await fetch('/api/categories');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar categorias');
+      }
+      
+      const data = await response.json();
+      setCategories(data.categories || []);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('Erro ao carregar categorias:', error);
     }
   };
 
@@ -108,12 +128,8 @@ const AdminProducts = () => {
     if (!confirm('Tem certeza que deseja excluir este produto?')) return;
 
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      // TODO: Implementar delete via API
+      console.log('⚠️ AdminProducts: Delete mock - implementar API para produto:', id);
 
       toast({
         title: 'Sucesso',

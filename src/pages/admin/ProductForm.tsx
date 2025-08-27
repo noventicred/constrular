@@ -82,7 +82,7 @@ const ProductForm = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data, error } = await supabase
         .from('categories')
         .select('id, name')
         .order('name');
@@ -99,7 +99,7 @@ const ProductForm = () => {
     
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data, error } = await supabase
         .from('products')
         .select('*')
         .eq('id', id)
@@ -150,7 +150,7 @@ const ProductForm = () => {
     if (!id) return;
     
     try {
-      const { data, error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data, error } = await supabase
         .from('product_comments')
         .select('*')
         .eq('product_id', id)
@@ -258,13 +258,13 @@ const ProductForm = () => {
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `products/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
+      // TODO: Migrar para API Neon/Prisma - const { error: uploadError } = await supabase.storage
           .from('product-images')
           .upload(filePath, file);
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
+      // TODO: Migrar para API Neon/Prisma - const { data: { publicUrl } } = supabase.storage
           .from('product-images')
           .getPublicUrl(filePath);
 
@@ -309,7 +309,7 @@ const ProductForm = () => {
       if (comments.length > 0) {
         // Delete existing comments if editing
         if (isEditing) {
-          await supabase
+      // TODO: Migrar para API Neon/Prisma - await supabase
             .from('product_comments')
             .delete()
             .eq('product_id', id);
@@ -327,7 +327,7 @@ const ProductForm = () => {
 
         if (isEditing) {
           commentsData.forEach(comment => { comment.product_id = id; });
-          const { error: commentsError } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { error: commentsError } = await supabase
             .from('product_comments')
             .insert(commentsData);
           
@@ -341,12 +341,12 @@ const ProductForm = () => {
       let productId = id;
       
       if (isEditing) {
-        ({ error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - ({ error } = await supabase
           .from('products')
           .update(productData)
           .eq('id', id));
       } else {
-        const { data: newProduct, error: insertError } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data: newProduct, error: insertError } = await supabase
           .from('products')
           .insert([productData])
           .select('id')
@@ -367,7 +367,7 @@ const ProductForm = () => {
               dislikes: comment.dislikes,
             }));
 
-            const { error: commentsError } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { error: commentsError } = await supabase
               .from('product_comments')
               .insert(commentsData);
             

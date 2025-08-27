@@ -65,7 +65,7 @@ export const useAdvancedSearch = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      // TODO: Migrar para API Neon/Prisma - const { data, error } = await supabase
         .from("products")
         .select(
           `
