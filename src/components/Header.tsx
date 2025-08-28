@@ -199,16 +199,21 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center">
-            <Link
-              to={isAdmin ? "/admin" : "/"}
-              className="hover:opacity-80 transition-opacity"
-            >
-              <h1 className="text-2xl font-bold text-primary">
-                Nova Casa Construção
-              </h1>
-            </Link>
-          </div>
+                      <div className="flex items-center">
+              <Link
+                to={isAdmin ? "/admin" : "/"}
+                className="hover:opacity-80 transition-opacity flex items-center gap-3"
+              >
+                <img 
+                  src="/src/assets/LOGO NOVA CASA.png" 
+                  alt="Nova Casa Construção" 
+                  className="h-12 w-auto"
+                />
+                <h1 className="text-2xl font-bold text-primary hidden sm:block">
+                  Nova Casa Construção
+                </h1>
+              </Link>
+            </div>
 
           {/* Search bar */}
           <div className="flex-1 max-w-2xl mx-8 hidden md:block">
