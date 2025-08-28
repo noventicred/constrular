@@ -38,6 +38,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
+import { getProductImageUrl, createImageProps } from "@/lib/imageUtils";
 
 interface Category {
   id: string;
@@ -171,16 +172,6 @@ const Header = () => {
     navigate(`/produto/${productId}`);
   };
 
-  const getProductImage = (imageUrl: string | null) => {
-    if (!imageUrl) return "/placeholder.svg";
-
-    try {
-      const parsed = JSON.parse(imageUrl);
-      return Array.isArray(parsed) ? parsed[0] : imageUrl;
-    } catch {
-      return imageUrl;
-    }
-  };
 
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
     console.log("Category clicked:", categoryId, categoryName);
@@ -238,7 +229,7 @@ const Header = () => {
                       onClick={() => handleProductClick(product.id)}
                     >
                       <img
-                        src={getProductImage(product.image_url)}
+                        src={getProductImageUrl(product.image_url)}
                         alt={product.name}
                         className="w-12 h-12 object-cover rounded-lg"
                         onError={(e) => {
@@ -436,7 +427,7 @@ const Header = () => {
                               onClick={() => handleProductClick(product.id)}
                             >
                               <img
-                                src={getProductImage(product.image_url)}
+                                src={getProductImageUrl(product.image_url)}
                                 alt={product.name}
                                 className="w-10 h-10 object-cover rounded-lg"
                                 onError={(e) => {

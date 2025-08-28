@@ -43,6 +43,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useSettings } from "@/hooks/useSettings";
 import { useAdvancedSearch } from "@/hooks/useAdvancedSearch";
 import { formatCurrency } from "@/lib/formatters";
+import { getProductImageUrl, createImageProps } from "@/lib/imageUtils";
 import FloatingCart from "@/components/FloatingCart";
 
 interface Category {
@@ -166,15 +167,6 @@ const Produtos = () => {
     filters.priceRange[0] > 0 || filters.priceRange[1] < 10000,
   ].filter(Boolean).length;
 
-  const getProductImageUrl = (imageUrl: string | null) => {
-    if (!imageUrl) return "/placeholder.svg";
-    try {
-      const parsed = JSON.parse(imageUrl);
-      return Array.isArray(parsed) ? parsed[0] : imageUrl;
-    } catch {
-      return imageUrl || "/placeholder.svg";
-    }
-  };
 
   const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();

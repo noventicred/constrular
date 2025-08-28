@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/formatters';
+import { getProductImageUrl } from '@/lib/imageUtils';
 import { useSettings } from '@/hooks/useSettings';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -110,14 +111,6 @@ export default function Checkout() {
     setShippingAddress(prev => ({ ...prev, [field]: value }));
   };
 
-  const getProductImageUrl = (imageUrl: string) => {
-    try {
-      const parsed = JSON.parse(imageUrl);
-      return Array.isArray(parsed) ? parsed[0] : imageUrl;
-    } catch {
-      return imageUrl || "/placeholder.svg";
-    }
-  };
 
   const validateForm = () => {
     const required = ['full_name', 'phone', 'street', 'number', 'city', 'state', 'zip_code'];

@@ -27,6 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSettings } from "@/hooks/useSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
+import { getProductImageUrl, getProductImageUrls, createImageProps } from "@/lib/imageUtils";
 import FloatingCart from "@/components/FloatingCart";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -180,14 +181,6 @@ const Produto = () => {
     );
   }
 
-  const getProductImageUrl = (imageUrl: string) => {
-    try {
-      const parsed = JSON.parse(imageUrl);
-      return Array.isArray(parsed) ? parsed[0] : imageUrl;
-    } catch {
-      return imageUrl || "/placeholder.svg";
-    }
-  };
 
   const handleAddToCart = () => {
     try {
@@ -318,55 +311,45 @@ const Produto = () => {
           <div className="space-y-4 min-w-0">
             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
               <img 
-                src={(() => {
-                  // Handle both string and array formats for image_url
-                  try {
-                    const parsed = JSON.parse(product.image_url);
-                    return Array.isArray(parsed) ? parsed[selectedImage] || parsed[0] : product.image_url;
-                  } catch {
-                    return product.image_url;
-                  }
-                })()} 
-                alt={product.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = "/placeholder.svg";
-                }}
+                {...createImageProps(
+                  (() => {
+                    const imageUrls = getProductImageUrls(product.image_url);
+                    return imageUrls[selectedImage] || imageUrls[0];
+                  })(),
+                  product.name,
+                  "w-full h-full object-cover"
+                )}
               />
             </div>
             
             {/* Multiple Image Thumbnails */}
             {(() => {
-              try {
-                const parsed = JSON.parse(product.image_url);
-                if (Array.isArray(parsed) && parsed.length > 1) {
-                  return (
-                    <div className="grid grid-cols-4 gap-2">
-                      {parsed.map((url, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setSelectedImage(index)}
-                          className={`aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 ${
-                            selectedImage === index ? 'border-primary' : 'border-transparent'
-                          }`}
-                        >
-                          <img 
-                            src={url} 
-                            alt={`${product.name} ${index + 1}`}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = "/placeholder.svg";
-                            }}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  );
-                }
-                return null;
-              } catch {
-                return null;
+              const imageUrls = getProductImageUrls(product.image_url);
+              if (imageUrls.length > 1) {
+                return (
+                  <div className="grid grid-cols-4 gap-2">
+                    {imageUrls.map((url, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedImage(index)}
+                        className={`aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 ${
+                          selectedImage === index ? 'border-primary' : 'border-transparent'
+                        }`}
+                      >
+                        <img 
+                          src={url} 
+                          alt={`${product.name} ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = "/placeholder.svg";
+                          }}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                );
               }
+              return null;
             })()}
           </div>
 
