@@ -59,12 +59,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       // Fetch profile separately
       fetchUserProfile(session.user.id).then(profile => {
-        console.log('Fetched profile:', profile);
         updateAuthState({
           profile,
           isAdmin: profile?.is_admin || false,
         });
-        console.log('isAdmin set to:', profile?.is_admin || false);
       });
       
     } else {
