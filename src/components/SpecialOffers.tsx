@@ -313,9 +313,14 @@ const SpecialOffers = () => {
                                 {formatCurrency(product.price)}
                               </span>
                               {product.original_price && product.original_price !== product.price && (
-                                <span className="text-sm text-gray-500 line-through">
-                                  {formatCurrency(product.original_price)}
-                                </span>
+                                <>
+                                  <span className="text-sm text-gray-500 line-through">
+                                    {formatCurrency(product.original_price)}
+                                  </span>
+                                  <Badge className="bg-red-500 text-white text-xs px-2 py-1 ml-2">
+                                    -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
+                                  </Badge>
+                                </>
                               )}
                             </div>
                           </div>

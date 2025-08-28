@@ -598,14 +598,14 @@ const Produtos = () => {
                           {formatCurrency(product.price)}
                         </span>
                         {product.original_price && product.original_price !== product.price && (
-                          <span className="text-sm text-gray-500 line-through">
-                            {formatCurrency(product.original_price)}
-                          </span>
-                        )}
-                        {product.discount && product.discount > 0 && (
-                          <span className="text-sm text-green-600 font-medium">
-                            -{product.discount}% off
-                          </span>
+                          <>
+                            <span className="text-sm text-gray-500 line-through">
+                              {formatCurrency(product.original_price)}
+                            </span>
+                            <span className="text-sm text-green-600 font-medium">
+                              -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off
+                            </span>
+                          </>
                         )}
                       </div>
                     </div>

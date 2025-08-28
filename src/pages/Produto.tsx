@@ -385,11 +385,9 @@ const Produto = () => {
                 <span className="text-base md:text-lg text-muted-foreground line-through break-all">
                   {formatCurrency(product.original_price)}
                 </span>
-                {product.discount && product.discount > 0 && (
-                  <Badge className="bg-red-500 text-white shrink-0">
-                    -{product.discount}%
-                  </Badge>
-                )}
+                <Badge className="bg-red-500 text-white shrink-0">
+                  -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
+                </Badge>
               </>
             )}
               </div>
