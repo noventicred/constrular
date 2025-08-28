@@ -312,7 +312,7 @@ const SpecialOffers = () => {
                               <span className="text-xl md:text-2xl font-bold text-orange-600">
                                 {formatCurrency(product.price)}
                               </span>
-                              {product.original_price && product.original_price > product.price && (
+                              {product.original_price && product.original_price !== product.price && (
                                 <span className="text-sm text-gray-500 line-through">
                                   {formatCurrency(product.original_price)}
                                 </span>

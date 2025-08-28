@@ -380,16 +380,18 @@ const Produto = () => {
                 <span className="text-2xl md:text-3xl font-bold text-primary break-all">
                   {formatCurrency(product.price)}
                 </span>
-                {product.original_price && product.original_price > product.price && (
-                  <>
-                    <span className="text-base md:text-lg text-muted-foreground line-through break-all">
-                      {formatCurrency(product.original_price)}
-                    </span>
-                    <Badge className="bg-red-500 text-white shrink-0">
-                      -{product.discount}%
-                    </Badge>
-                  </>
+            {product.original_price && product.original_price !== product.price && (
+              <>
+                <span className="text-base md:text-lg text-muted-foreground line-through break-all">
+                  {formatCurrency(product.original_price)}
+                </span>
+                {product.discount && product.discount > 0 && (
+                  <Badge className="bg-red-500 text-white shrink-0">
+                    -{product.discount}%
+                  </Badge>
                 )}
+              </>
+            )}
               </div>
               <p className="text-sm text-muted-foreground break-words">
                 ou 10x de {formatCurrency(product.price / 10)} sem juros

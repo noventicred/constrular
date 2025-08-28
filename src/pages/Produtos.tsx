@@ -594,29 +594,19 @@ const Produtos = () => {
                     {/* Price */}
                     <div className="space-y-1">
                       <div className="flex items-baseline gap-2">
-                        {product.original_price &&
-                        product.original_price > product.price ? (
-                          <span className="text-sm text-gray-500 line-through">
-                            {formatCurrency(product.original_price)}
-                          </span>
-                        ) : null}
-                      </div>
-                      <div className="flex items-baseline gap-2">
                         <span className="text-2xl font-bold text-gray-900 dark:text-white">
                           {formatCurrency(product.price)}
                         </span>
-                        {product.original_price &&
-                        product.original_price > product.price ? (
-                          <span className="text-sm text-green-600 font-medium">
-                            -
-                            {Math.round(
-                              ((product.original_price - product.price) /
-                                product.original_price) *
-                                100
-                            )}
-                            % off
+                        {product.original_price && product.original_price !== product.price && (
+                          <span className="text-sm text-gray-500 line-through">
+                            {formatCurrency(product.original_price)}
                           </span>
-                        ) : null}
+                        )}
+                        {product.discount && product.discount > 0 && (
+                          <span className="text-sm text-green-600 font-medium">
+                            -{product.discount}% off
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
