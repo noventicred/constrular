@@ -204,11 +204,11 @@ const Header = () => {
               to={isAdmin ? "/admin" : "/"}
               className="hover:opacity-80 transition-opacity flex items-center gap-3"
             >
-              <img
-                src="/logo.png"
-                alt="Nova Casa Construção"
-                className="h-16 w-auto"
-              />
+                              <img
+                  src="/logo.png"
+                  alt="Nova Casa Construção"
+                  className="h-20 w-auto"
+                />
             </Link>
           </div>
 
