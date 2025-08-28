@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PixBadge } from "@/components/ui/pix-badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Percent, Clock, ShoppingCart, Star, MessageCircle } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
