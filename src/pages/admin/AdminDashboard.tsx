@@ -254,7 +254,7 @@ const AdminDashboard = () => {
       value: stats.totalUsers,
       description: 'Clientes cadastrados',
       icon: Users,
-      color: 'text-orange-600',
+      color: 'text-construction-orange',
       bgColor: 'bg-orange-50',
       trend: 'up',
       progress: 60,

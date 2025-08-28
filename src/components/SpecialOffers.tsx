@@ -275,7 +275,7 @@ const SpecialOffers = () => {
                       <div className="p-4 md:p-5 flex-1 flex flex-col">
                         <div className="space-y-2 flex-1">
                           <div>
-                            <h3 className="font-bold text-base md:text-lg mb-1 group-hover:text-orange-600 transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
+                            <h3 className="font-bold text-base md:text-lg mb-1 group-hover:text-construction-orange transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
                               {product.name}
                             </h3>
                           </div>
@@ -307,30 +307,28 @@ const SpecialOffers = () => {
                             </div>
                           )}
                           
-                          {/* Price */}
-                          <div className="space-y-2">
-                            {product.original_price && product.original_price !== product.price ? (
-                              <div className="space-y-1">
-                                <div className="flex items-baseline gap-2">
-                                  <span className="text-sm text-gray-500 line-through">
-                                    {formatCurrency(product.original_price)}
-                                  </span>
-                                </div>
-                                <PixBadge 
-                                  price={product.price} 
-                                  originalPrice={product.original_price}
-                                />
-                              </div>
-                            ) : (
-                              <div className="text-xl md:text-2xl font-bold text-orange-600">
-                                {formatCurrency(product.price)}
-                              </div>
-                            )}
-                          </div>
+                           {/* Price */}
+                           <div className="space-y-3 mt-3">
+                             {product.original_price && product.original_price !== product.price ? (
+                               <div className="space-y-2">
+                                 <div className="text-sm text-muted-foreground line-through">
+                                   De: {formatCurrency(product.original_price)}
+                                 </div>
+                                 <PixBadge 
+                                   price={product.price} 
+                                   originalPrice={product.original_price}
+                                 />
+                               </div>
+                             ) : (
+                               <div className="text-xl md:text-2xl font-bold text-construction-orange">
+                                 {formatCurrency(product.price)}
+                               </div>
+                             )}
+                           </div>
                         </div>
-                         
-                         {/* Action Buttons */}
-                         <div className="space-y-2 mt-4">
+                          
+                          {/* Action Buttons */}
+                          <div className="space-y-3 mt-6">
                            <Button 
                              className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base"
                              disabled={!product.in_stock}

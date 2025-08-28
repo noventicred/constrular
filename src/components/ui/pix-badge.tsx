@@ -14,18 +14,24 @@ function PixBadge({ price, originalPrice, className, ...props }: PixBadgeProps) 
   return (
     <div 
       className={cn(
-        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg",
-        "bg-gradient-to-r from-blue-600 to-purple-600",
-        "text-white text-sm font-semibold shadow-lg",
-        "border border-white/20",
+        "inline-flex items-center gap-2 px-3 py-2 rounded-lg",
+        "bg-gradient-to-r from-construction-orange to-primary",
+        "text-white text-sm font-bold shadow-lg",
+        "border border-white/10 backdrop-blur-sm",
+        "transition-all duration-300 hover:shadow-xl hover:scale-105",
         className
       )} 
       {...props}
     >
-      <Zap className="w-3.5 h-3.5 fill-current" />
-      <span>{formatCurrency(price)} no PIX</span>
+      <Zap className="w-4 h-4 fill-current drop-shadow-sm" />
+      <div className="flex items-center gap-2">
+        <span className="font-bold">{formatCurrency(price)}</span>
+        <span className="text-xs font-semibold bg-white/20 px-2 py-0.5 rounded-full">
+          PIX
+        </span>
+      </div>
       {discount > 0 && (
-        <span className="text-xs bg-white/20 px-1.5 py-0.5 rounded">
+        <span className="text-xs font-bold bg-white/25 px-2 py-0.5 rounded-full border border-white/20">
           -{discount.toFixed(0)}%
         </span>
       )}

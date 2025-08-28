@@ -266,30 +266,28 @@ const FeaturedProducts = () => {
                          </div>
                        )}
                       
-                      {/* Price */}
-                      <div className="space-y-2">
-                        {product.original_price && product.original_price !== product.price ? (
-                          <div className="space-y-1">
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-sm text-gray-500 line-through">
-                                {formatCurrency(product.original_price)}
-                              </span>
-                            </div>
-                            <PixBadge 
-                              price={product.price} 
-                              originalPrice={product.original_price}
-                            />
-                          </div>
-                        ) : (
-                          <div className="text-xl md:text-2xl font-bold text-primary">
-                            {formatCurrency(product.price)}
-                          </div>
-                        )}
-                      </div>
+                       {/* Price */}
+                       <div className="space-y-3 mt-3">
+                         {product.original_price && product.original_price !== product.price ? (
+                           <div className="space-y-2">
+                             <div className="text-sm text-muted-foreground line-through">
+                               De: {formatCurrency(product.original_price)}
+                             </div>
+                             <PixBadge 
+                               price={product.price} 
+                               originalPrice={product.original_price}
+                             />
+                           </div>
+                         ) : (
+                           <div className="text-xl md:text-2xl font-bold text-construction-orange">
+                             {formatCurrency(product.price)}
+                           </div>
+                         )}
+                       </div>
                     </div>
-                    
-                    {/* Action Buttons */}
-                    <div className="space-y-2">
+                     
+                     {/* Action Buttons */}
+                     <div className="space-y-3 mt-6">
                       <Button 
                         className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base"
                         disabled={!product.in_stock}
