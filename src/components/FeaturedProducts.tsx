@@ -267,19 +267,20 @@ const FeaturedProducts = () => {
                        )}
                       
                        {/* Price */}
-                       <div className="space-y-3 mt-3">
+                       <div className="space-y-3 mt-4">
                          {product.original_price && product.original_price !== product.price ? (
                            <div className="space-y-2">
-                             <div className="text-sm text-muted-foreground line-through">
+                             <div className="text-sm text-muted-foreground line-through font-medium">
                                De: {formatCurrency(product.original_price)}
                              </div>
                              <PixBadge 
                                price={product.price} 
                                originalPrice={product.original_price}
+                               className="text-base font-extrabold shadow-xl"
                              />
                            </div>
                          ) : (
-                           <div className="text-xl md:text-2xl font-bold text-construction-orange">
+                           <div className="bg-gradient-to-r from-construction-orange to-primary bg-clip-text text-transparent text-2xl md:text-3xl font-black tracking-tight">
                              {formatCurrency(product.price)}
                            </div>
                          )}
