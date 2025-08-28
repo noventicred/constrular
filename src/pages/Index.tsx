@@ -16,7 +16,7 @@ const Index = () => {
     "@type": "Organization",
     name: "Nova Casa Construção",
          url: window.location.origin,
-     logo: `${window.location.origin}/src/assets/LOGO NOVA CASA.png`,
+     logo: `${window.location.origin}/logo.png`,
     description:
       "Loja completa de material de construção com os melhores preços. Cimento, tijolos, tintas, ferramentas e muito mais.",
     contactPoint: {

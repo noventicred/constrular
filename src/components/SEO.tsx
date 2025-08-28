@@ -15,7 +15,7 @@ const SEO: React.FC<SEOProps> = ({
   title = "Nova Casa Construção - Material de Construção Online",
   description = "Loja completa de material de construção com os melhores preços. Cimento, tijolos, tintas, ferramentas e muito mais. Entrega rápida em Sorocaba.",
   keywords = "material de construção, cimento, tijolo, tinta, ferramentas, construção, obra, reforma, Sorocaba",
-     ogImage = "/src/assets/LOGO NOVA CASA.png",
+     ogImage = "/logo.png",
   canonicalUrl,
   structuredData,
   type = "website",
@@ -107,7 +107,7 @@ const SEO: React.FC<SEOProps> = ({
         "@type": "Organization",
         name: "Nova Casa Construção",
                  url: window.location.origin,
-         logo: `${window.location.origin}/src/assets/LOGO NOVA CASA.png`,
+         logo: `${window.location.origin}/logo.png`,
         description: description,
         contactPoint: {
           "@type": "ContactPoint",

@@ -205,13 +205,10 @@ const Header = () => {
                 className="hover:opacity-80 transition-opacity flex items-center gap-3"
               >
                 <img 
-                  src="/src/assets/LOGO NOVA CASA.png" 
+                  src="/logo.png" 
                   alt="Nova Casa Construção" 
                   className="h-12 w-auto"
                 />
-                <h1 className="text-2xl font-bold text-primary hidden sm:block">
-                  Nova Casa Construção
-                </h1>
               </Link>
             </div>
 
