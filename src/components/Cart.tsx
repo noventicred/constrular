@@ -12,7 +12,7 @@ import { useSettings } from "@/hooks/useSettings";
 const Cart = () => {
   const { items, removeItem, updateQuantity, clearCart, total, itemCount, sendToWhatsApp } = useCart();
   const navigate = useNavigate();
-  const { getWhatsAppNumber } = useSettings();
+  const { getWhatsAppNumber, getFreeShippingThreshold, getDefaultShippingCost } = useSettings();
 
   const handleWhatsAppRedirect = () => {
     const whatsappNumber = getWhatsAppNumber();
@@ -20,7 +20,9 @@ const Cart = () => {
     clearCart();
   };
 
-  const shipping = total >= 199 ? 0 : 29.90;
+  const freeShippingThreshold = getFreeShippingThreshold();
+  const defaultShippingCost = getDefaultShippingCost();
+  const shipping = total >= freeShippingThreshold ? 0 : defaultShippingCost;
   const finalTotal = total + shipping;
 
   return (

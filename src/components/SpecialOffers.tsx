@@ -253,10 +253,15 @@ const SpecialOffers = () => {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         
                         {/* Discount Badge */}
-                        {product.discount && product.discount > 0 && (
-                          <Badge className="absolute top-3 left-3 md:top-4 md:left-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-sm md:text-base px-3 md:px-4 py-1 md:py-2 shadow-xl border-0 rounded-xl">
-                            -{product.discount}%
-                          </Badge>
+                        {product.original_price && product.original_price !== product.price && (
+                          <>
+                            <Badge className="absolute top-3 left-3 md:top-4 md:left-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-sm md:text-base px-3 md:px-4 py-1 md:py-2 shadow-xl border-0 rounded-xl">
+                              -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
+                            </Badge>
+                            <Badge className="absolute top-10 right-3 md:top-16 md:right-4 bg-green-600 text-white font-bold text-sm md:text-base px-3 md:px-4 py-1 md:py-2 shadow-xl border-0 rounded-xl">
+                              PIX
+                            </Badge>
+                          </>
                         )}
                         
                         {/* Stock Badge */}

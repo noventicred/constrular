@@ -532,11 +532,16 @@ const Produtos = () => {
                   {/* Badges Container */}
                   <div className="flex flex-wrap gap-2 mb-3">
                     {/* Discount Badge */}
-                    {product.discount && product.discount > 0 ? (
-                      <Badge className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0 px-3 py-1 text-sm font-bold rounded-full">
-                        -{product.discount}%
-                      </Badge>
-                    ) : null}
+                    {product.original_price && product.original_price !== product.price && (
+                      <>
+                        <Badge className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0 px-3 py-1 text-sm font-bold rounded-full">
+                          -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
+                        </Badge>
+                        <Badge className="bg-green-600 hover:bg-green-700 text-white border-0 px-3 py-1 text-sm font-bold rounded-full">
+                          PIX
+                        </Badge>
+                      </>
+                    )}
 
                     {/* Stock Badge */}
                     <Badge
