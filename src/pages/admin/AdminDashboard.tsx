@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { Package, FolderOpen, Users, TrendingUp, ShoppingCart, DollarSign, Eye, Plus, Activity, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { usePageVisibility } from '@/hooks/usePageVisibility';
 
 interface DashboardStats {
   totalProducts: number;
@@ -28,6 +29,10 @@ interface RecentActivity {
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const isPageVisible = usePageVisibility();
+  const lastFetchTime = useRef<number>(0);
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+
   const [stats, setStats] = useState<DashboardStats>({
     totalProducts: 0,
     totalCategories: 0,
@@ -41,13 +46,29 @@ const AdminDashboard = () => {
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch inicial
   useEffect(() => {
     fetchStats();
     fetchRecentActivity();
   }, []);
 
+  // Refetch apenas quando a página fica visível E o cache expirou
+  useEffect(() => {
+    if (isPageVisible && !loading) {
+      const now = Date.now();
+      const shouldRefresh = now - lastFetchTime.current > CACHE_DURATION;
+      
+      if (shouldRefresh) {
+        fetchStats();
+        fetchRecentActivity();
+      }
+    }
+  }, [isPageVisible]);
+
   const fetchStats = async () => {
     try {
+      // Atualizar timestamp do último fetch
+      lastFetchTime.current = Date.now();
       const [
         productsResult, 
         categoriesResult, 

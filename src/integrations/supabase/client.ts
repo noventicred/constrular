@@ -26,7 +26,22 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-  }
+    // Otimizações para evitar refreshes desnecessários
+    detectSessionInUrl: false, // Evita detectar sessão na URL
+    flowType: 'pkce', // Usar PKCE flow mais seguro
+  },
+  // Configurações globais
+  global: {
+    headers: {
+      'X-Client-Info': 'nova-casa-construcao@1.0.0',
+    },
+  },
+  // Configurações de realtime (desabilitar se não usar)
+  realtime: {
+    params: {
+      eventsPerSecond: 2, // Reduzir frequência de eventos
+    },
+  },
 });
 
 // Exportar configurações para debug (apenas em desenvolvimento)
