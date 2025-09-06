@@ -630,7 +630,7 @@ const Header = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-8">
               {/* Categories Dropdown */}
-              <DropdownMenu>
+              <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                   <Button className="gap-3 h-11 px-6 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-200 font-medium">
                     <Package className="h-4 w-4" />
@@ -671,7 +671,7 @@ const Header = () => {
                       {categories.map((category) => (
                         <DropdownMenuItem
                           key={category.id}
-                          className="p-4 rounded-2xl hover:bg-gradient-to-br hover:from-primary hover:to-primary/90 transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-primary group hover:shadow-xl"
+                          className="p-4 rounded-2xl hover:bg-white hover:shadow-lg transition-all duration-300 cursor-pointer border-2 border-gray-100 hover:border-primary/40 group"
                           onClick={() =>
                             handleCategoryClick(category.id, category.name)
                           }
@@ -681,26 +681,26 @@ const Header = () => {
                               <img
                                 src={category.image_url || "/placeholder.svg"}
                                 alt={category.name}
-                                className="w-16 h-16 object-cover rounded-xl shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105"
+                                className="w-16 h-16 object-cover rounded-xl shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105 border border-gray-100"
                                 onError={(e) => {
                                   e.currentTarget.src = "/placeholder.svg";
                                 }}
                               />
-                              <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300">
+                              <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-primary to-primary/90 rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300">
                                 <ChevronDown className="h-3 w-3 text-white rotate-[-90deg]" />
                               </div>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-bold text-base text-gray-800 group-hover:text-white transition-colors line-clamp-1 mb-1">
+                              <h4 className="font-bold text-base text-gray-800 group-hover:text-primary transition-colors line-clamp-1 mb-1">
                                 {category.name}
                               </h4>
                               {category.description && (
-                                <p className="text-sm text-gray-500 group-hover:text-white/90 transition-colors line-clamp-2 leading-relaxed">
+                                <p className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors line-clamp-2 leading-relaxed">
                                   {category.description}
                                 </p>
                               )}
                               <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <span className="text-xs text-white font-bold bg-white/20 px-2 py-1 rounded-full">
+                                <span className="text-xs text-primary font-bold bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
                                   Explorar produtos →
                                 </span>
                               </div>
