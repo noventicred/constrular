@@ -7,22 +7,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { ArrowLeft, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Upload, 
+  X, 
+  Image as ImageIcon, 
+  Package,
+  DollarSign,
+  Star,
+  Camera,
+  Save,
+  Eye,
+  AlertCircle,
+  CheckCircle
+} from 'lucide-react';
 
 interface Category {
   id: string;
   name: string;
-}
-
-interface Comment {
-  id?: string;
-  author_name: string;
-  comment_text: string;
-  rating: number;
-  likes: number;
-  dislikes: number;
 }
 
 interface ProductFormData {
@@ -48,17 +54,7 @@ const ProductForm = () => {
   const [loading, setLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState<Comment>({
-    author_name: '',
-    comment_text: '',
-    rating: 5,
-    likes: 0,
-    dislikes: 0
-  });
-
-
+  const [existingImages, setExistingImages] = useState<string[]>([]);
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
@@ -76,7 +72,6 @@ const ProductForm = () => {
     fetchCategories();
     if (isEditing) {
       fetchProduct();
-      fetchComments();
     }
   }, [id, isEditing]);
 
@@ -91,14 +86,19 @@ const ProductForm = () => {
       setCategories(data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar as categorias.',
+        variant: 'destructive',
+      });
     }
   };
 
   const fetchProduct = async () => {
     if (!id) return;
-    
+
+    setLoading(true);
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -108,288 +108,168 @@ const ProductForm = () => {
       if (error) throw error;
 
       setFormData({
-        name: data.name,
+        name: data.name || '',
         description: data.description || '',
-        price: data.price.toString(),
+        price: data.price?.toString() || '',
         original_price: data.original_price?.toString() || '',
-        discount: data.discount?.toString() || '0',
+        discount: data.discount?.toString() || '',
         category_id: data.category_id || '',
         sku: data.sku || '',
-        in_stock: data.in_stock,
-        is_featured: data.is_featured || false,
-        is_special_offer: data.is_special_offer || false,
+        in_stock: data.in_stock ?? true,
+        is_featured: data.is_featured ?? false,
+        is_special_offer: data.is_special_offer ?? false,
       });
 
       if (data.image_url) {
-        try {
-          // Tenta fazer parse como JSON para múltiplas imagens
-          const imageUrls = typeof data.image_url === 'string' ? 
-            (data.image_url.startsWith('[') ? JSON.parse(data.image_url) : [data.image_url]) : 
-            [data.image_url];
-          setExistingImageUrls(imageUrls);
-          setImagePreviews(imageUrls);
-        } catch {
-          // Se não for JSON válido, trata como string única
-          setExistingImageUrls([data.image_url]);
-          setImagePreviews([data.image_url]);
-        }
+        const images = data.image_url.split(',').filter(Boolean);
+        setExistingImages(images);
       }
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error fetching product:', error);
       toast({
         title: 'Erro',
         description: 'Não foi possível carregar o produto.',
         variant: 'destructive',
       });
-      navigate('/admin/produtos');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchComments = async () => {
-    if (!id) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('product_comments')
-        .select('*')
-        .eq('product_id', id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setComments(data || []);
-    } catch (error) {
-      console.error('Error fetching comments:', error);
-    }
-  };
-
-  const addComment = () => {
-    if (!newComment.author_name.trim() || !newComment.comment_text.trim()) {
-      toast({
-        title: 'Erro',
-        description: 'Nome do autor e comentário são obrigatórios.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const comment: Comment = {
-      id: Date.now().toString(),
-      ...newComment,
-      author_name: newComment.author_name.trim(),
-      comment_text: newComment.comment_text.trim(),
-    };
-
-    setComments([comment, ...comments]);
-    setNewComment({
-      author_name: '',
-      comment_text: '',
-      rating: 5,
-      likes: 0,
-      dislikes: 0
-    });
-
-    toast({
-      title: 'Sucesso',
-      description: 'Comentário adicionado com sucesso!',
-    });
-  };
-
-  const removeComment = (commentId: string) => {
-    setComments(comments.filter(comment => comment.id !== commentId));
-    toast({
-      title: 'Sucesso',
-      description: 'Comentário removido com sucesso!',
-    });
-  };
-
-  const updateComment = (commentId: string, field: keyof Comment, value: any) => {
-    setComments(comments.map(comment => 
-      comment.id === commentId ? { ...comment, [field]: value } : comment
-    ));
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
-    if (imageFiles.length + files.length > 5) {
-      toast({
-        title: 'Limite excedido',
-        description: 'Você pode selecionar no máximo 5 imagens.',
-        variant: 'destructive',
-      });
-      return;
-    }
+    if (files.length === 0) return;
 
-    const newFiles = [...imageFiles, ...files];
-    setImageFiles(newFiles);
+    // Validar tamanho e tipo
+    const validFiles = files.filter(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: 'Arquivo muito grande',
+          description: `${file.name} excede 5MB`,
+          variant: 'destructive',
+        });
+        return false;
+      }
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: 'Tipo inválido',
+          description: `${file.name} não é uma imagem`,
+          variant: 'destructive',
+        });
+        return false;
+      }
+      return true;
+    });
 
-    // Criar previews para os novos arquivos
-    const newPreviews = [...imagePreviews];
-    files.forEach(file => {
+    if (validFiles.length === 0) return;
+
+    setImageFiles(prev => [...prev, ...validFiles]);
+
+    // Criar previews
+    validFiles.forEach(file => {
       const reader = new FileReader();
-      reader.onload = () => {
-        newPreviews.push(reader.result as string);
-        setImagePreviews([...newPreviews]);
+      reader.onload = (e) => {
+        setImagePreviews(prev => [...prev, e.target?.result as string]);
       };
       reader.readAsDataURL(file);
     });
   };
 
-  const removeImage = (index: number) => {
-    const newFiles = imageFiles.filter((_, i) => i !== index);
-    const newPreviews = imagePreviews.filter((_, i) => i !== index);
-    const newExistingUrls = existingImageUrls.filter((_, i) => i !== index);
-    
-    setImageFiles(newFiles);
-    setImagePreviews(newPreviews);
-    setExistingImageUrls(newExistingUrls);
-  };
-
-  const uploadImages = async (): Promise<string | null> => {
-    if (imageFiles.length === 0 && existingImageUrls.length === 0) return null;
-
-    try {
-      const uploadedUrls = [...existingImageUrls];
-
-      // Upload das novas imagens
-      for (const file of imageFiles) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `products/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('product-images')
-          .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('product-images')
-          .getPublicUrl(filePath);
-
-        uploadedUrls.push(publicUrl);
-      }
-
-      // Se só tem uma imagem, retorna como string, senão como JSON
-      return uploadedUrls.length === 1 ? uploadedUrls[0] : JSON.stringify(uploadedUrls);
-    } catch (error) {
-      console.error('Error uploading images:', error);
-      toast({
-        title: 'Erro',
-        description: 'Erro ao fazer upload das imagens.',
-        variant: 'destructive',
-      });
-      return null;
+  const removeImage = (index: number, isExisting: boolean = false) => {
+    if (isExisting) {
+      setExistingImages(prev => prev.filter((_, i) => i !== index));
+    } else {
+      setImageFiles(prev => prev.filter((_, i) => i !== index));
+      setImagePreviews(prev => prev.filter((_, i) => i !== index));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.name || !formData.price || !formData.category_id) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Preencha nome, preço e categoria.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const imageUrl = await uploadImages();
+      // Upload das imagens primeiro
+      let imageUrls: string[] = [...existingImages];
+      
+      if (imageFiles.length > 0) {
+        const uploadPromises = imageFiles.map(async (file) => {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+          
+          const { data, error } = await supabase.storage
+            .from('product-images')
+            .upload(fileName, file);
+
+          if (error) throw error;
+          
+          const { data: publicUrl } = supabase.storage
+            .from('product-images')
+            .getPublicUrl(fileName);
+            
+          return publicUrl.publicUrl;
+        });
+
+        const uploadedUrls = await Promise.all(uploadPromises);
+        imageUrls = [...imageUrls, ...uploadedUrls];
+      }
 
       const productData = {
-        name: formData.name.trim(),
-        description: formData.description.trim() || null,
+        name: formData.name,
+        description: formData.description,
         price: parseFloat(formData.price),
         original_price: formData.original_price ? parseFloat(formData.original_price) : null,
-        discount: parseInt(formData.discount) || 0,
-        image_url: imageUrl,
-        category_id: formData.category_id || null,
-        sku: formData.sku.trim() || null,
+        discount: formData.discount ? parseInt(formData.discount) : 0,
+        category_id: formData.category_id,
+        sku: formData.sku,
         in_stock: formData.in_stock,
         is_featured: formData.is_featured,
         is_special_offer: formData.is_special_offer,
+        image_url: imageUrls.join(','),
       };
 
-      // Save comments
-      if (comments.length > 0) {
-        // Delete existing comments if editing
-        if (isEditing) {
-          await supabase
-            .from('product_comments')
-            .delete()
-            .eq('product_id', id);
-        }
-
-        // Insert new comments
-        const commentsData = comments.map(comment => ({
-          product_id: isEditing ? id : undefined, // Will be set after product creation
-          author_name: comment.author_name,
-          comment_text: comment.comment_text,
-          rating: comment.rating,
-          likes: comment.likes,
-          dislikes: comment.dislikes,
-        }));
-
-        if (isEditing) {
-          commentsData.forEach(comment => { comment.product_id = id; });
-          const { error: commentsError } = await supabase
-            .from('product_comments')
-            .insert(commentsData);
-          
-          if (commentsError) {
-            console.error('Error saving comments:', commentsError);
-          }
-        }
-      }
-
-      let error;
-      let productId = id;
-      
       if (isEditing) {
-        ({ error } = await supabase
+        const { error } = await supabase
           .from('products')
           .update(productData)
-          .eq('id', id));
-      } else {
-        const { data: newProduct, error: insertError } = await supabase
-          .from('products')
-          .insert([productData])
-          .select('id')
-          .single();
-        
-        error = insertError;
-        if (newProduct) {
-          productId = newProduct.id;
-          
-          // Save comments for new product
-          if (comments.length > 0) {
-            const commentsData = comments.map(comment => ({
-              product_id: productId,
-              author_name: comment.author_name,
-              comment_text: comment.comment_text,
-              rating: comment.rating,
-              likes: comment.likes,
-              dislikes: comment.dislikes,
-            }));
+          .eq('id', id);
 
-            const { error: commentsError } = await supabase
-              .from('product_comments')
-              .insert(commentsData);
-            
-            if (commentsError) {
-              console.error('Error saving comments:', commentsError);
-            }
-          }
-        }
+        if (error) throw error;
+
+        toast({
+          title: '✅ Produto atualizado!',
+          description: 'As alterações foram salvas com sucesso.',
+        });
+      } else {
+        const { error } = await supabase
+          .from('products')
+          .insert([productData]);
+
+        if (error) throw error;
+
+        toast({
+          title: '✅ Produto criado!',
+          description: 'Novo produto adicionado ao catálogo.',
+        });
       }
 
-      if (error) throw error;
-
-      toast({
-        title: 'Sucesso',
-        description: `Produto ${isEditing ? 'atualizado' : 'criado'} com sucesso!`,
-      });
-
       navigate('/admin/produtos');
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error saving product:', error);
       toast({
-        title: 'Erro',
-        description: error.message,
+        title: 'Erro ao salvar',
+        description: 'Não foi possível salvar o produto.',
         variant: 'destructive',
       });
     } finally {
@@ -397,454 +277,403 @@ const ProductForm = () => {
     }
   };
 
-  const updateFormData = (field: keyof ProductFormData, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const calculateDiscount = () => {
+    if (formData.price && formData.original_price) {
+      const price = parseFloat(formData.price);
+      const originalPrice = parseFloat(formData.original_price);
+      if (originalPrice > price) {
+        const discount = Math.round(((originalPrice - price) / originalPrice) * 100);
+        setFormData(prev => ({ ...prev, discount: discount.toString() }));
+      }
+    }
   };
 
+  useEffect(() => {
+    calculateDiscount();
+  }, [formData.price, formData.original_price]);
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-6">
-          <Button
-            variant="ghost"
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-8">
+          <Button 
+            variant="ghost" 
             onClick={() => navigate('/admin/produtos')}
-            className="mb-4"
+            className="h-10 w-10 rounded-lg"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar para produtos
+            <ArrowLeft className="h-5 w-5" />
           </Button>
-          
           <div>
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-3xl font-bold text-gray-900">
               {isEditing ? 'Editar Produto' : 'Novo Produto'}
             </h1>
-            <p className="text-muted-foreground mt-2">
-              {isEditing ? 'Atualize as informações do produto' : 'Preencha os dados do novo produto'}
+            <p className="text-gray-600 mt-1">
+              {isEditing ? 'Atualize as informações do produto' : 'Adicione um novo produto ao catálogo'}
             </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Coluna principal */}
-            <div className="lg:col-span-2 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Informações Básicas</CardTitle>
-                  <CardDescription>
-                    Dados principais do produto
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="name">Nome do produto *</Label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => updateFormData('name', e.target.value)}
-                        placeholder="Digite o nome do produto"
-                        required
-                        className="mt-1"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="sku">SKU</Label>
-                      <Input
-                        id="sku"
-                        value={formData.sku}
-                        onChange={(e) => updateFormData('sku', e.target.value)}
-                        placeholder="Ex: ABC-123, PRD001..."
-                        className="mt-1"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Código único do produto (opcional)
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="description">Descrição</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => updateFormData('description', e.target.value)}
-                      placeholder="Descreva o produto..."
-                      rows={4}
-                      className="mt-1"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Preços e Desconto</CardTitle>
-                  <CardDescription>
-                    Configure os valores do produto
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="price">Preço atual *</Label>
-                      <Input
-                        id="price"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={formData.price}
-                        onChange={(e) => updateFormData('price', e.target.value)}
-                        placeholder="0,00"
-                        required
-                        className="mt-1"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="original_price">Preço original</Label>
-                      <Input
-                        id="original_price"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={formData.original_price}
-                        onChange={(e) => updateFormData('original_price', e.target.value)}
-                        placeholder="0,00"
-                        className="mt-1"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="discount">Desconto (%)</Label>
-                      <Input
-                        id="discount"
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={formData.discount}
-                        onChange={(e) => updateFormData('discount', e.target.value)}
-                        placeholder="0"
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Configurações</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="category">Categoria</Label>
-                    <Select
-                      value={formData.category_id}
-                      onValueChange={(value) => updateFormData('category_id', value)}
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Selecionar categoria" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="in_stock">Em estoque</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Produto disponível para venda
-                      </p>
-                    </div>
-                    <Switch
-                      id="in_stock"
-                      checked={formData.in_stock}
-                      onCheckedChange={(value) => updateFormData('in_stock', value)}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="is_featured">Produto em destaque</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Exibir na seção de produtos em destaque
-                      </p>
-                    </div>
-                    <Switch
-                      id="is_featured"
-                      checked={formData.is_featured}
-                      onCheckedChange={(value) => updateFormData('is_featured', value)}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="is_special_offer">Oferta especial</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Exibir em ofertas especiais
-                      </p>
-                    </div>
-                    <Switch
-                      id="is_special_offer"
-                      checked={formData.is_special_offer}
-                      onCheckedChange={(value) => updateFormData('is_special_offer', value)}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Imagens do produto</CardTitle>
-                  <CardDescription>
-                    Adicione até 5 imagens para o produto
-                    <br />
-                    <span className="text-xs text-blue-600 font-medium">
-                      💡 Tamanho ideal: 800x800px (quadrada) | Formato: JPG, PNG | Máx: 2MB por imagem
-                    </span>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* Grid de imagens */}
-                    {imagePreviews.length > 0 ? (
-                      <div className="grid grid-cols-2 gap-2">
-                        {imagePreviews.map((preview, index) => (
-                          <div key={index} className="relative group">
-                            <img
-                              src={preview}
-                              alt={`Preview ${index + 1}`}
-                              className="w-full h-24 object-cover rounded-lg border"
-                            />
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="sm"
-                              className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => removeImage(index)}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                            {index === 0 && (
-                              <div className="absolute bottom-1 left-1 bg-primary text-primary-foreground text-xs px-1 rounded">
-                                Principal
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="border-2 border-dashed border-muted rounded-lg p-6 text-center">
-                        <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                        <p className="text-sm text-muted-foreground">
-                          Nenhuma imagem selecionada
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Botão para adicionar mais imagens */}
-                    {imagePreviews.length < 5 && (
-                      <div>
-                        <Label htmlFor="images" className="cursor-pointer">
-                          <div className="flex items-center justify-center gap-2 p-2 border rounded-lg hover:bg-muted transition-colors">
-                            <Upload className="h-4 w-4" />
-                            {imagePreviews.length === 0 ? 'Selecionar imagens' : 'Adicionar mais imagens'}
-                          </div>
-                        </Label>
-                        <Input
-                          id="images"
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={handleImageChange}
-                          className="hidden"
-                        />
-                        <p className="text-xs text-muted-foreground mt-2 text-center">
-                          {imagePreviews.length}/5 imagens selecionadas
-                          <br />
-                          <span className="text-blue-600">
-                            ✨ Primeira imagem será a principal nos cards e listas
-                          </span>
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Seção de Comentários */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Comentários e Avaliações</CardTitle>
-              <CardDescription>
-                Gerencie os comentários e avaliações do produto
-              </CardDescription>
+          {/* Informações Básicas */}
+          <Card className="shadow-lg border-0">
+            <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+                  <Package className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Informações Básicas</CardTitle>
+                  <CardDescription>Dados principais do produto</CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Formulário para novo comentário */}
-              <div className="border rounded-lg p-4 bg-muted/50">
-                <h4 className="font-medium mb-4">Adicionar novo comentário</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <Label htmlFor="author_name">Nome do autor</Label>
-                    <Input
-                      id="author_name"
-                      value={newComment.author_name}
-                      onChange={(e) => setNewComment({...newComment, author_name: e.target.value})}
-                      placeholder="Nome do autor"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="rating">Avaliação</Label>
-                    <Select
-                      value={newComment.rating.toString()}
-                      onValueChange={(value) => setNewComment({...newComment, rating: parseInt(value)})}
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[5, 4, 3, 2, 1].map((star) => (
-                          <SelectItem key={star} value={star.toString()}>
-                            {star} estrela{star !== 1 ? 's' : ''}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <Label htmlFor="likes">Curtidas</Label>
-                    <Input
-                      id="likes"
-                      type="number"
-                      min="0"
-                      value={newComment.likes}
-                      onChange={(e) => setNewComment({...newComment, likes: parseInt(e.target.value) || 0})}
-                      placeholder="0"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="dislikes">Não curtiu</Label>
-                    <Input
-                      id="dislikes"
-                      type="number"
-                      min="0"
-                      value={newComment.dislikes}
-                      onChange={(e) => setNewComment({...newComment, dislikes: parseInt(e.target.value) || 0})}
-                      placeholder="0"
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-                <div className="mb-4">
-                  <Label htmlFor="comment_text">Comentário</Label>
-                  <Textarea
-                    id="comment_text"
-                    value={newComment.comment_text}
-                    onChange={(e) => setNewComment({...newComment, comment_text: e.target.value})}
-                    placeholder="Digite o comentário..."
-                    rows={3}
-                    className="mt-1"
+            <CardContent className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-sm font-semibold text-gray-700">
+                    Nome do Produto *
+                  </Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Ex: Cimento CP II-E-32 50kg"
+                    className="h-12 border-2 border-gray-200 focus:border-primary"
+                    required
                   />
                 </div>
-                <Button type="button" onClick={addComment}>
-                  Adicionar Comentário
-                </Button>
+
+                <div className="space-y-2">
+                  <Label htmlFor="sku" className="text-sm font-semibold text-gray-700">
+                    SKU / Código
+                  </Label>
+                  <Input
+                    id="sku"
+                    value={formData.sku}
+                    onChange={(e) => setFormData(prev => ({ ...prev, sku: e.target.value }))}
+                    placeholder="Ex: CIM001"
+                    className="h-12 border-2 border-gray-200 focus:border-primary"
+                  />
+                </div>
               </div>
 
-              {/* Lista de comentários existentes */}
-              {comments.length > 0 && (
-                <div className="space-y-4">
-                  <h4 className="font-medium">Comentários existentes ({comments.length})</h4>
-                  {comments.map((comment) => (
-                    <div key={comment.id} className="border rounded-lg p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <p className="font-medium">{comment.author_name}</p>
-                          <div className="flex items-center gap-2">
-                            <div className="flex">
-                              {[...Array(5)].map((_, i) => (
-                                <span
-                                  key={i}
-                                  className={`text-lg ${
-                                    i < comment.rating ? 'text-yellow-400' : 'text-gray-300'
-                                  }`}
-                                >
-                                  ★
-                                </span>
-                              ))}
-                            </div>
-                            <span className="text-sm text-muted-foreground">
-                              {comment.rating} estrela{comment.rating !== 1 ? 's' : ''}
-                            </span>
-                          </div>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => removeComment(comment.id!)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <p className="text-muted-foreground mb-3">{comment.comment_text}</p>
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="number"
-                            min="0"
-                            value={comment.likes}
-                            onChange={(e) => updateComment(comment.id!, 'likes', parseInt(e.target.value) || 0)}
-                            className="w-20"
-                          />
-                          <span className="text-sm text-muted-foreground">👍 curtidas</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="number"
-                            min="0"
-                            value={comment.dislikes}
-                            onChange={(e) => updateComment(comment.id!, 'dislikes', parseInt(e.target.value) || 0)}
-                            className="w-20"
-                          />
-                          <span className="text-sm text-muted-foreground">👎 não curtiu</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+              <div className="space-y-2">
+                <Label htmlFor="category" className="text-sm font-semibold text-gray-700">
+                  Categoria *
+                </Label>
+                <Select
+                  value={formData.category_id}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, category_id: value }))}
+                  required
+                >
+                  <SelectTrigger className="h-12 border-2 border-gray-200 focus:border-primary">
+                    <SelectValue placeholder="Selecione uma categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-sm font-semibold text-gray-700">
+                  Descrição
+                </Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Descreva as características e benefícios do produto..."
+                  className="min-h-24 border-2 border-gray-200 focus:border-primary resize-none"
+                  rows={4}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Preços e Desconto */}
+          <Card className="shadow-lg border-0">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
+                  <DollarSign className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Preços e Promoções</CardTitle>
+                  <CardDescription>Configure valores e descontos</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="price" className="text-sm font-semibold text-gray-700">
+                    Preço Atual * (R$)
+                  </Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    step="0.01"
+                    value={formData.price}
+                    onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                    placeholder="0,00"
+                    className="h-12 border-2 border-gray-200 focus:border-primary"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="original_price" className="text-sm font-semibold text-gray-700">
+                    Preço Original (R$)
+                  </Label>
+                  <Input
+                    id="original_price"
+                    type="number"
+                    step="0.01"
+                    value={formData.original_price}
+                    onChange={(e) => setFormData(prev => ({ ...prev, original_price: e.target.value }))}
+                    placeholder="0,00"
+                    className="h-12 border-2 border-gray-200 focus:border-primary"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="discount" className="text-sm font-semibold text-gray-700">
+                    Desconto (%)
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="discount"
+                      type="number"
+                      value={formData.discount}
+                      onChange={(e) => setFormData(prev => ({ ...prev, discount: e.target.value }))}
+                      placeholder="0"
+                      className="h-12 border-2 border-gray-200 focus:border-primary"
+                      readOnly
+                    />
+                    {formData.discount && parseInt(formData.discount) > 0 && (
+                      <Badge className="absolute right-3 top-1/2 -translate-y-1/2 bg-red-500 text-white">
+                        -{formData.discount}%
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Preview de Preços */}
+              {formData.price && (
+                <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                  <h4 className="font-semibold text-blue-800 mb-3">Preview dos Preços:</h4>
+                  <div className="flex items-center gap-4">
+                    {formData.original_price && parseFloat(formData.original_price) > parseFloat(formData.price) && (
+                      <span className="text-sm text-gray-500 line-through">
+                        De: R$ {parseFloat(formData.original_price).toFixed(2).replace('.', ',')}
+                      </span>
+                    )}
+                    <span className="text-2xl font-bold text-blue-600">
+                      R$ {parseFloat(formData.price).toFixed(2).replace('.', ',')}
+                    </span>
+                    {formData.discount && parseInt(formData.discount) > 0 && (
+                      <Badge className="bg-blue-500 text-white">
+                        PIX -{formData.discount}%
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          <div className="flex items-center justify-end gap-4 pt-6 border-t">
+          {/* Imagens */}
+          <Card className="shadow-lg border-0">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center">
+                  <Camera className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Imagens do Produto</CardTitle>
+                  <CardDescription>Adicione fotos para destacar seu produto</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              {/* Upload Area */}
+              <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-primary transition-colors">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label htmlFor="image-upload" className="cursor-pointer">
+                  <div className="space-y-4">
+                    <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mx-auto">
+                      <Upload className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold text-gray-700">Clique para adicionar imagens</p>
+                      <p className="text-sm text-gray-500">ou arraste e solte aqui</p>
+                      <p className="text-xs text-gray-400 mt-2">PNG, JPG até 5MB cada</p>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              {/* Image Previews */}
+              {(existingImages.length > 0 || imagePreviews.length > 0) && (
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-gray-800">Imagens do Produto:</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {/* Existing Images */}
+                    {existingImages.map((url, index) => (
+                      <div key={`existing-${index}`} className="relative group">
+                        <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200">
+                          <img
+                            src={url}
+                            alt={`Imagem ${index + 1}`}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeImage(index, true)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                        <Badge className="absolute bottom-2 left-2 bg-blue-500 text-white text-xs">
+                          Existente
+                        </Badge>
+                      </div>
+                    ))}
+
+                    {/* New Images */}
+                    {imagePreviews.map((preview, index) => (
+                      <div key={`new-${index}`} className="relative group">
+                        <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-green-200">
+                          <img
+                            src={preview}
+                            alt={`Nova imagem ${index + 1}`}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeImage(index, false)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                        <Badge className="absolute bottom-2 left-2 bg-green-500 text-white text-xs">
+                          Nova
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Configurações */}
+          <Card className="shadow-lg border-0">
+            <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center">
+                  <Star className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Configurações</CardTitle>
+                  <CardDescription>Status e destacamentos do produto</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
+                  <div className="space-y-1">
+                    <Label htmlFor="in_stock" className="text-sm font-semibold text-gray-700">
+                      Em Estoque
+                    </Label>
+                    <p className="text-xs text-gray-500">Produto disponível para venda</p>
+                  </div>
+                  <Switch
+                    id="in_stock"
+                    checked={formData.in_stock}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, in_stock: checked }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-200">
+                  <div className="space-y-1">
+                    <Label htmlFor="is_featured" className="text-sm font-semibold text-gray-700">
+                      Produto Destaque
+                    </Label>
+                    <p className="text-xs text-gray-500">Aparece na página inicial</p>
+                  </div>
+                  <Switch
+                    id="is_featured"
+                    checked={formData.is_featured}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_featured: checked }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-200">
+                  <div className="space-y-1">
+                    <Label htmlFor="is_special_offer" className="text-sm font-semibold text-gray-700">
+                      Oferta Especial
+                    </Label>
+                    <p className="text-xs text-gray-500">Aparece em promoções</p>
+                  </div>
+                  <Switch
+                    id="is_special_offer"
+                    checked={formData.is_special_offer}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_special_offer: checked }))}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row gap-4 pt-6">
             <Button
               type="button"
               variant="outline"
               onClick={() => navigate('/admin/produtos')}
+              className="h-12 px-8 font-semibold border-2"
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Salvando...' : isEditing ? 'Atualizar produto' : 'Criar produto'}
+            
+            <Button
+              type="submit"
+              disabled={loading}
+              className="h-12 px-8 font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg flex-1 sm:flex-none"
+            >
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  {isEditing ? 'Atualizando...' : 'Criando...'}
+                </>
+              ) : (
+                <>
+                  <Save className="h-5 w-5 mr-2" />
+                  {isEditing ? 'Atualizar Produto' : 'Criar Produto'}
+                </>
+              )}
             </Button>
           </div>
         </form>
