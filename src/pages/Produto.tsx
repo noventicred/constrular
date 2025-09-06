@@ -20,7 +20,8 @@ import {
   Minus,
   ThumbsUp,
   ThumbsDown,
-  CheckCircle
+  CheckCircle,
+  CreditCard
 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +30,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
 import { getProductImageUrl, getProductImageUrls, createImageProps } from "@/lib/imageUtils";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
+
+// Componente do ícone PIX
+const PixIcon = ({ className }: { className?: string }) => (
+  <svg fill="currentColor" viewBox="0 0 16 16" className={className}>
+    <path d="M11.917 11.71a2.046 2.046 0 0 1-1.454-.602l-2.1-2.1a.4.4 0 0 0-.551 0l-2.108 2.108a2.044 2.044 0 0 1-1.454.602h-.414l2.66 2.66c.83.83 2.177.83 3.007 0l2.667-2.668h-.253zM4.25 4.282c.55 0 1.066.214 1.454.602l2.108 2.108a.39.39 0 0 0 .552 0l2.1-2.1a2.044 2.044 0 0 1 1.453-.602h.253L9.503 1.623a2.127 2.127 0 0 0-3.007 0l-2.66 2.66h.414z" />
+    <path d="m14.377 6.496-1.612-1.612a.307.307 0 0 1-.114.023h-.733c-.379 0-.75.154-1.017.422l-2.1 2.1a1.005 1.005 0 0 1-1.425 0L5.268 5.32a1.448 1.448 0 0 0-1.018-.422h-.9a.306.306 0 0 1-.109-.021L1.623 6.496c-.83.83-.83 2.177 0 3.008l1.618 1.618a.305.305 0 0 1 .108-.022h.901c.38 0 .75-.153 1.018-.421L7.375 8.57a1.034 1.034 0 0 1 1.426 0l2.1 2.1c.267.268.638.421 1.017.421h.733c.04 0 .079.01.114.024l1.612-1.612c.83-.83.83-2.178 0-3.008z" />
+  </svg>
+);
 import FloatingCart from "@/components/FloatingCart";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -377,49 +386,64 @@ const Produto = () => {
 
             {/* Price Section */}
             <div className="space-y-4">
-              {/* Original Price (if exists) */}
-              {product.original_price && product.original_price !== product.price && (
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-muted-foreground font-medium">De:</span>
-                  <span className="text-lg text-muted-foreground line-through">
-                    {formatCurrency(product.original_price)}
-                  </span>
-                  <Badge className="bg-red-500 text-white text-xs px-2 py-1">
-                    -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
-                  </Badge>
-                </div>
-              )}
-
-              {/* Current Price */}
+              {/* PIX Price (with discount) */}
               <div className="space-y-3">
-                <div className="text-center md:text-left">
+                <div className="flex items-center gap-2">
+                  <PixIcon className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-600">À vista no PIX</span>
+                  {product.original_price && product.original_price !== product.price && (
+                    <Badge className="bg-green-500 text-white text-xs px-2 py-1">
+                      -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}% de desconto
+                    </Badge>
+                  )}
+                </div>
+                <div className="text-left">
                   <span className="text-4xl md:text-5xl font-bold text-primary">
                     {formatCurrency(product.price)}
                   </span>
                 </div>
-
               </div>
 
-              {/* Payment Options */}
-              <div className="space-y-2 p-4 bg-gray-50 rounded-xl">
-                <p className="text-sm text-gray-600 text-center">
-                  ou <span className="font-semibold text-gray-800">10x de {formatCurrency(product.price / 10)}</span> sem juros
-                </p>
-                <p className="text-xs text-gray-500 text-center">
-                  💳 Cartão de crédito • Parcelamento sem juros
+              {/* Credit Card Price (original price) */}
+              <div className="space-y-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-600">No cartão de crédito</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold text-gray-700">
+                    {formatCurrency(product.original_price || product.price)}
+                  </span>
+                  {product.original_price && product.original_price !== product.price && (
+                    <span className="text-sm text-gray-500">(preço normal)</span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-600">
+                  ou <span className="font-semibold text-gray-800">10x de {formatCurrency((product.original_price || product.price) / 10)}</span> sem juros
                 </p>
               </div>
             </div>
 
             {/* Stock Status */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 bg-green-50 rounded-xl border border-green-200">
-              <Badge className={`${product.in_stock ? 'bg-green-500' : 'bg-red-500'} text-white font-semibold`}>
-                {product.in_stock ? '✅ Em Estoque' : '❌ Indisponível'}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
+              <Badge className={`${product.in_stock ? 'bg-green-500' : 'bg-red-500'} text-white font-semibold flex items-center gap-2`}>
+                {product.in_stock ? (
+                  <>
+                    <CheckCircle className="h-4 w-4" />
+                    Em Estoque
+                  </>
+                ) : (
+                  <>
+                    <Shield className="h-4 w-4" />
+                    Indisponível
+                  </>
+                )}
               </Badge>
               {product.in_stock && (
-                <span className="text-sm text-green-700 font-medium">
-                  🚚 Entrega rápida • Últimas unidades disponíveis
-                </span>
+                <div className="flex items-center gap-2 text-sm text-green-700 font-medium">
+                  <Truck className="h-4 w-4" />
+                  <span>Entrega rápida • Últimas unidades disponíveis</span>
+                </div>
               )}
             </div>
 
