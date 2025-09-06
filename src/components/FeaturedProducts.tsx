@@ -281,7 +281,7 @@ const FeaturedProducts = () => {
                              />
                            </div>
                          ) : (
-                           <div className="bg-gradient-to-r from-construction-orange to-primary bg-clip-text text-transparent text-2xl md:text-3xl font-black tracking-tight">
+                           <div className="bg-gradient-to-r from-construction-orange to-primary bg-clip-text text-transparent text-3xl md:text-4xl font-black tracking-tight">
                              {formatCurrency(product.price)}
                            </div>
                          )}

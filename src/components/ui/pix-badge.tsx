@@ -28,24 +28,24 @@ function PixBadge({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 px-3 py-2 rounded-lg",
-        "bg-gradient-to-r from-construction-orange to-primary",
-        "text-white text-sm font-bold shadow-lg",
-        "border border-white/10 backdrop-blur-sm",
-        "transition-all duration-300 hover:shadow-xl hover:scale-105",
+        "inline-flex items-center gap-3 px-4 py-3 rounded-xl",
+        "bg-gradient-to-r from-blue-400 to-blue-500",
+        "text-white text-lg font-bold shadow-xl",
+        "border border-blue-300/20 backdrop-blur-sm",
+        "transition-all duration-300 hover:shadow-2xl hover:scale-105",
         className
       )}
       {...props}
     >
-      <PixIcon className="w-4 h-4 drop-shadow-sm" />
-      <div className="flex items-center gap-2">
-        <span className="font-bold">{formatCurrency(price)}</span>
-        <span className="text-xs font-semibold bg-white/20 px-2 py-0.5 rounded-full">
+      <PixIcon className="w-5 h-5 drop-shadow-sm" />
+      <div className="flex items-center gap-3">
+        <span className="font-bold text-xl">{formatCurrency(price)}</span>
+        <span className="text-sm font-bold bg-white/25 px-3 py-1 rounded-full border border-white/20">
           PIX
         </span>
       </div>
       {discount > 0 && (
-        <span className="text-xs font-bold bg-white/25 px-2 py-0.5 rounded-full border border-white/20">
+        <span className="text-sm font-bold bg-white/30 px-3 py-1 rounded-full border border-white/20">
           -{discount.toFixed(0)}%
         </span>
       )}

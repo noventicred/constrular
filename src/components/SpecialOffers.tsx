@@ -321,7 +321,7 @@ const SpecialOffers = () => {
                                  />
                                </div>
                              ) : (
-                               <div className="text-xl md:text-2xl font-bold text-construction-orange">
+                               <div className="text-2xl md:text-3xl font-bold text-construction-orange">
                                  {formatCurrency(product.price)}
                                </div>
                              )}
