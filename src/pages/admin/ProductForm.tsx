@@ -31,6 +31,15 @@ interface Category {
   name: string;
 }
 
+interface Comment {
+  id?: string;
+  author_name: string;
+  comment_text: string;
+  rating: number;
+  likes: number;
+  dislikes: number;
+}
+
 interface ProductFormData {
   name: string;
   description: string;
@@ -55,6 +64,14 @@ const ProductForm = () => {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState<Comment>({
+    author_name: '',
+    comment_text: '',
+    rating: 5,
+    likes: 0,
+    dislikes: 0,
+  });
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
@@ -185,8 +202,7 @@ const ProductForm = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     
     if (!formData.name || !formData.price || !formData.category_id) {
       toast({
@@ -294,7 +310,7 @@ const ProductForm = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-6 py-8 max-w-7xl">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Button 
@@ -314,9 +330,10 @@ const ProductForm = () => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Informações Básicas */}
-          <Card className="shadow-lg border-0">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* Coluna 1: Informações Básicas */}
+          <div className="space-y-8">
+            <Card className="shadow-lg border-0">
             <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
@@ -395,7 +412,10 @@ const ProductForm = () => {
               </div>
             </CardContent>
           </Card>
+          </div>
 
+          {/* Coluna 2: Preços e Imagens */}
+          <div className="space-y-8">
           {/* Preços e Desconto */}
           <Card className="shadow-lg border-0">
             <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
@@ -646,9 +666,146 @@ const ProductForm = () => {
               </div>
             </CardContent>
           </Card>
+          </div>
 
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-6">
+          {/* Coluna 3: Comentários e Preview */}
+          <div className="space-y-8">
+            {/* Comentários do Produto */}
+            <Card className="shadow-lg border-0">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 border-b">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
+                    <Star className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl">Comentários e Avaliações</CardTitle>
+                    <CardDescription>Gerencie feedback dos clientes</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6 space-y-6">
+                {/* Adicionar Novo Comentário */}
+                <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                  <h4 className="font-semibold text-gray-800">Adicionar Comentário de Teste</h4>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-gray-700">Nome do Cliente</Label>
+                      <Input
+                        value={newComment.author_name}
+                        onChange={(e) => setNewComment(prev => ({ ...prev, author_name: e.target.value }))}
+                        placeholder="João Silva"
+                        className="border-2 border-gray-200 focus:border-primary"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-gray-700">Avaliação</Label>
+                      <Select
+                        value={newComment.rating.toString()}
+                        onValueChange={(value) => setNewComment(prev => ({ ...prev, rating: parseInt(value) }))}
+                      >
+                        <SelectTrigger className="border-2 border-gray-200 focus:border-primary">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[5, 4, 3, 2, 1].map((rating) => (
+                            <SelectItem key={rating} value={rating.toString()}>
+                              <div className="flex items-center gap-2">
+                                <span>{rating}</span>
+                                <div className="flex">
+                                  {[...Array(rating)].map((_, i) => (
+                                    <Star key={i} className="h-3 w-3 text-yellow-400 fill-current" />
+                                  ))}
+                                </div>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-gray-700">Comentário</Label>
+                    <Textarea
+                      value={newComment.comment_text}
+                      onChange={(e) => setNewComment(prev => ({ ...prev, comment_text: e.target.value }))}
+                      placeholder="Produto de excelente qualidade, entrega rápida..."
+                      className="border-2 border-gray-200 focus:border-primary resize-none"
+                      rows={3}
+                    />
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      if (newComment.author_name && newComment.comment_text) {
+                        setComments(prev => [...prev, { ...newComment, id: Date.now().toString() }]);
+                        setNewComment({
+                          author_name: '',
+                          comment_text: '',
+                          rating: 5,
+                          likes: 0,
+                          dislikes: 0,
+                        });
+                        toast({
+                          title: '✅ Comentário adicionado!',
+                          description: 'Comentário de teste criado com sucesso.',
+                        });
+                      }
+                    }}
+                    className="w-full bg-blue-500 hover:bg-blue-600"
+                  >
+                    <Star className="h-4 w-4 mr-2" />
+                    Adicionar Comentário
+                  </Button>
+                </div>
+
+                {/* Lista de Comentários */}
+                {comments.length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-gray-800">Comentários ({comments.length})</h4>
+                    <div className="max-h-96 overflow-y-auto space-y-3">
+                      {comments.map((comment, index) => (
+                        <div key={comment.id || index} className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <p className="font-medium text-gray-800">{comment.author_name}</p>
+                              <div className="flex items-center gap-1">
+                                {[...Array(comment.rating)].map((_, i) => (
+                                  <Star key={i} className="h-3 w-3 text-yellow-400 fill-current" />
+                                ))}
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setComments(prev => prev.filter((_, i) => i !== index))}
+                              className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          <p className="text-sm text-gray-600 leading-relaxed">{comment.comment_text}</p>
+                          <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+                            <span>👍 {comment.likes}</span>
+                            <span>👎 {comment.dislikes}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+        </form>
+
+        {/* Actions - Full Width */}
+        <div className="flex flex-col sm:flex-row gap-4 pt-8 xl:col-span-3">
             <Button
               type="button"
               variant="outline"
@@ -659,7 +816,8 @@ const ProductForm = () => {
             </Button>
             
             <Button
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               disabled={loading}
               className="h-12 px-8 font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg flex-1 sm:flex-none"
             >
@@ -675,8 +833,7 @@ const ProductForm = () => {
                 </>
               )}
             </Button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   );
