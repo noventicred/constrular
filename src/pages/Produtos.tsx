@@ -625,18 +625,14 @@ const Produtos = () => {
                     <div className="space-y-2">
                       {product.original_price &&
                       product.original_price !== product.price ? (
-                        <div className="space-y-1">
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-xl md:text-2xl font-bold text-primary">
-                              {formatCurrency(product.price)}
-                            </span>
-                            <span className="text-sm text-gray-500 line-through">
-                              {formatCurrency(product.original_price)}
-                            </span>
+                        <div className="space-y-2">
+                          <div className="text-sm text-muted-foreground line-through font-medium">
+                            De: {formatCurrency(product.original_price)}
                           </div>
                           <PixBadge
                             price={product.price}
                             originalPrice={product.original_price}
+                            className="text-base font-extrabold shadow-xl"
                           />
                         </div>
                       ) : (
