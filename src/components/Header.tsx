@@ -61,7 +61,7 @@ const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
-  
+
   const { user, isAdmin, signOut } = useAuth();
   const { itemCount } = useCart();
   const { toast } = useToast();
@@ -70,9 +70,12 @@ const Header = () => {
 
   useEffect(() => {
     fetchCategories();
-    
+
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
         setIsSearchOpen(false);
       }
     };
@@ -147,48 +150,53 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white border-b shadow-sm sticky top-0 z-50">
+    <header className="bg-white shadow-lg sticky top-0 z-50 border-b border-gray-100">
       {/* Top Bar - Desktop Only */}
-      <div className="hidden md:block bg-primary/5 border-b">
-        <div className="container mx-auto px-4 py-2">
+      <div className="hidden lg:block bg-gradient-to-r from-primary/8 via-primary/5 to-primary/8 border-b border-primary/10">
+        <div className="container mx-auto px-6 py-3">
           <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-6 text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-primary" />
-                <span>(11) 99999-9999</span>
+            <div className="flex items-center gap-8 text-gray-600">
+              <div className="flex items-center gap-2 hover:text-primary transition-colors group">
+                <Phone className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
+                <span className="font-medium">(11) 99999-9999</span>
               </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-primary" />
-                <span>Sorocaba, SP</span>
+              <div className="flex items-center gap-2 hover:text-primary transition-colors group">
+                <MapPin className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
+                <span className="font-medium">Sorocaba, SP</span>
               </div>
-              <span>🚚 Entrega em até 24h</span>
+              <div className="flex items-center gap-2 text-green-600 font-medium">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>🚚 Entrega em até 24h</span>
+              </div>
             </div>
-            <div className="text-primary font-medium">
-              Ofertas até 50% OFF
+            <div className="bg-gradient-to-r from-primary to-primary/80 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md animate-pulse">
+              ⚡ Ofertas até 50% OFF
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Header */}
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between gap-4">
+      <div className="container mx-auto px-6 py-6">
+        <div className="flex items-center justify-between gap-6">
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0">
+          <Link to="/" className="flex-shrink-0 group">
             <img
               src="/logo.png"
               alt="Nova Casa Construção"
-              className="h-16 md:h-20 w-auto"
+              className="h-16 md:h-24 w-auto transition-all duration-300 group-hover:scale-105 drop-shadow-md"
             />
           </Link>
 
           {/* Search Bar - Desktop */}
-          <div className="hidden md:flex flex-1 max-w-2xl mx-8">
-            <div className="relative w-full" ref={searchRef}>
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+          <div className="hidden md:flex flex-1 max-w-3xl mx-8">
+            <div className="relative w-full group" ref={searchRef}>
+              <div className="absolute inset-y-0 left-0 flex items-center pl-4">
+                <Search className="h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+              </div>
               <Input
-                placeholder="Buscar produtos..."
-                className="pl-12 h-12 text-base border-2 border-gray-200 focus:border-primary"
+                placeholder="O que você está procurando? Ex: cimento, tinta, tijolo..."
+                className="pl-12 pr-4 h-14 text-base bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg placeholder:text-gray-400"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onFocus={() => {
@@ -200,40 +208,57 @@ const Header = () => {
 
               {/* Search Results */}
               {isSearchOpen && searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 mt-1 max-h-80 overflow-y-auto">
-                  {searchResults.map((product) => (
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 mt-2 max-h-96 overflow-y-auto backdrop-blur-sm">
+                  <div className="p-3 border-b border-gray-100 bg-gray-50 rounded-t-2xl">
+                    <p className="text-sm font-medium text-gray-600">Resultados da pesquisa</p>
+                  </div>
+                  {searchResults.map((product, index) => (
                     <button
                       key={product.id}
-                      className="w-full flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors border-b last:border-b-0"
+                      className="w-full flex items-center gap-4 p-4 hover:bg-gradient-to-r hover:from-primary/5 hover:to-primary/10 transition-all duration-200 border-b border-gray-50 last:border-b-0 group"
                       onClick={() => handleProductClick(product.id)}
                     >
-                      <img
-                        src={getProductImageUrl(product.image_url)}
-                        alt={product.name}
-                        className="w-12 h-12 object-cover rounded"
-                        onError={(e) => {
-                          e.currentTarget.src = "/placeholder.svg";
-                        }}
-                      />
+                      <div className="relative">
+                        <img
+                          src={getProductImageUrl(product.image_url)}
+                          alt={product.name}
+                          className="w-14 h-14 object-cover rounded-lg shadow-sm group-hover:shadow-md transition-shadow"
+                          onError={(e) => {
+                            e.currentTarget.src = "/placeholder.svg";
+                          }}
+                        />
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">{index + 1}</span>
+                        </div>
+                      </div>
                       <div className="flex-1 text-left">
-                        <div className="font-medium text-sm">{product.name}</div>
-                        <div className="text-primary font-bold text-sm">
+                        <div className="font-semibold text-gray-800 group-hover:text-primary transition-colors line-clamp-1">
+                          {product.name}
+                        </div>
+                        <div className="text-primary font-bold text-lg">
                           {formatCurrency(product.price)}
+                        </div>
+                      </div>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                          <Search className="h-4 w-4 text-white" />
                         </div>
                       </div>
                     </button>
                   ))}
-                  
+
                   {searchTerm.length >= 2 && (
                     <button
-                      className="w-full p-4 text-center text-sm text-primary hover:bg-gray-50 transition-colors border-t"
+                      className="w-full p-4 text-center bg-gradient-to-r from-primary to-primary/90 text-white font-semibold hover:from-primary/90 hover:to-primary transition-all duration-200 rounded-b-2xl border-t border-gray-100"
                       onClick={() => {
-                        navigate(`/produtos?search=${encodeURIComponent(searchTerm)}`);
+                        navigate(
+                          `/produtos?search=${encodeURIComponent(searchTerm)}`
+                        );
                         setSearchTerm("");
                         setIsSearchOpen(false);
                       }}
                     >
-                      Ver todos os resultados para "{searchTerm}"
+                      🔍 Ver todos os resultados para "{searchTerm}"
                     </button>
                   )}
                 </div>
@@ -242,14 +267,19 @@ const Header = () => {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {/* User Menu - Desktop */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="hidden md:flex gap-2">
-                    <User className="h-4 w-4" />
-                    <span className="max-w-32 truncate">{user.email}</span>
+                  <Button variant="ghost" className="hidden md:flex gap-3 h-12 px-4 rounded-xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-200">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
+                      <User className="h-4 w-4 text-white" />
+                    </div>
+                    <div className="flex flex-col items-start">
+                      <span className="text-xs text-gray-500">Olá,</span>
+                      <span className="text-sm font-medium max-w-32 truncate">{user.email?.split('@')[0]}</span>
+                    </div>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -300,35 +330,38 @@ const Header = () => {
               </DropdownMenu>
             ) : (
               <Button
-                variant="ghost"
-                className="hidden md:flex gap-2"
+                className="hidden md:flex gap-3 h-12 px-6 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-200"
                 onClick={() => navigate("/auth")}
               >
                 <User className="h-4 w-4" />
-                Entrar
+                <span className="font-medium">Entrar</span>
               </Button>
             )}
 
             {/* Cart Button */}
             <Button
+              className="relative h-12 px-4 md:px-6 rounded-xl bg-white border-2 border-gray-200 hover:border-primary hover:bg-primary/5 transition-all duration-200 shadow-sm hover:shadow-md group"
               variant="outline"
-              className="relative"
               onClick={() => navigate("/carrinho")}
             >
-              <ShoppingCart className="h-4 w-4" />
-              {itemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {itemCount}
-                </span>
-              )}
-              <span className="hidden md:inline ml-2">Carrinho</span>
+              <div className="relative">
+                <ShoppingCart className="h-5 w-5 text-gray-600 group-hover:text-primary transition-colors" />
+                {itemCount > 0 && (
+                  <span className="absolute -top-3 -right-3 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center animate-pulse shadow-lg">
+                    {itemCount}
+                  </span>
+                )}
+              </div>
+              <span className="hidden md:inline ml-3 font-medium text-gray-700 group-hover:text-primary transition-colors">
+                Carrinho
+              </span>
             </Button>
 
             {/* Mobile Menu */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" className="md:hidden">
-                  <Menu className="h-5 w-5" />
+                <Button className="md:hidden h-12 w-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 hover:border-primary/40 hover:from-primary/20 hover:to-primary/10 transition-all duration-200 shadow-sm hover:shadow-md">
+                  <Menu className="h-5 w-5 text-primary" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-80 p-0">
@@ -356,16 +389,22 @@ const Header = () => {
                       onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
                     >
                       <span>Categorias</span>
-                      <ChevronDown className={`h-4 w-4 transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${
+                          isCategoriesOpen ? "rotate-180" : ""
+                        }`}
+                      />
                     </Button>
-                    
+
                     {isCategoriesOpen && (
                       <div className="ml-4 space-y-1">
                         {categories.map((category) => (
                           <button
                             key={category.id}
                             className="block w-full text-left text-sm text-muted-foreground hover:text-primary py-2"
-                            onClick={() => handleCategoryClick(category.id, category.name)}
+                            onClick={() =>
+                              handleCategoryClick(category.id, category.name)
+                            }
                           >
                             {category.name}
                           </button>
@@ -488,12 +527,14 @@ const Header = () => {
         </div>
 
         {/* Mobile Search Bar */}
-        <div className="md:hidden mt-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <div className="md:hidden mt-6">
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-4">
+              <Search className="h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+            </div>
             <Input
               placeholder="Buscar produtos..."
-              className="pl-10 border-2 border-gray-200 focus:border-primary"
+              className="pl-12 pr-4 h-12 text-base bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 shadow-sm placeholder:text-gray-400"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -502,16 +543,16 @@ const Header = () => {
       </div>
 
       {/* Navigation Bar - Desktop */}
-      <div className="hidden md:block border-t bg-gray-50">
-        <div className="container mx-auto px-4 py-3">
+      <div className="hidden lg:block border-t bg-gradient-to-r from-gray-50 to-gray-100/50">
+        <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-8">
               {/* Categories Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-2">
+                  <Button className="gap-3 h-11 px-6 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-200 font-medium">
                     <Package className="h-4 w-4" />
-                    Categorias
+                    Todas as Categorias
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -519,7 +560,9 @@ const Header = () => {
                   {categories.map((category) => (
                     <DropdownMenuItem
                       key={category.id}
-                      onClick={() => handleCategoryClick(category.id, category.name)}
+                      onClick={() =>
+                        handleCategoryClick(category.id, category.name)
+                      }
                     >
                       {category.name}
                     </DropdownMenuItem>
@@ -532,21 +575,41 @@ const Header = () => {
               </DropdownMenu>
 
               {/* Navigation Links */}
-              <nav className="flex items-center gap-6 text-sm font-medium">
-                <Link to="/produtos" className="hover:text-primary transition-colors">
+              <nav className="flex items-center gap-8">
+                <Link
+                  to="/produtos"
+                  className="text-gray-700 hover:text-primary font-medium transition-all duration-200 hover:scale-105 relative group"
+                >
                   Produtos
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-200 group-hover:w-full"></span>
                 </Link>
-                <Link to="/sobre-nos" className="hover:text-primary transition-colors">
+                <Link
+                  to="/sobre-nos"
+                  className="text-gray-700 hover:text-primary font-medium transition-all duration-200 hover:scale-105 relative group"
+                >
                   Sobre Nós
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-200 group-hover:w-full"></span>
                 </Link>
-                <Link to="/contato" className="hover:text-primary transition-colors">
+                <Link
+                  to="/contato"
+                  className="text-gray-700 hover:text-primary font-medium transition-all duration-200 hover:scale-105 relative group"
+                >
                   Contato
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-200 group-hover:w-full"></span>
                 </Link>
-                <Link to="/entrega" className="hover:text-primary transition-colors">
+                <Link
+                  to="/entrega"
+                  className="text-gray-700 hover:text-primary font-medium transition-all duration-200 hover:scale-105 relative group"
+                >
                   Entrega
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-200 group-hover:w-full"></span>
                 </Link>
-                <Link to="/trocas-e-devolucoes" className="hover:text-primary transition-colors">
+                <Link
+                  to="/trocas-e-devolucoes"
+                  className="text-gray-700 hover:text-primary font-medium transition-all duration-200 hover:scale-105 relative group"
+                >
                   Trocas e Devoluções
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-200 group-hover:w-full"></span>
                 </Link>
               </nav>
             </div>
