@@ -27,7 +27,6 @@ import {
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PixBadge } from "@/components/ui/pix-badge";
-import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -438,15 +437,34 @@ const Produtos = () => {
                   Faixa de Preço: {formatCurrency(filters.priceRange[0])} -{" "}
                   {formatCurrency(filters.priceRange[1])}
                 </Label>
-                <Slider
-                  value={filters.priceRange}
-                  onValueChange={(value) =>
-                    updateFilters({ priceRange: value as [number, number] })
-                  }
-                  max={10000}
-                  step={50}
-                  className="mt-3"
-                />
+                <div className="space-y-2 mt-3">
+                  <input
+                    type="range"
+                    min="0"
+                    max="10000"
+                    step="50"
+                    value={filters.priceRange[0]}
+                    onChange={(e) =>
+                      updateFilters({ 
+                        priceRange: [Number(e.target.value), filters.priceRange[1]] 
+                      })
+                    }
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="10000"
+                    step="50"
+                    value={filters.priceRange[1]}
+                    onChange={(e) =>
+                      updateFilters({ 
+                        priceRange: [filters.priceRange[0], Number(e.target.value)] 
+                      })
+                    }
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                </div>
               </div>
 
               <Separator />
@@ -473,14 +491,16 @@ const Produtos = () => {
                   Avaliação mínima: {filters.minRating}{" "}
                   {filters.minRating > 0 ? "★" : ""}
                 </Label>
-                <Slider
-                  value={[filters.minRating]}
-                  onValueChange={([value]) =>
-                    updateFilters({ minRating: value })
+                <input
+                  type="range"
+                  min="0"
+                  max="5"
+                  step="0.5"
+                  value={filters.minRating}
+                  onChange={(e) =>
+                    updateFilters({ minRating: Number(e.target.value) })
                   }
-                  max={5}
-                  step={0.5}
-                  className="mt-3"
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-3"
                 />
               </div>
 
