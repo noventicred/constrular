@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PixBadge } from "@/components/ui/pix-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -388,6 +389,9 @@ const Produto = () => {
                 <Badge className="bg-red-500 text-white shrink-0">
                   -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
                 </Badge>
+                <Badge className="bg-green-600 text-white shrink-0">
+                  PIX
+                </Badge>
               </>
             )}
               </div>
@@ -483,7 +487,7 @@ const Produto = () => {
                   <Truck className="h-5 w-5 text-primary" />
                   <div>
                     <p className="font-medium">Frete Grátis</p>
-                    <p className="text-sm text-muted-foreground">Para compras acima de R$ 199</p>
+                    <p className="text-sm text-muted-foreground">Para compras acima de R$ 299</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">

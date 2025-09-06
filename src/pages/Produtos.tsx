@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PixBadge } from "@/components/ui/pix-badge";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -527,26 +528,23 @@ const Produtos = () => {
 
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  </div>
-
-                  {/* Badges Container */}
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {/* Discount Badge */}
-                    {product.discount && product.discount > 0 ? (
-                      <Badge className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0 px-3 py-1 text-sm font-bold rounded-full">
-                        -{product.discount}%
+                    
+                    {/* Discount Badge - Top Left */}
+                    {product.original_price && product.original_price !== product.price && (
+                      <Badge className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-xs px-2 py-1 shadow-xl border-0 rounded-lg">
+                        -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
                       </Badge>
-                    ) : null}
-
-                    {/* Stock Badge */}
+                    )}
+                    
+                    {/* Stock Badge - Top Right */}
                     <Badge
-                      className={`border-0 px-3 py-1 text-sm font-medium rounded-full ${
+                      className={`absolute top-3 right-3 text-xs font-semibold px-2 py-1 border-0 rounded-lg shadow-lg ${
                         product.in_stock
-                          ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
-                          : "bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white"
+                          ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
+                          : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white'
                       }`}
                     >
-                      {product.in_stock ? "Em Estoque" : "Indisponível"}
+                      {product.in_stock ? 'Em Estoque' : 'Indisponível'}
                     </Badge>
                   </div>
 
@@ -592,22 +590,24 @@ const Produtos = () => {
                     )}
 
                     {/* Price */}
-                    <div className="space-y-1">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                          {formatCurrency(product.price)}
-                        </span>
-                        {product.original_price && product.original_price !== product.price && (
-                          <>
+                    <div className="space-y-2">
+                      {product.original_price && product.original_price !== product.price ? (
+                        <div className="space-y-1">
+                          <div className="flex items-baseline gap-2">
                             <span className="text-sm text-gray-500 line-through">
                               {formatCurrency(product.original_price)}
                             </span>
-                            <span className="text-sm text-green-600 font-medium">
-                              -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}% off
-                            </span>
-                          </>
-                        )}
-                      </div>
+                          </div>
+                          <PixBadge 
+                            price={product.price} 
+                            originalPrice={product.original_price}
+                          />
+                        </div>
+                      ) : (
+                        <div className="text-xl md:text-2xl font-bold text-primary">
+                          {formatCurrency(product.price)}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>

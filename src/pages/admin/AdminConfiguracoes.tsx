@@ -310,7 +310,7 @@ const AdminConfiguracoes = () => {
                             id="free-shipping" 
                             type="number" 
                             step="0.01"
-                            placeholder="199.00"
+                            placeholder="299.00"
                             value={settings.free_shipping_threshold || ''}
                             onChange={(e) => setSettings(prev => ({ ...prev, free_shipping_threshold: e.target.value }))}
                           />

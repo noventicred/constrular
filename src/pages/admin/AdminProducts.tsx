@@ -219,7 +219,7 @@ const AdminProducts = () => {
               <Percent className="h-4 w-4 text-orange-500" />
               <span className="text-sm font-medium text-muted-foreground">Ofertas</span>
             </div>
-            <div className="text-2xl font-bold text-orange-600">{specialOfferCount}/20</div>
+            <div className="text-2xl font-bold text-construction-orange">{specialOfferCount}/20</div>
             <p className="text-xs text-muted-foreground">limite máximo</p>
           </CardContent>
         </Card>
@@ -251,7 +251,7 @@ const AdminProducts = () => {
       
       {specialOfferCount >= 20 && (
         <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
-          <AlertTriangle className="h-4 w-4 text-orange-600" />
+          <AlertTriangle className="h-4 w-4 text-construction-orange" />
           <AlertDescription className="text-orange-800 dark:text-orange-200">
             <strong>Limite atingido:</strong> Você já tem {specialOfferCount} ofertas especiais (máximo: 20). 
             Remova algumas para adicionar novas ofertas.

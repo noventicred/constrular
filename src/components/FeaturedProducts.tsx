@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PixBadge } from "@/components/ui/pix-badge";
 import { Star, ShoppingCart, MessageCircle } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
@@ -211,16 +212,16 @@ const FeaturedProducts = () => {
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     
-                    {/* Discount Badge */}
-                    {product.discount && product.discount > 0 && (
-                      <Badge className="absolute top-3 left-3 md:top-4 md:left-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-sm md:text-base px-3 md:px-4 py-1 md:py-2 shadow-xl border-0 rounded-xl">
-                        -{product.discount}%
+                    {/* Discount Badge - Top Left */}
+                    {product.original_price && product.original_price !== product.price && (
+                      <Badge className="absolute top-3 left-3 md:top-4 md:left-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-xs md:text-sm px-2 md:px-3 py-1 shadow-xl border-0 rounded-lg">
+                        -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
                       </Badge>
                     )}
                     
-                    {/* Stock Badge */}
+                    {/* Stock Badge - Top Right */}
                     <Badge 
-                      className={`absolute top-3 right-3 md:top-4 md:right-4 text-xs md:text-sm font-semibold px-2 md:px-3 py-1 border-0 rounded-xl shadow-lg ${
+                      className={`absolute top-3 right-3 md:top-4 md:right-4 text-xs md:text-sm font-semibold px-2 md:px-3 py-1 border-0 rounded-lg shadow-lg ${
                         product.in_stock
                           ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
                           : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white'
@@ -265,28 +266,29 @@ const FeaturedProducts = () => {
                          </div>
                        )}
                       
-                      {/* Price */}
-                      <div className="space-y-1">
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-xl md:text-2xl font-bold text-primary">
-                            {formatCurrency(product.price)}
-                          </span>
-                          {product.original_price && product.original_price !== product.price && (
-                            <>
-                              <span className="text-sm text-gray-500 line-through">
-                                {formatCurrency(product.original_price)}
-                              </span>
-                              <Badge className="bg-red-500 text-white text-xs px-2 py-1">
-                                -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
-                              </Badge>
-                            </>
-                          )}
-                        </div>
-                      </div>
+                       {/* Price */}
+                       <div className="space-y-3 mt-4">
+                         {product.original_price && product.original_price !== product.price ? (
+                           <div className="space-y-2">
+                             <div className="text-sm text-muted-foreground line-through font-medium">
+                               De: {formatCurrency(product.original_price)}
+                             </div>
+                             <PixBadge 
+                               price={product.price} 
+                               originalPrice={product.original_price}
+                               className="text-base font-extrabold shadow-xl"
+                             />
+                           </div>
+                         ) : (
+                           <div className="bg-gradient-to-r from-construction-orange to-primary bg-clip-text text-transparent text-2xl md:text-3xl font-black tracking-tight">
+                             {formatCurrency(product.price)}
+                           </div>
+                         )}
+                       </div>
                     </div>
-                    
-                    {/* Action Buttons */}
-                    <div className="space-y-2">
+                     
+                     {/* Action Buttons */}
+                     <div className="space-y-3 mt-6">
                       <Button 
                         className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base"
                         disabled={!product.in_stock}

@@ -281,7 +281,7 @@ const Footer = () => {
                 Entrega Rápida
               </h5>
               <p className="text-xs md:text-sm text-gray-400">
-                Frete grátis acima de R$ 199
+                Frete grátis acima de R$ 299
               </p>
             </div>
           </div>

@@ -14,7 +14,7 @@ export const useSettings = () => {
     whatsapp_number: '5511999999999',
     store_name: 'Minha Loja',
     store_email: 'contato@minhaloja.com',
-    free_shipping_threshold: '199',
+    free_shipping_threshold: '299',
     default_shipping_cost: '29.90'
   });
   const [loading, setLoading] = useState(true);
@@ -58,7 +58,7 @@ export const useSettings = () => {
   };
 
   const getFreeShippingThreshold = (): number => {
-    return parseFloat(settings.free_shipping_threshold) || 199;
+    return parseFloat(settings.free_shipping_threshold) || 299;
   };
 
   const getDefaultShippingCost = (): number => {
