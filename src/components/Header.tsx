@@ -10,6 +10,13 @@ import {
   User,
   LogOut,
   Settings,
+  Hammer,
+  Paintbrush,
+  Wrench,
+  Zap,
+  Home,
+  TreePine,
+  HardHat,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +55,34 @@ interface Product {
   price: number;
   image_url: string | null;
 }
+
+// Mapeamento de ícones para categorias
+const categoryIcons: Record<string, any> = {
+  "Cimento & Argamassa": HardHat,
+  "Tijolos & Blocos": Home,
+  "Tintas & Vernizes": Paintbrush,
+  "Ferramentas": Hammer,
+  "Hidráulica": Wrench,
+  "Elétrica": Zap,
+  "Madeiras": TreePine,
+  "Transporte": Truck,
+  "Pisos & Revestimentos": Home,
+  "Iluminação": Zap,
+};
+
+// Cores para cada categoria
+const categoryColors: Record<string, string> = {
+  "Cimento & Argamassa": "from-gray-500 to-gray-600",
+  "Tijolos & Blocos": "from-red-500 to-red-600",
+  "Tintas & Vernizes": "from-green-500 to-green-600",
+  "Ferramentas": "from-amber-500 to-amber-600",
+  "Hidráulica": "from-blue-500 to-blue-600",
+  "Elétrica": "from-yellow-500 to-yellow-600",
+  "Madeiras": "from-amber-600 to-amber-700",
+  "Transporte": "from-stone-500 to-stone-600",
+  "Pisos & Revestimentos": "from-neutral-500 to-neutral-600",
+  "Iluminação": "from-orange-500 to-orange-600",
+};
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -245,21 +280,25 @@ const Header = () => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="hidden md:flex gap-4 h-14 px-6 rounded-xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-200 group"
-                    >
-                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                        <User className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="flex flex-col items-start">
-                        <span className="text-xs text-gray-500 font-medium">Bem-vindo,</span>
-                        <span className="text-base font-semibold text-gray-800 max-w-40 truncate group-hover:text-primary transition-colors">
-                          {user.email?.split("@")[0]}
-                        </span>
-                        <span className="text-xs text-primary font-medium">Minha conta</span>
-                      </div>
-                    </Button>
+                  <Button
+                    variant="ghost"
+                    className="hidden md:flex gap-4 h-14 px-6 rounded-xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-200 group"
+                  >
+                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                      <User className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex flex-col items-start">
+                      <span className="text-xs text-gray-500 font-medium">
+                        Bem-vindo,
+                      </span>
+                      <span className="text-base font-semibold text-gray-800 max-w-40 truncate group-hover:text-primary transition-colors">
+                        {user.email?.split("@")[0]}
+                      </span>
+                      <span className="text-xs text-primary font-medium">
+                        Minha conta
+                      </span>
+                    </div>
+                  </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => navigate("/minha-conta")}>
@@ -324,7 +363,6 @@ const Header = () => {
                 </Button>
               </div>
             )}
-
 
             {/* Mobile Menu */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -436,8 +474,12 @@ const Header = () => {
                               <User className="h-4 w-4 text-white" />
                             </div>
                             <div>
-                              <p className="text-xs text-gray-500 font-medium">Bem-vindo,</p>
-                              <p className="font-semibold text-gray-800">{user.email?.split("@")[0]}</p>
+                              <p className="text-xs text-gray-500 font-medium">
+                                Bem-vindo,
+                              </p>
+                              <p className="font-semibold text-gray-800">
+                                {user.email?.split("@")[0]}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -546,21 +588,77 @@ const Header = () => {
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-64">
-                  {categories.map((category) => (
-                    <DropdownMenuItem
-                      key={category.id}
-                      onClick={() =>
-                        handleCategoryClick(category.id, category.name)
-                      }
-                    >
-                      {category.name}
-                    </DropdownMenuItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate("/produtos")}>
-                    Ver Todos os Produtos
-                  </DropdownMenuItem>
+                <DropdownMenuContent 
+                  className="w-96 p-0 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden"
+                  align="start"
+                  sideOffset={8}
+                >
+                  {/* Header do Dropdown */}
+                  <div className="p-6 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
+                        <Package className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-800">Categorias</h3>
+                        <p className="text-sm text-gray-500">Encontre o que você precisa</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Grid de Categorias */}
+                  <div className="p-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      {categories.map((category, index) => {
+                        const IconComponent = categoryIcons[category.name] || Package;
+                        const colorClass = categoryColors[category.name] || "from-gray-500 to-gray-600";
+                        
+                        return (
+                          <DropdownMenuItem
+                            key={category.id}
+                            className="p-4 rounded-xl hover:bg-gradient-to-r hover:from-primary/5 hover:to-primary/10 transition-all duration-300 cursor-pointer border border-transparent hover:border-primary/20 group hover:shadow-lg"
+                            onClick={() => handleCategoryClick(category.id, category.name)}
+                          >
+                            <div className="flex flex-col items-center text-center space-y-3 w-full">
+                              <div className={`w-14 h-14 bg-gradient-to-br ${colorClass} rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-md group-hover:shadow-lg`}>
+                                <IconComponent className="h-7 w-7 text-white drop-shadow-sm" />
+                              </div>
+                              <div className="space-y-1">
+                                <p className="font-semibold text-sm text-gray-800 group-hover:text-primary transition-colors line-clamp-2 leading-tight">
+                                  {category.name}
+                                </p>
+                                {category.description && (
+                                  <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                                    {category.description}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="w-full h-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></div>
+                            </div>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Footer do Dropdown */}
+                  <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-100">
+                    <div className="space-y-3">
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500 font-medium">Explore nossa coleção completa</p>
+                      </div>
+                      <DropdownMenuItem 
+                        className="w-full p-4 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold text-center justify-center transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl border-0"
+                        onClick={() => navigate("/produtos")}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Search className="h-5 w-5" />
+                          <span>Ver Todos os Produtos</span>
+                          <div className="w-2 h-2 bg-white/30 rounded-full animate-pulse"></div>
+                        </div>
+                      </DropdownMenuItem>
+                    </div>
+                  </div>
                 </DropdownMenuContent>
               </DropdownMenu>
 
