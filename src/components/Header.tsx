@@ -339,7 +339,7 @@ const Header = () => {
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="w-80 p-0 flex flex-col h-full"
+                className="w-80 p-0 flex flex-col max-h-screen overflow-hidden"
               >
                 <SheetHeader className="px-6 py-6 border-b bg-gradient-to-r from-primary/5 to-primary/10 flex-shrink-0">
                   <div className="flex items-center gap-3">
@@ -350,15 +350,13 @@ const Header = () => {
                       <SheetTitle className="text-lg font-bold text-gray-800">
                         Menu Principal
                       </SheetTitle>
-                      <p className="text-sm text-gray-600">
-                        Navegue pela loja
-                      </p>
+                      <p className="text-sm text-gray-600">Navegue pela loja</p>
                     </div>
                   </div>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto">
-                  <div className="p-6 space-y-6">
+                <div className="flex-1 overflow-y-auto min-h-0">
+                  <div className="p-6 space-y-6 min-h-full">
                     {/* Categories */}
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 mb-3">
@@ -640,8 +638,8 @@ const Header = () => {
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-[800px] p-0 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden"
+                <DropdownMenuContent 
+                  className="w-[800px] max-h-[80vh] p-0 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden"
                   align="start"
                   sideOffset={12}
                 >
@@ -668,7 +666,7 @@ const Header = () => {
                   </div>
 
                   {/* Grid Horizontal de Categorias */}
-                  <div className="p-6">
+                  <div className="p-6 max-h-96 overflow-y-auto">
                     <div className="grid grid-cols-3 gap-4">
                       {categories.map((category) => (
                         <DropdownMenuItem
