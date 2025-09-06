@@ -8,7 +8,14 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "setup": "bash scripts/setup.sh",
+    "deploy": "bash scripts/deploy.sh",
+    "db:push": "supabase db push",
+    "db:reset": "supabase db reset",
+    "db:diff": "supabase db diff",
+    "db:status": "supabase migration list",
+    "vercel:env": "echo 'Configure as seguintes variáveis na Vercel:' && echo 'VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_APP_NAME, VITE_APP_URL, VITE_WHATSAPP_NUMBER, NODE_ENV=production'"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
