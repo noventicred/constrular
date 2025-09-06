@@ -139,6 +139,18 @@ const Auth = () => {
           description: error.message,
           variant: 'destructive',
         });
+      } else {
+        // Login realizado com sucesso
+        toast({
+          title: '✅ Login realizado com sucesso!',
+          description: 'Bem-vindo de volta! Redirecionando...',
+          duration: 2000,
+        });
+        
+        // Pequeno delay para mostrar a mensagem antes de redirecionar
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
       }
     } catch (error) {
       toast({

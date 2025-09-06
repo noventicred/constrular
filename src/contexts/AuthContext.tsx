@@ -125,8 +125,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      // Ignorar mudanças quando a app não está ativa (exceto logout)
-      if (!isAppActive() && event !== "SIGNED_OUT") {
+      // Ignorar mudanças quando a app não está ativa (exceto login e logout)
+      if (!isAppActive() && event !== "SIGNED_OUT" && event !== "SIGNED_IN") {
         return;
       }
 
