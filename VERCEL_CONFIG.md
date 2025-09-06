@@ -29,8 +29,9 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 
 ### **2. ⏳ Configuração Vercel**
 - [ ] Importar repositório `noventicred/constrular`
-- [ ] Configurar variáveis de ambiente (acima)
-- [ ] Aguardar primeiro deploy
+- [ ] Ir em **Settings > Environment Variables**
+- [ ] Adicionar as 2 variáveis (Production + Preview + Development)
+- [ ] Fazer redeploy se necessário
 
 ### **3. ⏳ Configuração Supabase**
 - [ ] Adicionar domínio Vercel em **Site URL**
