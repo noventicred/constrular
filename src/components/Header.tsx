@@ -1,6 +1,7 @@
 import {
   Search,
   Menu,
+  X,
   ChevronDown,
   Package,
   Info,
@@ -333,10 +334,17 @@ const Header = () => {
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button className="md:hidden h-12 w-12 rounded-xl bg-white border-2 border-gray-200 hover:border-primary hover:bg-primary/5 transition-all duration-200 shadow-sm hover:shadow-md">
-                  <Menu className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
+                  {isMobileMenuOpen ? (
+                    <X className="h-5 w-5 text-gray-700 hover:text-red-500 transition-colors" />
+                  ) : (
+                    <Menu className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
+                  )}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80 p-0 flex flex-col h-full">
+              <SheetContent
+                side="right"
+                className="w-80 p-0 flex flex-col h-full"
+              >
                 <SheetHeader className="px-6 py-6 border-b bg-gradient-to-r from-primary/5 to-primary/10 flex-shrink-0">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center">
@@ -353,205 +361,205 @@ const Header = () => {
 
                 <div className="flex-1 overflow-y-auto">
                   <div className="p-6 space-y-6">
-                  {/* Categories */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Package className="h-5 w-5 text-primary" />
-                      <h3 className="font-bold text-gray-800">Categorias</h3>
-                    </div>
+                    {/* Categories */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Package className="h-5 w-5 text-primary" />
+                        <h3 className="font-bold text-gray-800">Categorias</h3>
+                      </div>
 
-                    <div className="space-y-2">
-                      {categories.map((category) => (
-                        <button
-                          key={category.id}
-                          className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
-                          onClick={() =>
-                            handleCategoryClick(category.id, category.name)
-                          }
-                        >
-                          <img
-                            src={category.image_url || "/placeholder.svg"}
-                            alt={category.name}
-                            className="w-10 h-10 object-cover rounded-lg shadow-sm group-hover:scale-105 transition-transform"
-                            onError={(e) => {
-                              e.currentTarget.src = "/placeholder.svg";
-                            }}
-                          />
-                          <div className="flex-1 text-left">
-                            <p className="font-semibold text-sm text-gray-800 group-hover:text-primary transition-colors">
-                              {category.name}
-                            </p>
-                            {category.description && (
-                              <p className="text-xs text-gray-500 line-clamp-1">
-                                {category.description}
+                      <div className="space-y-2">
+                        {categories.map((category) => (
+                          <button
+                            key={category.id}
+                            className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
+                            onClick={() =>
+                              handleCategoryClick(category.id, category.name)
+                            }
+                          >
+                            <img
+                              src={category.image_url || "/placeholder.svg"}
+                              alt={category.name}
+                              className="w-10 h-10 object-cover rounded-lg shadow-sm group-hover:scale-105 transition-transform"
+                              onError={(e) => {
+                                e.currentTarget.src = "/placeholder.svg";
+                              }}
+                            />
+                            <div className="flex-1 text-left">
+                              <p className="font-semibold text-sm text-gray-800 group-hover:text-primary transition-colors">
+                                {category.name}
                               </p>
-                            )}
-                          </div>
-                          <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-primary rotate-[-90deg] transition-colors" />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Navigation Links */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Info className="h-5 w-5 text-primary" />
-                      <h3 className="font-bold text-gray-800">Páginas</h3>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Link
-                        to="/produtos"
-                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
-                          <Package className="h-4 w-4 text-primary" />
-                        </div>
-                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
-                          Produtos
-                        </span>
-                      </Link>
-                      <Link
-                        to="/sobre-nos"
-                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
-                          <Info className="h-4 w-4 text-primary" />
-                        </div>
-                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
-                          Sobre Nós
-                        </span>
-                      </Link>
-                      <Link
-                        to="/contato"
-                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
-                          <MessageCircle className="h-4 w-4 text-primary" />
-                        </div>
-                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
-                          Contato
-                        </span>
-                      </Link>
-                      <Link
-                        to="/entrega"
-                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
-                          <Truck className="h-4 w-4 text-primary" />
-                        </div>
-                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
-                          Entrega
-                        </span>
-                      </Link>
-                      <Link
-                        to="/trocas-e-devolucoes"
-                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
-                          <RefreshCw className="h-4 w-4 text-primary" />
-                        </div>
-                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
-                          Trocas e Devoluções
-                        </span>
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* User Section */}
-                  <div className="border-t pt-4">
-                    {user ? (
-                      <div className="space-y-3">
-                        <div className="p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
-                              <User className="h-4 w-4 text-white" />
+                              {category.description && (
+                                <p className="text-xs text-gray-500 line-clamp-1">
+                                  {category.description}
+                                </p>
+                              )}
                             </div>
-                            <div>
-                              <p className="text-xs text-gray-500 font-medium">
-                                Bem-vindo,
-                              </p>
-                              <p className="font-semibold text-gray-800">
-                                {user.email?.split("@")[0]}
-                              </p>
+                            <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-primary rotate-[-90deg] transition-colors" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Navigation Links */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Info className="h-5 w-5 text-primary" />
+                        <h3 className="font-bold text-gray-800">Páginas</h3>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Link
+                          to="/produtos"
+                          className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
+                            <Package className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
+                            Produtos
+                          </span>
+                        </Link>
+                        <Link
+                          to="/sobre-nos"
+                          className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
+                            <Info className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
+                            Sobre Nós
+                          </span>
+                        </Link>
+                        <Link
+                          to="/contato"
+                          className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
+                            <MessageCircle className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
+                            Contato
+                          </span>
+                        </Link>
+                        <Link
+                          to="/entrega"
+                          className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
+                            <Truck className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
+                            Entrega
+                          </span>
+                        </Link>
+                        <Link
+                          to="/trocas-e-devolucoes"
+                          className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
+                            <RefreshCw className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
+                            Trocas e Devoluções
+                          </span>
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* User Section */}
+                    <div className="border-t pt-4">
+                      {user ? (
+                        <div className="space-y-3">
+                          <div className="p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
+                                <User className="h-4 w-4 text-white" />
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-500 font-medium">
+                                  Bem-vindo,
+                                </p>
+                                <p className="font-semibold text-gray-800">
+                                  {user.email?.split("@")[0]}
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start gap-3 h-12"
-                          onClick={() => {
-                            setIsMobileMenuOpen(false);
-                            navigate("/minha-conta");
-                          }}
-                        >
-                          <User className="h-4 w-4 text-primary" />
-                          Minha Conta
-                        </Button>
-                        {isAdmin && (
                           <Button
                             variant="ghost"
                             className="w-full justify-start gap-3 h-12"
                             onClick={() => {
                               setIsMobileMenuOpen(false);
-                              navigate("/admin");
+                              navigate("/minha-conta");
                             }}
                           >
-                            <Settings className="h-4 w-4 text-primary" />
-                            Painel Admin
+                            <User className="h-4 w-4 text-primary" />
+                            Minha Conta
                           </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start gap-3 h-12 text-red-600 hover:text-red-700 hover:bg-red-50"
-                          onClick={async () => {
-                            setIsMobileMenuOpen(false);
-                            try {
-                              const { error } = await signOut();
-                              if (!error) {
-                                navigate("/");
+                          {isAdmin && (
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start gap-3 h-12"
+                              onClick={() => {
+                                setIsMobileMenuOpen(false);
+                                navigate("/admin");
+                              }}
+                            >
+                              <Settings className="h-4 w-4 text-primary" />
+                              Painel Admin
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start gap-3 h-12 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={async () => {
+                              setIsMobileMenuOpen(false);
+                              try {
+                                const { error } = await signOut();
+                                if (!error) {
+                                  navigate("/");
+                                }
+                              } catch (err) {
+                                console.error(err);
                               }
-                            } catch (err) {
-                              console.error(err);
-                            }
-                          }}
-                        >
-                          <LogOut className="h-4 w-4" />
-                          Sair
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        <Button
-                          variant="outline"
-                          className="w-full gap-3 h-12 border-primary/20 text-primary hover:bg-primary/5"
-                          onClick={() => {
-                            setIsMobileMenuOpen(false);
-                            navigate("/auth");
-                          }}
-                        >
-                          <User className="h-4 w-4" />
-                          Entrar
-                        </Button>
-                        <Button
-                          className="w-full gap-3 h-12 bg-gradient-to-r from-primary to-primary/90"
-                          onClick={() => {
-                            setIsMobileMenuOpen(false);
-                            navigate("/auth");
-                          }}
-                        >
-                          <User className="h-4 w-4" />
-                          Cadastre-se
-                        </Button>
-                      </div>
-                    )}
-                  </div>
+                            }}
+                          >
+                            <LogOut className="h-4 w-4" />
+                            Sair
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <Button
+                            variant="outline"
+                            className="w-full gap-3 h-12 border-primary/20 text-primary hover:bg-primary/5"
+                            onClick={() => {
+                              setIsMobileMenuOpen(false);
+                              navigate("/auth");
+                            }}
+                          >
+                            <User className="h-4 w-4" />
+                            Entrar
+                          </Button>
+                          <Button
+                            className="w-full gap-3 h-12 bg-gradient-to-r from-primary to-primary/90"
+                            onClick={() => {
+                              setIsMobileMenuOpen(false);
+                              navigate("/auth");
+                            }}
+                          >
+                            <User className="h-4 w-4" />
+                            Cadastre-se
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </SheetContent>
