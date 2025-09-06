@@ -390,7 +390,7 @@ const Produto = () => {
                 </div>
               )}
 
-              {/* PIX Badge - Full Width */}
+              {/* Current Price */}
               <div className="w-full">
                 {product.original_price && product.original_price !== product.price ? (
                   <PixBadge
@@ -399,9 +399,10 @@ const Produto = () => {
                     className="w-full text-xl md:text-2xl"
                   />
                 ) : (
-                  <div className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-xl bg-gradient-to-r from-blue-400 to-blue-500 text-white shadow-xl">
-                    <span className="text-2xl md:text-3xl font-bold">{formatCurrency(product.price)}</span>
-                    <Badge className="bg-white/25 text-white font-bold px-3 py-1">PIX</Badge>
+                  <div className="text-center">
+                    <span className="text-4xl md:text-5xl font-bold text-primary">
+                      {formatCurrency(product.price)}
+                    </span>
                   </div>
                 )}
               </div>
