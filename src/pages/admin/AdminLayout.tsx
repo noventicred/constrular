@@ -53,18 +53,18 @@ const AdminLayout = () => {
   return (
     <AdminRoute>
       <SidebarProvider defaultOpen>
-        <div className="min-h-screen flex w-full bg-background">
+        <div className="min-h-screen flex w-full bg-background overflow-hidden">
           <AdminSidebar />
           
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-w-0">
             {/* Header */}
-            <header className="h-16 flex items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 sticky top-0 z-40">
-              <div className="flex items-center gap-4">
-                <SidebarTrigger className="hover:bg-muted rounded-md p-2 transition-colors" />
-                <div className="space-y-1">
-                  <h2 className="text-xl font-bold tracking-tight">{getPageTitle()}</h2>
+            <header className="h-16 flex items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6 sticky top-0 z-40">
+              <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
+                <SidebarTrigger className="hover:bg-muted rounded-md p-2 transition-colors flex-shrink-0" />
+                <div className="space-y-1 min-w-0 flex-1">
+                  <h2 className="text-lg md:text-xl font-bold tracking-tight truncate">{getPageTitle()}</h2>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span>Painel Administrativo</span>
+                    <span className="hidden sm:inline">Painel Administrativo</span>
                     <Badge variant="outline" className="text-xs">
                       Admin
                     </Badge>
@@ -72,18 +72,18 @@ const AdminLayout = () => {
                 </div>
               </div>
               
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
                 {/* Search */}
-                <div className="relative hidden md:block">
+                <div className="relative hidden lg:block">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input 
                     placeholder="Buscar..." 
-                    className="pl-9 w-64 bg-muted/50 border-0 focus:bg-background"
+                    className="pl-9 w-48 xl:w-64 bg-muted/50 border-0 focus:bg-background"
                   />
                 </div>
 
                 {/* Notifications */}
-                <Button variant="ghost" size="sm" className="relative">
+                <Button variant="ghost" size="sm" className="relative flex-shrink-0">
                   <Bell className="h-4 w-4" />
                   <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs bg-destructive">
                     3
@@ -93,7 +93,7 @@ const AdminLayout = () => {
                 {/* User Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full flex-shrink-0">
                       <Avatar className="h-10 w-10">
                         <AvatarFallback className="bg-primary text-primary-foreground">
                           {getUserInitials()}
@@ -103,10 +103,10 @@ const AdminLayout = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
                     <div className="flex flex-col space-y-1 p-2">
-                      <p className="text-sm font-medium leading-none">
+                      <p className="text-sm font-medium leading-none truncate">
                         {profile?.full_name || 'Administrador'}
                       </p>
-                      <p className="text-xs leading-none text-muted-foreground">
+                      <p className="text-xs leading-none text-muted-foreground truncate">
                         {user?.email}
                       </p>
                     </div>
@@ -131,7 +131,7 @@ const AdminLayout = () => {
             
             {/* Main Content */}
             <main className="flex-1 overflow-auto bg-background">
-              <div className="animate-fade-in">
+              <div className="animate-fade-in w-full max-w-full">
                 <Outlet />
               </div>
             </main>

@@ -312,19 +312,21 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6 animate-fade-in">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-64 mb-2"></div>
-          <div className="h-5 bg-muted rounded w-96 mb-8"></div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-40 bg-muted rounded-lg"></div>
-            ))}
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-64 bg-muted rounded-lg"></div>
-            ))}
+      <div className="w-full max-w-full overflow-hidden">
+        <div className="p-4 md:p-6 space-y-6 animate-fade-in">
+          <div className="animate-pulse">
+            <div className="h-6 md:h-8 bg-muted rounded w-48 md:w-64 mb-2"></div>
+            <div className="h-4 md:h-5 bg-muted rounded w-64 md:w-96 mb-6 md:mb-8"></div>
+            <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-6 md:mb-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-32 md:h-40 bg-muted rounded-lg"></div>
+              ))}
+            </div>
+            <div className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-48 md:h-64 bg-muted rounded-lg"></div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -332,166 +334,168 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="p-6 space-y-8 animate-fade-in">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-          Dashboard Administrativo
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          Visão geral completa do seu e-commerce
-        </p>
-      </div>
+    <div className="w-full max-w-full overflow-hidden">
+      <div className="p-4 md:p-6 space-y-6 md:space-y-8 animate-fade-in">
+        {/* Header */}
+        <div className="space-y-2">
+          <h1 className="text-2xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+            Dashboard Administrativo
+          </h1>
+          <p className="text-base md:text-lg text-muted-foreground">
+            Visão geral completa do seu e-commerce
+          </p>
+        </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((card, index) => (
-          <Card key={card.title} className="relative overflow-hidden group hover-scale transition-all duration-300 hover:shadow-lg animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <div className="space-y-1">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {card.title}
-                </CardTitle>
-                <div className="text-3xl font-bold">{card.value}</div>
-              </div>
-              <div className={`h-12 w-12 rounded-full ${card.bgColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                <card.icon className={`h-6 w-6 ${card.color}`} />
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                {card.description}
-              </p>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span>Progresso</span>
-                  <span>{Math.round(card.progress)}%</span>
+        {/* Stats Cards */}
+        <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          {statCards.map((card, index) => (
+            <Card key={card.title} className="relative overflow-hidden group hover-scale transition-all duration-300 hover:shadow-lg animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                <div className="space-y-1 min-w-0 flex-1">
+                  <CardTitle className="text-sm font-medium text-muted-foreground truncate">
+                    {card.title}
+                  </CardTitle>
+                  <div className="text-xl md:text-3xl font-bold truncate">{card.value}</div>
                 </div>
-                <Progress value={card.progress} className="h-2" />
+                <div className={`h-10 w-10 md:h-12 md:w-12 rounded-full ${card.bgColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
+                  <card.icon className={`h-5 w-5 md:h-6 md:w-6 ${card.color}`} />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground truncate">
+                  {card.description}
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span>Progresso</span>
+                    <span>{Math.round(card.progress)}%</span>
+                  </div>
+                  <Progress value={card.progress} className="h-2" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-3">
+          {/* Quick Actions */}
+          <Card className="lg:col-span-2 animate-scale-in">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                Ações Rápidas
+              </CardTitle>
+              <CardDescription>
+                Acesso rápido às funcionalidades principais
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2">
+                {quickActions.map((action, index) => (
+                  <Button
+                    key={action.title}
+                    variant={action.variant}
+                    onClick={action.action}
+                    className="h-auto p-4 flex flex-col items-start space-y-2 hover-scale animate-fade-in w-full"
+                    style={{ animationDelay: `${index * 100 + 500}ms` }}
+                  >
+                    <div className="flex items-center gap-2 w-full">
+                      <action.icon className="h-5 w-5 flex-shrink-0" />
+                      <span className="font-medium truncate">{action.title}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground text-left w-full">
+                      {action.description}
+                    </p>
+                  </Button>
+                ))}
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Quick Actions */}
-        <Card className="lg:col-span-2 animate-scale-in">
+          {/* Recent Activity */}
+          <Card className="animate-scale-in" style={{ animationDelay: '200ms' }}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-primary" />
+                Atividade Recente
+              </CardTitle>
+              <CardDescription>
+                Últimas atividades do sistema
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recentActivity.map((activity, index) => {
+                  const IconComponent = getActivityIcon(activity.type);
+                  return (
+                    <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors animate-fade-in" style={{ animationDelay: `${index * 100 + 600}ms` }}>
+                      <div className={`h-8 w-8 rounded-full bg-background flex items-center justify-center ${getStatusColor(activity.status)} flex-shrink-0`}>
+                        <IconComponent className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <p className="text-sm font-medium truncate">{activity.message}</p>
+                        <p className="text-xs text-muted-foreground truncate">{activity.timestamp}</p>
+                      </div>
+                      {activity.status && (
+                        <Badge variant={activity.status === 'success' ? 'default' : activity.status === 'pending' ? 'secondary' : 'destructive'} className="text-xs flex-shrink-0">
+                          {activity.status === 'success' ? 'Sucesso' : activity.status === 'pending' ? 'Pendente' : 'Erro'}
+                        </Badge>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* System Status */}
+        <Card className="animate-scale-in" style={{ animationDelay: '300ms' }}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              Ações Rápidas
+              <AlertCircle className="h-5 w-5 text-primary" />
+              Status do Sistema
             </CardTitle>
             <CardDescription>
-              Acesso rápido às funcionalidades principais
+              Monitoramento em tempo real dos serviços
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-2">
-              {quickActions.map((action, index) => (
-                <Button
-                  key={action.title}
-                  variant={action.variant}
-                  onClick={action.action}
-                  className="h-auto p-4 flex flex-col items-start space-y-2 hover-scale animate-fade-in"
-                  style={{ animationDelay: `${index * 100 + 500}ms` }}
-                >
-                  <div className="flex items-center gap-2 w-full">
-                    <action.icon className="h-5 w-5" />
-                    <span className="font-medium">{action.title}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground text-left">
-                    {action.description}
-                  </p>
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Activity */}
-        <Card className="animate-scale-in" style={{ animationDelay: '200ms' }}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
-              Atividade Recente
-            </CardTitle>
-            <CardDescription>
-              Últimas atividades do sistema
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentActivity.map((activity, index) => {
-                const IconComponent = getActivityIcon(activity.type);
-                return (
-                  <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors animate-fade-in" style={{ animationDelay: `${index * 100 + 600}ms` }}>
-                    <div className={`h-8 w-8 rounded-full bg-background flex items-center justify-center ${getStatusColor(activity.status)}`}>
-                      <IconComponent className="h-4 w-4" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium">{activity.message}</p>
-                      <p className="text-xs text-muted-foreground">{activity.timestamp}</p>
-                    </div>
-                    {activity.status && (
-                      <Badge variant={activity.status === 'success' ? 'default' : activity.status === 'pending' ? 'secondary' : 'destructive'} className="text-xs">
-                        {activity.status === 'success' ? 'Sucesso' : activity.status === 'pending' ? 'Pendente' : 'Erro'}
-                      </Badge>
-                    )}
-                  </div>
-                );
-              })}
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Sistema</span>
+                  <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                    Online
+                  </Badge>
+                </div>
+                <Progress value={100} className="h-2" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Banco de Dados</span>
+                  <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                    Conectado
+                  </Badge>
+                </div>
+                <Progress value={95} className="h-2" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Performance</span>
+                  <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full mr-1"></div>
+                    Boa
+                  </Badge>
+                </div>
+                <Progress value={78} className="h-2" />
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* System Status */}
-      <Card className="animate-scale-in" style={{ animationDelay: '300ms' }}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-primary" />
-            Status do Sistema
-          </CardTitle>
-          <CardDescription>
-            Monitoramento em tempo real dos serviços
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Sistema</span>
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                  Online
-                </Badge>
-              </div>
-              <Progress value={100} className="h-2" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Banco de Dados</span>
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                  Conectado
-                </Badge>
-              </div>
-              <Progress value={95} className="h-2" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Performance</span>
-                <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full mr-1"></div>
-                  Boa
-                </Badge>
-              </div>
-              <Progress value={78} className="h-2" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
