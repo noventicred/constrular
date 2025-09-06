@@ -7,6 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PromoBanner from "@/components/PromoBanner";
@@ -21,7 +28,11 @@ import {
   ThumbsUp,
   ThumbsDown,
   CheckCircle,
-  CreditCard
+  CreditCard,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  ZoomIn
 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
@@ -87,12 +98,32 @@ const Produto = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [comments, setComments] = useState<ProductComment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [galleryImageIndex, setGalleryImageIndex] = useState(0);
 
   
   // Calcular rating baseado nos comentários
   const averageRating = comments.length > 0 
     ? comments.reduce((acc, comment) => acc + comment.rating, 0) / comments.length 
     : 0;
+
+  // Funções da galeria
+  const openGallery = (imageIndex: number) => {
+    setGalleryImageIndex(imageIndex);
+    setIsGalleryOpen(true);
+  };
+
+  const nextImage = () => {
+    if (!product) return;
+    const imageUrls = getProductImageUrls(product.image_url);
+    setGalleryImageIndex((prev) => (prev + 1) % imageUrls.length);
+  };
+
+  const prevImage = () => {
+    if (!product) return;
+    const imageUrls = getProductImageUrls(product.image_url);
+    setGalleryImageIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -319,7 +350,7 @@ const Produto = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12 overflow-hidden">
           {/* Product Images */}
           <div className="space-y-4 min-w-0">
-            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative group cursor-pointer">
               <img 
                 {...createImageProps(
                   (() => {
@@ -327,9 +358,17 @@ const Produto = () => {
                     return imageUrls[selectedImage] || imageUrls[0];
                   })(),
                   product.name,
-                  "w-full h-full object-contain bg-white p-4"
+                  "w-full h-full object-contain bg-white p-4 transition-transform duration-300 group-hover:scale-105"
                 )}
+                onClick={() => openGallery(selectedImage)}
               />
+              {/* Zoom Indicator */}
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <div className="bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full flex items-center gap-2">
+                  <ZoomIn className="h-4 w-4 text-gray-700" />
+                  <span className="text-sm font-medium text-gray-700">Clique para ampliar</span>
+                </div>
+              </div>
             </div>
             
             {/* Multiple Image Thumbnails */}
@@ -341,19 +380,25 @@ const Produto = () => {
                     {imageUrls.map((url, index) => (
                       <button
                         key={index}
-                        onClick={() => setSelectedImage(index)}
-                        className={`aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 ${
+                        onClick={() => {
+                          setSelectedImage(index);
+                          openGallery(index);
+                        }}
+                        className={`aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:border-primary/50 ${
                           selectedImage === index ? 'border-primary' : 'border-transparent'
-                        }`}
+                        } relative group`}
                       >
                         <img 
                           src={url} 
                           alt={`${product.name} ${index + 1}`}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain bg-white p-2 group-hover:scale-105 transition-transform duration-200"
                           onError={(e) => {
                             e.currentTarget.src = "/placeholder.svg";
                           }}
                         />
+                        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                          <ZoomIn className="h-4 w-4 text-white drop-shadow-lg" />
+                        </div>
                       </button>
                     ))}
                   </div>
@@ -685,6 +730,84 @@ const Produto = () => {
       
       <Footer />
       <FloatingCart />
+
+      {/* Gallery Modal */}
+      <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
+        <DialogContent className="max-w-4xl w-full p-0 bg-black/95 border-0">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Galeria de Imagens</DialogTitle>
+          </DialogHeader>
+          
+          <div className="relative aspect-square w-full">
+            {/* Close Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute top-4 right-4 z-50 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white border-0"
+              onClick={() => setIsGalleryOpen(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+
+            {/* Navigation Buttons */}
+            {(() => {
+              const imageUrls = getProductImageUrls(product?.image_url || '');
+              if (imageUrls.length > 1) {
+                return (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-40 h-12 w-12 rounded-full bg-black/50 hover:bg-black/70 text-white border-0"
+                      onClick={prevImage}
+                    >
+                      <ChevronLeft className="h-6 w-6" />
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 z-40 h-12 w-12 rounded-full bg-black/50 hover:bg-black/70 text-white border-0"
+                      onClick={nextImage}
+                    >
+                      <ChevronRight className="h-6 w-6" />
+                    </Button>
+                  </>
+                );
+              }
+              return null;
+            })()}
+
+            {/* Main Image */}
+            <div className="w-full h-full flex items-center justify-center p-8">
+              <img
+                src={(() => {
+                  const imageUrls = getProductImageUrls(product?.image_url || '');
+                  return imageUrls[galleryImageIndex] || imageUrls[0] || '/placeholder.svg';
+                })()}
+                alt={`${product?.name} - Imagem ${galleryImageIndex + 1}`}
+                className="max-w-full max-h-full object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.svg";
+                }}
+              />
+            </div>
+
+            {/* Image Counter */}
+            {(() => {
+              const imageUrls = getProductImageUrls(product?.image_url || '');
+              if (imageUrls.length > 1) {
+                return (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                    {galleryImageIndex + 1} / {imageUrls.length}
+                  </div>
+                );
+              }
+              return null;
+            })()}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
