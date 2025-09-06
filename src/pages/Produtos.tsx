@@ -627,6 +627,9 @@ const Produtos = () => {
                       product.original_price !== product.price ? (
                         <div className="space-y-1">
                           <div className="flex items-baseline gap-2">
+                            <span className="text-xl md:text-2xl font-bold text-primary">
+                              {formatCurrency(product.price)}
+                            </span>
                             <span className="text-sm text-gray-500 line-through">
                               {formatCurrency(product.original_price)}
                             </span>
