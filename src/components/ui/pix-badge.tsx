@@ -24,7 +24,7 @@ function PixBadge({
   return (
     <div
       className={cn(
-        "flex items-center justify-center gap-3 px-4 py-3 rounded-xl w-full",
+        "flex items-center justify-start gap-3 px-4 py-3 rounded-xl w-full",
         "bg-gradient-to-r from-blue-400 to-blue-500",
         "text-white text-lg font-bold shadow-xl",
         "border border-blue-300/20 backdrop-blur-sm",
@@ -33,13 +33,11 @@ function PixBadge({
       )}
       {...props}
     >
-      <div className="flex items-center gap-3">
-        <PixIcon className="w-6 h-6 flex-shrink-0" />
-        <span className="font-bold text-xl">{formatCurrency(price)}</span>
-        <span className="text-sm font-bold bg-white/25 px-3 py-1 rounded-full border border-white/20 flex-shrink-0">
-          PIX
-        </span>
-      </div>
+      <PixIcon className="w-6 h-6 flex-shrink-0" />
+      <span className="font-bold text-xl">{formatCurrency(price)}</span>
+      <span className="text-sm font-bold bg-white/25 px-3 py-1 rounded-full border border-white/20 flex-shrink-0">
+        PIX
+      </span>
     </div>
   );
 }
