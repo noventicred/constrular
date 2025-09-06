@@ -7,19 +7,34 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
 import { 
-  Eye, Package, Clock, CheckCircle2, XCircle, Truck, Search, Filter, 
-  Edit, Save, X, Calendar, CreditCard, MapPin, User, Phone, Mail,
-  TrendingUp, DollarSign, ShoppingCart, RefreshCw, FileText
+  Eye, 
+  Package, 
+  Clock, 
+  CheckCircle2, 
+  XCircle, 
+  Truck, 
+  Search, 
+  Filter, 
+  Edit, 
+  Save, 
+  X, 
+  Calendar, 
+  CreditCard, 
+  MapPin, 
+  User, 
+  Phone, 
+  Mail,
+  TrendingUp, 
+  DollarSign, 
+  ShoppingCart, 
+  RefreshCw,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency, formatOrderNumber } from '@/lib/formatters';
-import { useSettings } from '@/hooks/useSettings';
-import jsPDF from 'jspdf';
 
 interface Order {
   id: string;
@@ -48,114 +63,94 @@ interface OrderItem {
     name: string;
     image_url: string;
     sku: string;
-  };
+  } | null;
 }
 
 const statusOptions = [
-  { value: 'pending', label: 'Pendente', icon: Clock, color: 'bg-yellow-500' },
-  { value: 'confirmed', label: 'Confirmado', icon: CheckCircle2, color: 'bg-blue-500' },
-  { value: 'processing', label: 'Processando', icon: Package, color: 'bg-blue-600' },
-  { value: 'shipped', label: 'Enviado', icon: Truck, color: 'bg-purple-500' },
-  { value: 'delivered', label: 'Entregue', icon: CheckCircle2, color: 'bg-green-500' },
-  { value: 'cancelled', label: 'Cancelado', icon: XCircle, color: 'bg-red-500' },
+  { value: 'pending', label: 'Pendente', color: 'bg-yellow-500', icon: Clock },
+  { value: 'confirmed', label: 'Confirmado', color: 'bg-blue-500', icon: CheckCircle2 },
+  { value: 'shipped', label: 'Enviado', color: 'bg-purple-500', icon: Truck },
+  { value: 'delivered', label: 'Entregue', color: 'bg-green-500', icon: CheckCircle2 },
+  { value: 'cancelled', label: 'Cancelado', color: 'bg-red-500', icon: XCircle },
 ];
 
 const paymentStatusOptions = [
-  { value: 'pending', label: 'Aguardando Pagamento', color: 'secondary' },
-  { value: 'paid', label: 'Pago', color: 'default' },
-  { value: 'cancelled', label: 'Cancelado', color: 'destructive' },
-  { value: 'refunded', label: 'Reembolsado', color: 'outline' },
+  { value: 'pending', label: 'Pendente', color: 'bg-yellow-500' },
+  { value: 'paid', label: 'Pago', color: 'bg-green-500' },
+  { value: 'failed', label: 'Falhou', color: 'bg-red-500' },
+  { value: 'refunded', label: 'Reembolsado', color: 'bg-gray-500' },
 ];
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [orderItems, setOrderItems] = useState<Record<string, OrderItem[]>>({});
   const [loading, setLoading] = useState(true);
-  const [loadingItems, setLoadingItems] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
-  const [dateRange, setDateRange] = useState('all');
-  const [generatingPdf, setGeneratingPdf] = useState<string | null>(null);
+  const [editingOrder, setEditingOrder] = useState<Partial<Order>>({});
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
   const { toast } = useToast();
-  const { settings } = useSettings();
-
-  // Statistics
-  const [stats, setStats] = useState({
-    totalOrders: 0,
-    totalRevenue: 0,
-    averageOrderValue: 0,
-    pendingOrders: 0,
-    todayOrders: 0,
-    thisMonthRevenue: 0
-  });
 
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  useEffect(() => {
-    applyFilters();
-  }, [orders, searchTerm, statusFilter, paymentFilter, dateRange]);
-
-  useEffect(() => {
-    calculateStats();
-  }, [orders]);
-
   const fetchOrders = async () => {
-    console.log('🚀 ADMIN: NOVA VERSÃO - Iniciando busca de pedidos...');
+    setLoading(true);
     try {
-      // First get all orders
       const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
-        .select('*')
+        .select(`
+          *,
+          profiles (
+            full_name,
+            email
+          )
+        `)
         .order('created_at', { ascending: false });
 
-      if (ordersError) {
-        console.error('❌ ADMIN: Erro ao buscar pedidos:', ordersError);
-        throw ordersError;
+      if (ordersError) throw ordersError;
+
+      setOrders(ordersData || []);
+
+      // Buscar itens para cada pedido
+      if (ordersData && ordersData.length > 0) {
+        const itemsPromises = ordersData.map(async (order) => {
+          const { data: items } = await supabase
+            .from('order_items')
+            .select(`
+              *,
+              products (
+                id,
+                name,
+                image_url,
+                sku
+              )
+            `)
+            .eq('order_id', order.id);
+
+          return { orderId: order.id, items: items || [] };
+        });
+
+        const itemsResults = await Promise.all(itemsPromises);
+        const itemsMap: Record<string, OrderItem[]> = {};
+        
+        itemsResults.forEach(({ orderId, items }) => {
+          itemsMap[orderId] = items;
+        });
+
+        setOrderItems(itemsMap);
       }
-
-      console.log('📦 ADMIN: Pedidos encontrados:', ordersData?.length || 0);
-
-      // Get unique user IDs
-      const userIds = [...new Set(ordersData?.map(order => order.user_id).filter(Boolean))];
-      console.log('👥 ADMIN: User IDs únicos:', userIds.length);
-
-      // Get profiles for these users
-      let profilesData = [];
-      if (userIds.length > 0) {
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, full_name, email, phone, street, number, city, state, zip_code')
-          .in('id', userIds);
-
-        if (profilesError) {
-          console.warn('⚠️ ADMIN: Erro ao buscar profiles (continuando sem eles):', profilesError);
-        } else {
-          profilesData = profiles || [];
-          console.log('👤 ADMIN: Profiles encontrados:', profilesData.length);
-        }
-      }
-
-      // Combine orders with profiles
-      const ordersWithProfiles = ordersData?.map(order => ({
-        ...order,
-        profiles: profilesData.find(profile => profile.id === order.user_id) || null
-      })) || [];
-
-      console.log('✅ ADMIN: Pedidos com profiles combinados:', ordersWithProfiles.length);
-      setOrders(ordersWithProfiles);
     } catch (error) {
-      console.error('❌ ADMIN: Erro geral:', error);
+      console.error('Error fetching orders:', error);
       toast({
         title: 'Erro',
-        description: 'Não foi possível carregar os pedidos',
+        description: 'Não foi possível carregar os pedidos.',
         variant: 'destructive',
       });
     } finally {
@@ -163,219 +158,95 @@ export default function AdminOrders() {
     }
   };
 
-  const applyFilters = () => {
-    let filtered = orders;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(order => 
-        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.profiles?.email?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(order => order.status === statusFilter);
-    }
-
-    // Payment filter
-    if (paymentFilter !== 'all') {
-      filtered = filtered.filter(order => order.payment_status === paymentFilter);
-    }
-
-    // Date filter
-    if (dateRange !== 'all') {
-      const now = new Date();
-      const startDate = new Date();
-
-      switch (dateRange) {
-        case 'today':
-          startDate.setHours(0, 0, 0, 0);
-          break;
-        case 'week':
-          startDate.setDate(now.getDate() - 7);
-          break;
-        case 'month':
-          startDate.setMonth(now.getMonth() - 1);
-          break;
-      }
-
-      filtered = filtered.filter(order => 
-        new Date(order.created_at) >= startDate
-      );
-    }
-
-    setFilteredOrders(filtered);
-  };
-
-  const calculateStats = () => {
-    const totalOrders = orders.length;
-    const totalRevenue = orders.reduce((sum, order) => sum + order.total_amount, 0);
-    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-    const pendingOrders = orders.filter(order => order.status === 'pending').length;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayOrders = orders.filter(order => 
-      new Date(order.created_at) >= today
-    ).length;
-
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const thisMonthRevenue = orders
-      .filter(order => new Date(order.created_at) >= startOfMonth)
-      .reduce((sum, order) => sum + order.total_amount, 0);
-
-    setStats({
-      totalOrders,
-      totalRevenue,
-      averageOrderValue,
-      pendingOrders,
-      todayOrders,
-      thisMonthRevenue
-    });
-  };
-
-  const fetchOrderItems = async (orderId: string) => {
-    setLoadingItems(true);
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      setOrders(prev => prev.map(order => 
+        order.id === orderId 
+          ? { ...order, status: newStatus, updated_at: new Date().toISOString() }
+          : order
+      ));
+
+      toast({
+        title: '✅ Status atualizado!',
+        description: 'Status do pedido foi alterado com sucesso.',
+      });
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível atualizar o status.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const updatePaymentStatus = async (orderId: string, newPaymentStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ payment_status: newPaymentStatus, updated_at: new Date().toISOString() })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      setOrders(prev => prev.map(order => 
+        order.id === orderId 
+          ? { ...order, payment_status: newPaymentStatus, updated_at: new Date().toISOString() }
+          : order
+      ));
+
+      toast({
+        title: '✅ Pagamento atualizado!',
+        description: 'Status do pagamento foi alterado com sucesso.',
+      });
+    } catch (error) {
+      console.error('Error updating payment status:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível atualizar o pagamento.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const deleteOrder = async (orderId: string) => {
+    try {
+      // Primeiro deletar os itens do pedido
+      const { error: itemsError } = await supabase
         .from('order_items')
-        .select(`
-          *,
-          products!order_items_product_id_fkey(
-            id,
-            name,
-            image_url,
-            sku
-          )
-        `)
+        .delete()
         .eq('order_id', orderId);
 
-      if (error) throw error;
-      console.log('📦 ADMIN: Itens do pedido com produtos:', data);
-      setOrderItems(data || []);
-    } catch (error) {
-      console.error('❌ ADMIN: Erro ao carregar itens:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível carregar os itens do pedido',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoadingItems(false);
-    }
-  };
+      if (itemsError) throw itemsError;
 
-  const updateOrderStatus = async (orderId: string, status: string) => {
-    // Show confirmation for critical status changes
-    if (status === 'cancelled' || status === 'delivered') {
-      const statusText = status === 'cancelled' ? 'CANCELAR' : 'MARCAR COMO ENTREGUE';
-      const confirmed = window.confirm(
-        `Tem certeza que deseja ${statusText} este pedido?\n\nEsta ação irá alterar o status do pedido para "${statusOptions.find(s => s.value === status)?.label}".`
-      );
-      if (!confirmed) return;
-    }
-
-    try {
-      const { error } = await supabase
+      // Depois deletar o pedido
+      const { error: orderError } = await supabase
         .from('orders')
-        .update({ status, updated_at: new Date().toISOString() })
+        .delete()
         .eq('id', orderId);
 
-      if (error) throw error;
+      if (orderError) throw orderError;
 
-      setOrders(orders.map(order => 
-        order.id === orderId ? { ...order, status } : order
-      ));
-
-      if (selectedOrder?.id === orderId) {
-        setSelectedOrder({ ...selectedOrder, status });
-      }
+      setOrders(prev => prev.filter(order => order.id !== orderId));
+      setDeleteConfirmOpen(false);
+      setOrderToDelete(null);
 
       toast({
-        title: 'Status Atualizado',
-        description: `Status do pedido alterado para "${statusOptions.find(s => s.value === status)?.label}"`,
+        title: '✅ Pedido excluído!',
+        description: 'Pedido foi removido permanentemente.',
       });
     } catch (error) {
+      console.error('Error deleting order:', error);
       toast({
         title: 'Erro',
-        description: 'Não foi possível atualizar o status do pedido',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const updatePaymentStatus = async (orderId: string, paymentStatus: string) => {
-    // Show confirmation for important payment status changes
-    if (paymentStatus === 'paid' || paymentStatus === 'cancelled' || paymentStatus === 'refunded') {
-      const statusText = paymentStatusOptions.find(s => s.value === paymentStatus)?.label;
-      const confirmed = window.confirm(
-        `Tem certeza que deseja alterar o status de pagamento para "${statusText}"?\n\nEsta ação pode impactar o processamento do pedido.`
-      );
-      if (!confirmed) return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ payment_status: paymentStatus, updated_at: new Date().toISOString() })
-        .eq('id', orderId);
-
-      if (error) throw error;
-
-      setOrders(orders.map(order => 
-        order.id === orderId ? { ...order, payment_status: paymentStatus } : order
-      ));
-
-      if (selectedOrder?.id === orderId) {
-        setSelectedOrder({ ...selectedOrder, payment_status: paymentStatus });
-      }
-
-      toast({
-        title: 'Pagamento Atualizado',
-        description: `Status de pagamento alterado para "${paymentStatusOptions.find(s => s.value === paymentStatus)?.label}"`,
-      });
-    } catch (error) {
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível atualizar o status de pagamento',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const updateOrderDetails = async (orderId: string, updates: Partial<Order>) => {
-    try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', orderId);
-
-      if (error) throw error;
-
-      setOrders(orders.map(order => 
-        order.id === orderId ? { ...order, ...updates } : order
-      ));
-
-      if (selectedOrder?.id === orderId) {
-        setSelectedOrder({ ...selectedOrder, ...updates });
-      }
-
-      setIsEditDialogOpen(false);
-      setEditingOrder(null);
-
-      toast({
-        title: 'Sucesso',
-        description: 'Pedido atualizado com sucesso',
-      });
-
-      fetchOrders(); // Refresh to get updated data
-    } catch (error) {
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível atualizar o pedido',
+        description: 'Não foi possível excluir o pedido.',
         variant: 'destructive',
       });
     }
@@ -383,321 +254,111 @@ export default function AdminOrders() {
 
   const openOrderDetails = (order: Order) => {
     setSelectedOrder(order);
-    fetchOrderItems(order.id);
-    setIsDialogOpen(true);
+    setIsDetailsOpen(true);
   };
 
-  const openEditDialog = (order: Order) => {
-    setEditingOrder(order);
-    setIsEditDialogOpen(true);
+  const openEditOrder = (order: Order) => {
+    setEditingOrder({ ...order });
+    setIsEditOpen(true);
   };
 
-  const clearFilters = () => {
-    setSearchTerm('');
-    setStatusFilter('all');
-    setPaymentFilter('all');
-    setDateRange('all');
+  const openDeleteConfirm = (order: Order) => {
+    setOrderToDelete(order);
+    setDeleteConfirmOpen(true);
+  };
+
+  const saveOrderChanges = async () => {
+    if (!editingOrder.id) return;
+
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({
+          status: editingOrder.status,
+          payment_status: editingOrder.payment_status,
+          payment_method: editingOrder.payment_method,
+          shipping_address: editingOrder.shipping_address,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', editingOrder.id);
+
+      if (error) throw error;
+
+      setOrders(prev => prev.map(order => 
+        order.id === editingOrder.id 
+          ? { ...order, ...editingOrder, updated_at: new Date().toISOString() }
+          : order
+      ));
+
+      setIsEditOpen(false);
+      toast({
+        title: '✅ Pedido atualizado!',
+        description: 'Alterações salvas com sucesso.',
+      });
+    } catch (error) {
+      console.error('Error updating order:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível salvar as alterações.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const getStatusBadge = (status: string) => {
     const statusConfig = statusOptions.find(s => s.value === status);
     if (!statusConfig) return null;
-    
+
     const Icon = statusConfig.icon;
     return (
-      <Badge variant="outline" className="flex items-center gap-1">
-        <div className={`w-2 h-2 rounded-full ${statusConfig.color}`} />
+      <Badge className={`${statusConfig.color} text-white font-semibold flex items-center gap-1`}>
+        <Icon className="h-3 w-3" />
         {statusConfig.label}
       </Badge>
     );
   };
 
-  const getPaymentStatusBadge = (status: string) => {
-    const statusConfig = paymentStatusOptions.find(s => s.value === status);
+  const getPaymentBadge = (paymentStatus: string) => {
+    const statusConfig = paymentStatusOptions.find(s => s.value === paymentStatus);
+    if (!statusConfig) return null;
+
     return (
-      <Badge variant={statusConfig?.color as any || 'secondary'}>
-        {statusConfig?.label || status}
+      <Badge className={`${statusConfig.color} text-white font-semibold`}>
+        {statusConfig.label}
       </Badge>
     );
   };
 
-  const generateOrderPDF = async (order: Order) => {
-    if (generatingPdf === order.id) return;
+  const filteredOrders = orders.filter(order => {
+    const matchesSearch = 
+      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.profiles?.email?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    setGeneratingPdf(order.id);
+    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    const matchesPayment = paymentFilter === 'all' || order.payment_status === paymentFilter;
     
-    try {
-      const pdf = new jsPDF();
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const margin = 15;
-      let yPos = 15;
+    return matchesSearch && matchesStatus && matchesPayment;
+  });
 
-      // Helper functions
-      const drawLine = (y: number) => {
-        pdf.setDrawColor(0, 0, 0);
-        pdf.setLineWidth(0.5);
-        pdf.line(margin, y, pageWidth - margin, y);
-      };
-
-      const addSectionTitle = (title: string, y: number) => {
-        pdf.setFontSize(10);
-        pdf.setTextColor(0, 0, 0);
-        pdf.text(title, margin, y);
-        drawLine(y + 1);
-        return y + 8;
-      };
-
-      // Document title - centered
-      pdf.setFontSize(16);
-      pdf.setTextColor(0, 0, 0);
-      const title = 'Ordem de Compra';
-      const titleWidth = pdf.getTextWidth(title);
-      pdf.text(title, (pageWidth - titleWidth) / 2, yPos);
-      yPos += 10;
-
-      // Company info - right aligned
-      pdf.setFontSize(9);
-      pdf.setTextColor(80, 80, 80);
-      const companyInfo = [
-        settings.store_name || 'Minha Loja',
-        settings.store_email || 'contato@minhaloja.com',
-        'CNPJ: Não informado',
-        'Endereço não cadastrado'
-      ];
-      
-      companyInfo.forEach((line, index) => {
-        const textWidth = pdf.getTextWidth(line);
-        pdf.text(line, pageWidth - margin - textWidth, yPos + (index * 4));
-      });
-      yPos += 20;
-
-      // Order section
-      yPos = addSectionTitle('ORDEM DE COMPRA', yPos);
-      
-      // Order details in two columns
-      pdf.setFontSize(8);
-      pdf.setTextColor(80, 80, 80);
-      
-      // Left column
-      pdf.text('Pedido:', margin, yPos);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(`#${formatOrderNumber(order.id)}`, margin + 20, yPos);
-      
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('Data de:', margin, yPos + 5);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(new Date(order.created_at).toLocaleDateString('pt-BR'), margin + 20, yPos + 5);
-      
-      // Right column
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('Fornecedor:', margin + 100, yPos);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(order.profiles?.full_name || 'CLIENTE', margin + 135, yPos);
-      
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('Entrega:', margin + 100, yPos + 5);
-      pdf.setTextColor(0, 0, 0);
-      const deliveryDate = new Date(order.created_at);
-      deliveryDate.setDate(deliveryDate.getDate() + 7);
-      pdf.text(deliveryDate.toLocaleDateString('pt-BR'), margin + 125, yPos + 5);
-      
-      // Contact info
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('Telefone:', margin, yPos + 10);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text((order.profiles as any)?.phone || 'Não informado', margin + 25, yPos + 10);
-      
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('Email:', margin + 100, yPos + 10);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(order.profiles?.email || 'Não informado', margin + 115, yPos + 10);
-      
-      yPos += 20;
-
-      // Delivery address section
-      yPos = addSectionTitle('ENDEREÇO DE ENTREGA', yPos);
-      
-      pdf.setFontSize(8);
-      const profile = order.profiles as any;
-      
-      // Address in compact format
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('Endereço:', margin, yPos);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.street || 'Não informado', margin + 25, yPos);
-      
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('Número:', margin + 90, yPos);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.number || 'S/N', margin + 110, yPos);
-      
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('Cidade:', margin + 130, yPos);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.city || 'Não informado', margin + 145, yPos);
-      
-      // Second line
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('Bairro:', margin, yPos + 5);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text('Não informado', margin + 20, yPos + 5);
-      
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('CEP:', margin + 60, yPos + 5);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.zip_code || 'Não informado', margin + 75, yPos + 5);
-      
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('Estado:', margin + 120, yPos + 5);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(profile?.state || 'Não informado', margin + 135, yPos + 5);
-      
-      yPos += 15;
-
-      // Get order items
-      const { data: items } = await supabase
-        .from('order_items')
-        .select('*')
-        .eq('order_id', order.id);
-
-      // Items section
-      yPos = addSectionTitle('ITENS DO PEDIDO', yPos);
-      
-      // Compact table header
-      pdf.setFontSize(8);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text('Item', margin, yPos);
-      pdf.text('Cod', margin + 15, yPos);
-      pdf.text('Descrição dos Produtos', margin + 30, yPos);
-      pdf.text('Un', margin + 110, yPos);
-      pdf.text('Qtde', margin + 125, yPos);
-      pdf.text('Preço', margin + 145, yPos);
-      pdf.text('Total', margin + 165, yPos);
-      
-      yPos += 3;
-      drawLine(yPos);
-      yPos += 5;
-      
-      let subtotal = 0;
-      items?.forEach((item, index) => {
-        pdf.setFontSize(7);
-        pdf.setTextColor(0, 0, 0);
-        
-        pdf.text((index + 1).toString(), margin + 2, yPos);
-        pdf.text(item.id.slice(-4), margin + 15, yPos);
-        
-        // Truncate long product names
-        const maxNameLength = 50;
-        const productName = item.product_name.length > maxNameLength 
-          ? item.product_name.substring(0, maxNameLength) + '...'
-          : item.product_name;
-        pdf.text(productName, margin + 30, yPos);
-        
-        pdf.text('Un', margin + 110, yPos);
-        pdf.text(item.quantity.toString(), margin + 127, yPos);
-        pdf.text(`R$ ${item.unit_price.toFixed(2)}`, margin + 145, yPos);
-        pdf.text(`R$ ${item.total_price.toFixed(2)}`, margin + 165, yPos);
-        
-        subtotal += item.total_price;
-        yPos += 4;
-      });
-      
-      // Totals section - compact
-      yPos += 3;
-      drawLine(yPos);
-      yPos += 5;
-      
-      pdf.setFontSize(8);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(`Subtotal: R$ ${subtotal.toFixed(2)}`, margin + 120, yPos);
-      pdf.text('Desconto: R$ 0,00', margin + 120, yPos + 4);
-      pdf.text('Acréscimos:', margin + 120, yPos + 8);
-      
-      pdf.setFontSize(10);
-      pdf.text(`TOTAL: R$ ${order.total_amount.toFixed(2)}`, margin + 120, yPos + 15);
-      
-      yPos += 22;
-
-      // Payment section
-      yPos = addSectionTitle('FORMA/CONDIÇÕES DE PAGAMENTO', yPos);
-      
-      pdf.setFontSize(8);
-      pdf.setTextColor(80, 80, 80);
-      pdf.text('Condições de pagamento', margin, yPos);
-      pdf.text('Vencimento', margin + 60, yPos);
-      pdf.text('Valor', margin + 100, yPos);
-      pdf.text('Observação', margin + 140, yPos);
-      
-      yPos += 5;
-      pdf.setTextColor(0, 0, 0);
-      const paymentMethod = order.payment_method === 'credit_card' ? 'CARTÃO DE CRÉDITO' : 
-                           order.payment_method === 'pix' ? 'PIX' : 
-                           order.payment_method === 'debit_card' ? 'CARTÃO DE DÉBITO' :
-                           order.payment_method === 'bank_slip' ? 'BOLETO' :
-                           order.payment_method || 'NÃO INFORMADO';
-      pdf.text(paymentMethod, margin, yPos);
-      
-      const dueDate = new Date(order.created_at);
-      dueDate.setDate(dueDate.getDate() + 3);
-      pdf.text(dueDate.toLocaleDateString('pt-BR'), margin + 60, yPos);
-      pdf.text(`R$ ${order.total_amount.toFixed(2)}`, margin + 100, yPos);
-      
-      yPos += 15;
-
-      // Signature section - compact
-      const signatureY = yPos;
-      pdf.setLineWidth(0.3);
-      pdf.line(margin + 20, signatureY + 10, margin + 70, signatureY + 10);
-      pdf.line(margin + 100, signatureY + 10, margin + 150, signatureY + 10);
-      
-      pdf.setFontSize(7);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text('Assinatura do Comprador', margin + 25, signatureY + 15);
-      pdf.text('Assinatura do Recebedor', margin + 105, signatureY + 15);
-      
-      yPos += 22;
-
-      // Observations
-      yPos = addSectionTitle('OBSERVAÇÕES', yPos);
-      pdf.setFontSize(8);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(`Acesse o nosso site: ${settings.store_email || 'Site não informado'}`, margin, yPos);
-      
-      // Save PDF
-      const orderDate = new Date(order.created_at).toLocaleDateString('pt-BR').replace(/\//g, '-');
-      const customerName = order.profiles?.full_name?.replace(/[^a-zA-Z0-9]/g, '_') || 'Cliente';
-      pdf.save(`Ordem_Compra_${formatOrderNumber(order.id)}_${customerName}_${orderDate}.pdf`);
-      
-      toast({
-        title: 'PDF Gerado com Sucesso',
-        description: `Ordem de compra #${formatOrderNumber(order.id)} foi criada.`,
-      });
-      
-    } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      toast({
-        title: 'Erro ao Gerar PDF',
-        description: 'Não foi possível gerar o PDF. Tente novamente.',
-        variant: 'destructive',
-      });
-    } finally {
-      setGeneratingPdf(null);
-    }
+  const stats = {
+    total: orders.length,
+    pending: orders.filter(o => o.status === 'pending').length,
+    confirmed: orders.filter(o => o.status === 'confirmed').length,
+    shipped: orders.filter(o => o.status === 'shipped').length,
+    delivered: orders.filter(o => o.status === 'delivered').length,
+    revenue: orders.reduce((sum, o) => sum + o.total_amount, 0),
   };
 
   if (loading) {
     return (
-      <div className="space-y-6 animate-fade-in">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Pedidos</h1>
-          <p className="text-muted-foreground">Gerencie todos os pedidos da loja</p>
-        </div>
-        <div className="grid gap-4">
-          {[...Array(5)].map((_, i) => (
+      <div className="p-6 space-y-6">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
-                <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
-                <div className="h-3 bg-muted rounded w-1/2"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
               </CardContent>
             </Card>
           ))}
@@ -707,653 +368,498 @@ export default function AdminOrders() {
   }
 
   return (
-    <div className="space-y-6 p-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Pedidos</h1>
-          <p className="text-muted-foreground">
-            Gerencie todos os pedidos da loja ({filteredOrders.length} de {orders.length} pedidos)
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Gerenciar Pedidos</h1>
+          <p className="text-gray-600 mt-1">Acompanhe e gerencie todos os pedidos da loja</p>
         </div>
-        <Button onClick={fetchOrders} variant="outline" size="sm">
-          <RefreshCw className="w-4 h-4 mr-2" />
+        <Button onClick={fetchOrders} variant="outline" className="gap-2">
+          <RefreshCw className="h-4 w-4" />
           Atualizar
         </Button>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="border-l-4 border-l-blue-500">
           <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <ShoppingCart className="w-4 h-4 text-muted-foreground" />
-              <p className="text-sm font-medium text-muted-foreground">Total de Pedidos</p>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <ShoppingCart className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total de Pedidos</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+              </div>
             </div>
-            <p className="text-2xl font-bold">{stats.totalOrders}</p>
-            <p className="text-xs text-muted-foreground">
-              {stats.todayOrders} hoje
-            </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-l-yellow-500">
           <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <DollarSign className="w-4 h-4 text-muted-foreground" />
-              <p className="text-sm font-medium text-muted-foreground">Receita Total</p>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                <Clock className="h-6 w-6 text-yellow-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">Pendentes</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
+              </div>
             </div>
-            <p className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</p>
-            <p className="text-xs text-muted-foreground">
-              {formatCurrency(stats.thisMonthRevenue)} este mês
-            </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-l-green-500">
           <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="w-4 h-4 text-muted-foreground" />
-              <p className="text-sm font-medium text-muted-foreground">Ticket Médio</p>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                <CheckCircle2 className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">Entregues</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.delivered}</p>
+              </div>
             </div>
-            <p className="text-2xl font-bold">{formatCurrency(stats.averageOrderValue)}</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-l-primary">
           <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <Clock className="w-4 h-4 text-muted-foreground" />
-              <p className="text-sm font-medium text-muted-foreground">Pedidos Pendentes</p>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">Receita Total</p>
+                <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.revenue)}</p>
+              </div>
             </div>
-            <p className="text-2xl font-bold text-yellow-600">{stats.pendingOrders}</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Filters */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="w-5 h-5" />
-            Filtros
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="search">Buscar</Label>
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
-                  id="search"
-                  placeholder="ID, cliente, email..."
+                  placeholder="Buscar por ID, cliente ou email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
+                  className="pl-10"
                 />
               </div>
             </div>
+            
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full md:w-48">
+                <SelectValue placeholder="Status do Pedido" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os Status</SelectItem>
+                {statusOptions.map((status) => (
+                  <SelectItem key={status.value} value={status.value}>
+                    {status.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-            <div className="space-y-2">
-              <Label htmlFor="status">Status do Pedido</Label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos os status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os status</SelectItem>
-                  {statusOptions.map((status) => (
-                    <SelectItem key={status.value} value={status.value}>
-                      {status.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="payment">Status do Pagamento</Label>
-              <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos os pagamentos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os pagamentos</SelectItem>
-                  {paymentStatusOptions.map((status) => (
-                    <SelectItem key={status.value} value={status.value}>
-                      {status.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="date">Período</Label>
-              <Select value={dateRange} onValueChange={setDateRange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos os períodos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os períodos</SelectItem>
-                  <SelectItem value="today">Hoje</SelectItem>
-                  <SelectItem value="week">Última semana</SelectItem>
-                  <SelectItem value="month">Último mês</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-end">
-              <Button variant="outline" onClick={clearFilters} className="w-full">
-                Limpar Filtros
-              </Button>
-            </div>
+            <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+              <SelectTrigger className="w-full md:w-48">
+                <SelectValue placeholder="Status do Pagamento" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os Pagamentos</SelectItem>
+                {paymentStatusOptions.map((status) => (
+                  <SelectItem key={status.value} value={status.value}>
+                    {status.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
 
+      {/* Orders Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Lista de Pedidos</CardTitle>
-          <CardDescription>
-            Visualize e gerencie todos os pedidos realizados
-          </CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            Pedidos ({filteredOrders.length})
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID do Pedido</TableHead>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Pagamento</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredOrders.map((order) => (
-                <TableRow key={order.id} className="hover:bg-muted/50 transition-colors">
-                  <TableCell className="font-mono text-sm">
-                    #{formatOrderNumber(order.id)}
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">
-                        {order.profiles?.full_name || 'Cliente Anônimo'}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {order.profiles?.email}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-semibold">
-                    {formatCurrency(order.total_amount)}
-                  </TableCell>
-                  <TableCell>{getStatusBadge(order.status)}</TableCell>
-                  <TableCell>{getPaymentStatusBadge(order.payment_status)}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {new Date(order.created_at).toLocaleDateString('pt-BR', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openOrderDetails(order)}
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        Ver
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => generateOrderPDF(order)}
-                        disabled={generatingPdf === order.id}
-                      >
-                        <FileText className="w-4 h-4 mr-1" />
-                        {generatingPdf === order.id ? 'Gerando...' : 'PDF'}
-                      </Button>
-                      <div className="flex flex-col gap-1">
-                        <Select
-                          value={order.status}
-                          onValueChange={(value) => updateOrderStatus(order.id, value)}
-                        >
-                          <SelectTrigger className="w-[140px] h-8">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {statusOptions.map((status) => (
-                              <SelectItem key={status.value} value={status.value}>
-                                <div className="flex items-center gap-2">
-                                  <div className={`w-2 h-2 rounded-full ${status.color}`} />
-                                  {status.label}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Select
-                          value={order.payment_status}
-                          onValueChange={(value) => updatePaymentStatus(order.id, value)}
-                        >
-                          <SelectTrigger className="w-[140px] h-8">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {paymentStatusOptions.map((status) => (
-                              <SelectItem key={status.value} value={status.value}>
-                                {status.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID do Pedido</TableHead>
+                  <TableHead>Cliente</TableHead>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Pagamento</TableHead>
+                  <TableHead>Total</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredOrders.map((order) => (
+                  <TableRow key={order.id} className="hover:bg-gray-50">
+                    <TableCell className="font-mono text-sm">
+                      #{formatOrderNumber(order.id)}
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{order.profiles?.full_name || 'Cliente'}</p>
+                        <p className="text-sm text-gray-500">{order.profiles?.email}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm">
+                          {new Date(order.created_at).toLocaleDateString('pt-BR')}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        value={order.status}
+                        onValueChange={(value) => updateOrderStatus(order.id, value)}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {statusOptions.map((status) => (
+                            <SelectItem key={status.value} value={status.value}>
+                              <div className="flex items-center gap-2">
+                                <status.icon className="h-4 w-4" />
+                                {status.label}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        value={order.payment_status}
+                        onValueChange={(value) => updatePaymentStatus(order.id, value)}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {paymentStatusOptions.map((status) => (
+                            <SelectItem key={status.value} value={status.value}>
+                              {status.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell className="font-semibold text-lg">
+                      {formatCurrency(order.total_amount)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center gap-2 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openOrderDetails(order)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openEditOrder(order)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openDeleteConfirm(order)}
+                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
-          {filteredOrders.length === 0 && orders.length > 0 && (
-            <div className="text-center py-8">
-              <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Nenhum pedido encontrado</h3>
-              <p className="text-muted-foreground mb-4">
-                Nenhum pedido corresponde aos filtros aplicados.
-              </p>
-              <Button variant="outline" onClick={clearFilters}>
-                Limpar Filtros
-              </Button>
-            </div>
-          )}
-
-          {orders.length === 0 && (
-            <div className="text-center py-8">
-              <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Nenhum pedido encontrado</h3>
-              <p className="text-muted-foreground">
-                Os pedidos aparecerão aqui quando forem realizados.
+          {filteredOrders.length === 0 && (
+            <div className="text-center py-12">
+              <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-600 mb-2">Nenhum pedido encontrado</h3>
+              <p className="text-gray-500">
+                {searchTerm || statusFilter !== 'all' || paymentFilter !== 'all'
+                  ? 'Tente ajustar os filtros de busca'
+                  : 'Quando houver pedidos, eles aparecerão aqui'}
               </p>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Order Details Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      {/* Order Details Modal */}
+      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Package className="w-5 h-5" />
-              Detalhes do Pedido #{selectedOrder?.id.slice(0, 8)}
+              <Eye className="h-5 w-5" />
+              Detalhes do Pedido #{selectedOrder ? formatOrderNumber(selectedOrder.id) : ''}
             </DialogTitle>
-            <DialogDescription>
-              Informações completas sobre o pedido
-            </DialogDescription>
           </DialogHeader>
-
+          
           {selectedOrder && (
-            <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-                <TabsTrigger value="customer">Cliente</TabsTrigger>
-                <TabsTrigger value="items">Itens</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="overview" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        Informações Gerais
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div>
-                        <span className="text-sm text-muted-foreground">ID do Pedido:</span>
-                        <p className="font-mono text-sm">#{formatOrderNumber(selectedOrder.id)}</p>
-                      </div>
-                      <div>
-                        <span className="text-sm text-muted-foreground">Data de Criação:</span>
-                        <p className="text-sm">{new Date(selectedOrder.created_at).toLocaleString('pt-BR')}</p>
-                      </div>
-                      <div>
-                        <span className="text-sm text-muted-foreground">Última Atualização:</span>
-                        <p className="text-sm">{new Date(selectedOrder.updated_at).toLocaleString('pt-BR')}</p>
-                      </div>
-                      <div>
-                        <span className="text-sm text-muted-foreground">Total:</span>
-                        <p className="text-xl font-bold text-primary">{formatCurrency(selectedOrder.total_amount)}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Package className="w-4 h-4" />
-                        Status do Pedido
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <Label className="text-sm font-medium">Status do Pedido</Label>
-                        <Select
-                          value={selectedOrder.status}
-                          onValueChange={(value) => updateOrderStatus(selectedOrder.id, value)}
-                        >
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {statusOptions.map((status) => (
-                              <SelectItem key={status.value} value={status.value}>
-                                <div className="flex items-center gap-2">
-                                  <div className={`w-2 h-2 rounded-full ${status.color}`} />
-                                  {status.label}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
-                        <Label className="text-sm font-medium">Status do Pagamento</Label>
-                        <Select
-                          value={selectedOrder.payment_status}
-                          onValueChange={(value) => updatePaymentStatus(selectedOrder.id, value)}
-                        >
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {paymentStatusOptions.map((status) => (
-                              <SelectItem key={status.value} value={status.value}>
-                                {status.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <CreditCard className="w-4 h-4" />
-                        Pagamento
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div>
-                        <span className="text-sm text-muted-foreground">Método:</span>
-                        <p className="font-medium">{selectedOrder.payment_method || 'Não informado'}</p>
-                      </div>
-                      <div>
-                        <span className="text-sm text-muted-foreground">Status:</span>
-                        <div className="mt-1">{getPaymentStatusBadge(selectedOrder.payment_status)}</div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="customer" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <User className="w-5 h-5" />
-                      Informações do Cliente
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3">
-                          <User className="w-4 h-4 text-muted-foreground" />
-                          <div>
-                            <p className="font-medium">{selectedOrder.profiles?.full_name || 'Nome não informado'}</p>
-                            <p className="text-sm text-muted-foreground">Nome completo</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-3">
-                          <Mail className="w-4 h-4 text-muted-foreground" />
-                          <div>
-                            <p className="font-medium">{selectedOrder.profiles?.email || 'Email não informado'}</p>
-                            <p className="text-sm text-muted-foreground">Email</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <Phone className="w-4 h-4 text-muted-foreground" />
-                          <div>
-                            <p className="font-medium">{(selectedOrder.profiles as any)?.phone || 'Telefone não informado'}</p>
-                            <p className="text-sm text-muted-foreground">Telefone</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-3">
-                          <MapPin className="w-4 h-4 text-muted-foreground mt-1" />
-                          <div>
-                            <p className="font-medium">Endereço de Entrega</p>
-                            <div className="text-sm text-muted-foreground space-y-1">
-                              {selectedOrder.shipping_address ? (
-                                <p>{selectedOrder.shipping_address}</p>
-                              ) : (
-                                <>
-                                  {(selectedOrder.profiles as any)?.street && (
-                                    <p>{(selectedOrder.profiles as any).street}, {(selectedOrder.profiles as any)?.number}</p>
-                                  )}
-                                  {(selectedOrder.profiles as any)?.city && (
-                                    <p>{(selectedOrder.profiles as any).city} - {(selectedOrder.profiles as any)?.state}</p>
-                                  )}
-                                  {(selectedOrder.profiles as any)?.zip_code && (
-                                    <p>CEP: {(selectedOrder.profiles as any).zip_code}</p>
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+            <div className="space-y-6 mt-4">
+              {/* Customer Info */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    Informações do Cliente
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-600">Nome</Label>
+                      <p className="font-medium">{selectedOrder.profiles?.full_name || 'Não informado'}</p>
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-600">Email</Label>
+                      <p className="font-medium">{selectedOrder.profiles?.email || 'Não informado'}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-semibold text-gray-600">Endereço de Entrega</Label>
+                    <p className="font-medium">{selectedOrder.shipping_address || 'Não informado'}</p>
+                  </div>
+                </CardContent>
+              </Card>
 
-              <TabsContent value="items" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <ShoppingCart className="w-5 h-5" />
-                      Itens do Pedido
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {loadingItems ? (
-                      <div className="space-y-2">
-                        {[...Array(3)].map((_, i) => (
-                          <div key={i} className="h-12 bg-muted rounded animate-pulse" />
-                        ))}
-                      </div>
-                    ) : (
-                      <>
-                        <div className="space-y-4">
-                          {orderItems.map((item) => (
-                            <Card key={item.id} className="p-4">
-                              <div className="flex items-start gap-4">
-                                {/* Product Image */}
-                                <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                                  {item.products?.image_url ? (
-                                    <img
-                                      src={(() => {
-                                        try {
-                                          const parsed = JSON.parse(item.products.image_url);
-                                          return Array.isArray(parsed) ? parsed[0] : item.products.image_url;
-                                        } catch {
-                                          return item.products.image_url;
-                                        }
-                                      })()}
-                                      alt={item.product_name}
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => {
-                                        e.currentTarget.src = "/placeholder.svg";
-                                      }}
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                      <Package className="w-6 h-6 text-muted-foreground" />
-                                    </div>
-                                  )}
-                                </div>
-                                
-                                {/* Product Info */}
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="font-medium text-sm">{item.product_name}</h4>
-                                  {item.products?.sku && (
-                                    <p className="text-xs text-muted-foreground">SKU: {item.products.sku}</p>
-                                  )}
-                                  <div className="flex items-center justify-between mt-2">
-                                    <div className="text-sm text-muted-foreground">
-                                      Qtd: {item.quantity} × {formatCurrency(item.unit_price)}
-                                    </div>
-                                    <div className="font-semibold">
-                                      {formatCurrency(item.total_price)}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </Card>
-                          ))}
-                        </div>
+              {/* Order Info */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Package className="h-5 w-5" />
+                    Informações do Pedido
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-600">Status</Label>
+                      <div className="mt-1">{getStatusBadge(selectedOrder.status)}</div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-600">Pagamento</Label>
+                      <div className="mt-1">{getPaymentBadge(selectedOrder.payment_status)}</div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-600">Método</Label>
+                      <p className="font-medium capitalize">{selectedOrder.payment_method}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-600">Data do Pedido</Label>
+                      <p className="font-medium">
+                        {new Date(selectedOrder.created_at).toLocaleString('pt-BR')}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-600">Total</Label>
+                      <p className="text-xl font-bold text-primary">{formatCurrency(selectedOrder.total_amount)}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                        <Separator className="my-4" />
-                        
-                        <div className="flex justify-between items-center">
-                          <span className="text-lg font-semibold">Total do Pedido:</span>
-                          <span className="text-2xl font-bold text-primary">
-                            {formatCurrency(selectedOrder.total_amount)}
-                          </span>
+              {/* Order Items */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Itens do Pedido</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {orderItems[selectedOrder.id] && orderItems[selectedOrder.id].length > 0 ? (
+                    <div className="space-y-4">
+                      {orderItems[selectedOrder.id].map((item) => (
+                        <div key={item.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                          {item.products?.image_url && (
+                            <img
+                              src={item.products.image_url}
+                              alt={item.product_name}
+                              className="w-16 h-16 object-contain bg-white rounded-lg border"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <h4 className="font-semibold">{item.product_name}</h4>
+                            <p className="text-sm text-gray-500">SKU: {item.products?.sku || 'N/A'}</p>
+                            <p className="text-sm text-gray-500">
+                              Quantidade: {item.quantity} × {formatCurrency(item.unit_price)}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-lg">{formatCurrency(item.total_price)}</p>
+                          </div>
                         </div>
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-center py-4">Nenhum item encontrado</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           )}
         </DialogContent>
       </Dialog>
 
-      {/* Edit Order Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      {/* Edit Order Modal */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Edit className="w-5 h-5" />
-              Editar Pedido #{editingOrder?.id.slice(0, 8)}
+              <Edit className="h-5 w-5" />
+              Editar Pedido #{editingOrder.id ? formatOrderNumber(editingOrder.id) : ''}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Status do Pedido</Label>
+                <Select
+                  value={editingOrder.status || ''}
+                  onValueChange={(value) => setEditingOrder(prev => ({ ...prev, status: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((status) => (
+                      <SelectItem key={status.value} value={status.value}>
+                        <div className="flex items-center gap-2">
+                          <status.icon className="h-4 w-4" />
+                          {status.label}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Status do Pagamento</Label>
+                <Select
+                  value={editingOrder.payment_status || ''}
+                  onValueChange={(value) => setEditingOrder(prev => ({ ...prev, payment_status: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {paymentStatusOptions.map((status) => (
+                      <SelectItem key={status.value} value={status.value}>
+                        {status.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Método de Pagamento</Label>
+              <Input
+                value={editingOrder.payment_method || ''}
+                onChange={(e) => setEditingOrder(prev => ({ ...prev, payment_method: e.target.value }))}
+                placeholder="PIX, Cartão, Boleto..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Endereço de Entrega</Label>
+              <Input
+                value={editingOrder.shipping_address || ''}
+                onChange={(e) => setEditingOrder(prev => ({ ...prev, shipping_address: e.target.value }))}
+                placeholder="Endereço completo..."
+              />
+            </div>
+
+            <div className="flex gap-4 pt-4">
+              <Button variant="outline" onClick={() => setIsEditOpen(false)} className="flex-1">
+                Cancelar
+              </Button>
+              <Button onClick={saveOrderChanges} className="flex-1">
+                <Save className="h-4 w-4 mr-2" />
+                Salvar Alterações
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              Confirmar Exclusão
             </DialogTitle>
             <DialogDescription>
-              Edite as informações do pedido
+              Tem certeza que deseja excluir este pedido? Esta ação não pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
-
-          {editingOrder && (
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              const updates = {
-                status: formData.get('status') as string,
-                payment_status: formData.get('payment_status') as string,
-                payment_method: formData.get('payment_method') as string,
-                shipping_address: formData.get('shipping_address') as string,
-              };
-              updateOrderDetails(editingOrder.id, updates);
-            }} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status do Pedido</Label>
-                  <Select name="status" defaultValue={editingOrder.status}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {statusOptions.map((status) => (
-                        <SelectItem key={status.value} value={status.value}>
-                          <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${status.color}`} />
-                            {status.label}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="payment_status">Status do Pagamento</Label>
-                  <Select name="payment_status" defaultValue={editingOrder.payment_status}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {paymentStatusOptions.map((status) => (
-                        <SelectItem key={status.value} value={status.value}>
-                          {status.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+          
+          {orderToDelete && (
+            <div className="space-y-4 mt-4">
+              <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                <h4 className="font-semibold text-red-800">Pedido a ser excluído:</h4>
+                <p className="text-sm text-red-700">
+                  ID: #{formatOrderNumber(orderToDelete.id)}
+                </p>
+                <p className="text-sm text-red-700">
+                  Cliente: {orderToDelete.profiles?.full_name}
+                </p>
+                <p className="text-sm text-red-700">
+                  Total: {formatCurrency(orderToDelete.total_amount)}
+                </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="payment_method">Método de Pagamento</Label>
-                <Input
-                  id="payment_method"
-                  name="payment_method"
-                  defaultValue={editingOrder.payment_method || ''}
-                  placeholder="Ex: Cartão de Crédito, PIX, Boleto..."
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="shipping_address">Endereço de Entrega</Label>
-                <Textarea
-                  id="shipping_address"
-                  name="shipping_address"
-                  defaultValue={editingOrder.shipping_address || ''}
-                  placeholder="Endereço completo para entrega..."
-                  rows={3}
-                />
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                  <X className="w-4 h-4 mr-2" />
+              <div className="flex gap-4">
+                <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)} className="flex-1">
                   Cancelar
                 </Button>
-                <Button type="submit">
-                  <Save className="w-4 h-4 mr-2" />
-                  Salvar Alterações
+                <Button 
+                  variant="destructive" 
+                  onClick={() => deleteOrder(orderToDelete.id)} 
+                  className="flex-1"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Excluir Pedido
                 </Button>
               </div>
-            </form>
+            </div>
           )}
         </DialogContent>
       </Dialog>
