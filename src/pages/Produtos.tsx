@@ -167,7 +167,6 @@ const Produtos = () => {
     filters.priceRange[0] > 0 || filters.priceRange[1] < 10000,
   ].filter(Boolean).length;
 
-
   const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
 
@@ -445,8 +444,11 @@ const Produtos = () => {
                     step="50"
                     value={filters.priceRange[0]}
                     onChange={(e) =>
-                      updateFilters({ 
-                        priceRange: [Number(e.target.value), filters.priceRange[1]] 
+                      updateFilters({
+                        priceRange: [
+                          Number(e.target.value),
+                          filters.priceRange[1],
+                        ],
                       })
                     }
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
@@ -458,8 +460,11 @@ const Produtos = () => {
                     step="50"
                     value={filters.priceRange[1]}
                     onChange={(e) =>
-                      updateFilters({ 
-                        priceRange: [filters.priceRange[0], Number(e.target.value)] 
+                      updateFilters({
+                        priceRange: [
+                          filters.priceRange[0],
+                          Number(e.target.value),
+                        ],
                       })
                     }
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
@@ -548,23 +553,30 @@ const Produtos = () => {
 
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    
+
                     {/* Discount Badge - Top Left */}
-                    {product.original_price && product.original_price !== product.price && (
-                      <Badge className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-xs px-2 py-1 shadow-xl border-0 rounded-lg">
-                        -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
-                      </Badge>
-                    )}
-                    
+                    {product.original_price &&
+                      product.original_price !== product.price && (
+                        <Badge className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-xs px-2 py-1 shadow-xl border-0 rounded-lg">
+                          -
+                          {Math.round(
+                            ((product.original_price - product.price) /
+                              product.original_price) *
+                              100
+                          )}
+                          %
+                        </Badge>
+                      )}
+
                     {/* Stock Badge - Top Right */}
                     <Badge
                       className={`absolute top-3 right-3 text-xs font-semibold px-2 py-1 border-0 rounded-lg shadow-lg ${
                         product.in_stock
-                          ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
-                          : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white'
+                          ? "bg-gradient-to-r from-green-500 to-green-600 text-white"
+                          : "bg-gradient-to-r from-gray-500 to-gray-600 text-white"
                       }`}
                     >
-                      {product.in_stock ? 'Em Estoque' : 'Indisponível'}
+                      {product.in_stock ? "Em Estoque" : "Indisponível"}
                     </Badge>
                   </div>
 
@@ -611,15 +623,16 @@ const Produtos = () => {
 
                     {/* Price */}
                     <div className="space-y-2">
-                      {product.original_price && product.original_price !== product.price ? (
+                      {product.original_price &&
+                      product.original_price !== product.price ? (
                         <div className="space-y-1">
                           <div className="flex items-baseline gap-2">
                             <span className="text-sm text-gray-500 line-through">
                               {formatCurrency(product.original_price)}
                             </span>
                           </div>
-                          <PixBadge 
-                            price={product.price} 
+                          <PixBadge
+                            price={product.price}
                             originalPrice={product.original_price}
                           />
                         </div>
