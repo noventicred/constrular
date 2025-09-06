@@ -332,38 +332,42 @@ const Header = () => {
             {/* Mobile Menu */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button className="md:hidden h-12 w-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 hover:border-primary/40 hover:from-primary/20 hover:to-primary/10 transition-all duration-200 shadow-sm hover:shadow-md">
-                  <Menu className="h-5 w-5 text-primary" />
+                <Button className="md:hidden h-12 w-12 rounded-xl bg-white border-2 border-gray-200 hover:border-primary hover:bg-primary/5 transition-all duration-200 shadow-sm hover:shadow-md">
+                  <Menu className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80 p-0">
-                <SheetHeader className="px-6 py-6 border-b bg-gradient-to-r from-primary/5 to-primary/10">
+              <SheetContent side="right" className="w-80 p-0 flex flex-col h-full">
+                <SheetHeader className="px-6 py-6 border-b bg-gradient-to-r from-primary/5 to-primary/10 flex-shrink-0">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center">
                       <Menu className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <SheetTitle className="text-lg font-bold text-gray-800">Menu Principal</SheetTitle>
+                      <SheetTitle className="text-lg font-bold text-gray-800">
+                        Menu Principal
+                      </SheetTitle>
                       <p className="text-sm text-gray-600">Navegue pela loja</p>
                     </div>
                   </div>
                 </SheetHeader>
 
-                <div className="p-6 space-y-6">
-
+                <div className="flex-1 overflow-y-auto">
+                  <div className="p-6 space-y-6">
                   {/* Categories */}
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 mb-3">
                       <Package className="h-5 w-5 text-primary" />
                       <h3 className="font-bold text-gray-800">Categorias</h3>
                     </div>
-                    
+
                     <div className="space-y-2">
                       {categories.map((category) => (
                         <button
                           key={category.id}
                           className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
-                          onClick={() => handleCategoryClick(category.id, category.name)}
+                          onClick={() =>
+                            handleCategoryClick(category.id, category.name)
+                          }
                         >
                           <img
                             src={category.image_url || "/placeholder.svg"}
@@ -395,7 +399,7 @@ const Header = () => {
                       <Info className="h-5 w-5 text-primary" />
                       <h3 className="font-bold text-gray-800">Páginas</h3>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Link
                         to="/produtos"
@@ -405,7 +409,9 @@ const Header = () => {
                         <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
                           <Package className="h-4 w-4 text-primary" />
                         </div>
-                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">Produtos</span>
+                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
+                          Produtos
+                        </span>
                       </Link>
                       <Link
                         to="/sobre-nos"
@@ -415,7 +421,9 @@ const Header = () => {
                         <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
                           <Info className="h-4 w-4 text-primary" />
                         </div>
-                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">Sobre Nós</span>
+                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
+                          Sobre Nós
+                        </span>
                       </Link>
                       <Link
                         to="/contato"
@@ -425,7 +433,9 @@ const Header = () => {
                         <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
                           <MessageCircle className="h-4 w-4 text-primary" />
                         </div>
-                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">Contato</span>
+                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
+                          Contato
+                        </span>
                       </Link>
                       <Link
                         to="/entrega"
@@ -435,7 +445,9 @@ const Header = () => {
                         <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
                           <Truck className="h-4 w-4 text-primary" />
                         </div>
-                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">Entrega</span>
+                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
+                          Entrega
+                        </span>
                       </Link>
                       <Link
                         to="/trocas-e-devolucoes"
@@ -445,7 +457,9 @@ const Header = () => {
                         <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
                           <RefreshCw className="h-4 w-4 text-primary" />
                         </div>
-                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">Trocas e Devoluções</span>
+                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">
+                          Trocas e Devoluções
+                        </span>
                       </Link>
                     </div>
                   </div>
@@ -538,6 +552,7 @@ const Header = () => {
                       </div>
                     )}
                   </div>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
@@ -556,7 +571,7 @@ const Header = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            
+
             {/* Mobile Search Results */}
             {isSearchOpen && searchResults.length > 0 && (
               <div className="absolute top-full left-0 right-0 bg-white border border-gray-100 rounded-xl shadow-xl z-50 mt-1 max-h-64 overflow-y-auto">
@@ -575,19 +590,23 @@ const Header = () => {
                       }}
                     />
                     <div className="flex-1 text-left">
-                      <div className="font-medium text-sm line-clamp-1">{product.name}</div>
+                      <div className="font-medium text-sm line-clamp-1">
+                        {product.name}
+                      </div>
                       <div className="text-primary font-bold text-sm">
                         {formatCurrency(product.price)}
                       </div>
                     </div>
                   </button>
                 ))}
-                
+
                 {searchTerm.length >= 2 && (
                   <button
                     className="w-full p-3 text-center text-sm text-white bg-primary hover:bg-primary/90 transition-colors rounded-b-xl"
                     onClick={() => {
-                      navigate(`/produtos?search=${encodeURIComponent(searchTerm)}`);
+                      navigate(
+                        `/produtos?search=${encodeURIComponent(searchTerm)}`
+                      );
                       setSearchTerm("");
                       setIsSearchOpen(false);
                     }}
