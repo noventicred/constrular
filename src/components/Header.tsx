@@ -4,7 +4,6 @@ import {
   Phone,
   MapPin,
   ChevronDown,
-  ChevronRight,
   X,
   Package,
   Info,
@@ -14,6 +13,7 @@ import {
   User,
   LogOut,
   Settings,
+  ShoppingCart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,9 +35,10 @@ import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
-import { getProductImageUrl, createImageProps } from "@/lib/imageUtils";
+import { getProductImageUrl } from "@/lib/imageUtils";
 
 interface Category {
   id: string;
@@ -54,38 +55,25 @@ interface Product {
 }
 
 const Header = () => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [mobileSearchTerm, setMobileSearchTerm] = useState("");
-  const [mobileSearchResults, setMobileSearchResults] = useState<Product[]>([]);
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  
   const { user, isAdmin, signOut } = useAuth();
+  const { itemCount } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
   const searchRef = useRef<HTMLDivElement>(null);
-  const mobileSearchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchCategories();
-
-    // Close search dropdown when clicking outside
+    
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsSearchOpen(false);
-      }
-      if (
-        mobileSearchRef.current &&
-        !mobileSearchRef.current.contains(event.target as Node)
-      ) {
-        setIsMobileSearchOpen(false);
       }
     };
 
@@ -108,17 +96,17 @@ const Header = () => {
     }
   };
 
-  // Search products function
   const searchProducts = async (query: string) => {
     if (!query || query.length < 2) {
+      setSearchResults([]);
       return [];
     }
 
     try {
       const { data, error } = await supabase
         .from("products")
-        .select("id, name, price, image_url, sku")
-        .or(`name.ilike.%${query}%, description.ilike.%${query}%`)
+        .select("id, name, price, image_url")
+        .ilike("name", `%${query}%`)
         .eq("in_stock", true)
         .limit(5);
 
@@ -130,7 +118,6 @@ const Header = () => {
     }
   };
 
-  // Handle desktop search
   useEffect(() => {
     const delayedSearch = setTimeout(async () => {
       if (searchTerm.length >= 2) {
@@ -146,69 +133,62 @@ const Header = () => {
     return () => clearTimeout(delayedSearch);
   }, [searchTerm]);
 
-  // Handle mobile search
-  useEffect(() => {
-    const delayedSearch = setTimeout(async () => {
-      if (mobileSearchTerm.length >= 2) {
-        const results = await searchProducts(mobileSearchTerm);
-        setMobileSearchResults(results);
-        setIsMobileSearchOpen(true);
-      } else {
-        setMobileSearchResults([]);
-        setIsMobileSearchOpen(false);
-      }
-    }, 300);
-
-    return () => clearTimeout(delayedSearch);
-  }, [mobileSearchTerm]);
-
   const handleProductClick = (productId: string) => {
     setSearchTerm("");
-    setMobileSearchTerm("");
     setIsSearchOpen(false);
-    setIsMobileSearchOpen(false);
     setIsMobileMenuOpen(false);
     navigate(`/produto/${productId}`);
   };
 
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
-    console.log("Category clicked:", categoryId, categoryName);
-
-    // Fechar todos os menus
-    setIsDropdownOpen(false);
     setIsCategoriesOpen(false);
     setIsMobileMenuOpen(false);
-
-    // Navegar diretamente
     navigate(`/produtos?categoria=${categoryId}`);
   };
-  return (
-    <header className="bg-background border-b shadow-sm z-40">
-      {/* Main header */}
-      <div className="container mx-auto px-4 py-4">
-        {/* Desktop Layout */}
-        <div className="hidden md:flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center justify-start">
-            <Link
-              to={isAdmin ? "/admin" : "/"}
-              className="hover:opacity-80 transition-opacity"
-            >
-              <img
-                src="/logo.png"
-                alt="Nova Casa Construção"
-                className="h-32 w-auto"
-              />
-            </Link>
-          </div>
 
-          {/* Search bar - Desktop */}
-          <div className="flex-1 max-w-2xl mx-8">
-            <div className="relative" ref={searchRef}>
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 z-10" />
+  return (
+    <header className="bg-white border-b shadow-sm sticky top-0 z-50">
+      {/* Top Bar - Desktop Only */}
+      <div className="hidden md:block bg-primary/5 border-b">
+        <div className="container mx-auto px-4 py-2">
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-6 text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-primary" />
+                <span>(11) 99999-9999</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary" />
+                <span>Sorocaba, SP</span>
+              </div>
+              <span>🚚 Entrega em até 24h</span>
+            </div>
+            <div className="text-primary font-medium">
+              Ofertas até 50% OFF
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Header */}
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between gap-4">
+          {/* Logo */}
+          <Link to="/" className="flex-shrink-0">
+            <img
+              src="/logo.png"
+              alt="Nova Casa Construção"
+              className="h-16 md:h-20 w-auto"
+            />
+          </Link>
+
+          {/* Search Bar - Desktop */}
+          <div className="hidden md:flex flex-1 max-w-2xl mx-8">
+            <div className="relative w-full" ref={searchRef}>
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
               <Input
-                placeholder="Busque por cimento, tijolo, tinta..."
-                className="pl-10 h-12 text-base"
+                placeholder="Buscar produtos..."
+                className="pl-12 h-12 text-base border-2 border-gray-200 focus:border-primary"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onFocus={() => {
@@ -218,42 +198,37 @@ const Header = () => {
                 }}
               />
 
-              {/* Search Results Dropdown */}
+              {/* Search Results */}
               {isSearchOpen && searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-background border rounded-lg shadow-lg z-50 mt-1 max-h-80 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 mt-1 max-h-80 overflow-y-auto">
                   {searchResults.map((product) => (
                     <button
                       key={product.id}
-                      className="w-full flex items-center gap-3 p-3 hover:bg-muted transition-colors border-b last:border-b-0"
+                      className="w-full flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors border-b last:border-b-0"
                       onClick={() => handleProductClick(product.id)}
                     >
                       <img
                         src={getProductImageUrl(product.image_url)}
                         alt={product.name}
-                        className="w-12 h-12 object-cover rounded-lg"
+                        className="w-12 h-12 object-cover rounded"
                         onError={(e) => {
                           e.currentTarget.src = "/placeholder.svg";
                         }}
                       />
                       <div className="flex-1 text-left">
-                        <div className="font-medium text-sm">
-                          {product.name}
-                        </div>
+                        <div className="font-medium text-sm">{product.name}</div>
                         <div className="text-primary font-bold text-sm">
                           {formatCurrency(product.price)}
                         </div>
                       </div>
-                      <Search className="h-4 w-4 text-muted-foreground" />
                     </button>
                   ))}
-
+                  
                   {searchTerm.length >= 2 && (
                     <button
-                      className="w-full p-3 text-center text-sm text-primary hover:bg-muted transition-colors border-t"
+                      className="w-full p-4 text-center text-sm text-primary hover:bg-gray-50 transition-colors border-t"
                       onClick={() => {
-                        navigate(
-                          `/produtos?search=${encodeURIComponent(searchTerm)}`
-                        );
+                        navigate(`/produtos?search=${encodeURIComponent(searchTerm)}`);
                         setSearchTerm("");
                         setIsSearchOpen(false);
                       }}
@@ -266,18 +241,15 @@ const Header = () => {
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-4">
+          {/* Right Actions */}
+          <div className="flex items-center gap-3">
+            {/* User Menu - Desktop */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="hidden md:flex gap-2"
-                  >
+                  <Button variant="ghost" className="hidden md:flex gap-2">
                     <User className="h-4 w-4" />
-                    {user.email}
+                    <span className="max-w-32 truncate">{user.email}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -329,339 +301,257 @@ const Header = () => {
             ) : (
               <Button
                 variant="ghost"
-                size="sm"
-                className="hidden md:flex"
+                className="hidden md:flex gap-2"
                 onClick={() => navigate("/auth")}
               >
-                <User className="mr-2 h-4 w-4" />
+                <User className="h-4 w-4" />
                 Entrar
               </Button>
             )}
+
+            {/* Cart Button */}
+            <Button
+              variant="outline"
+              className="relative"
+              onClick={() => navigate("/carrinho")}
+            >
+              <ShoppingCart className="h-4 w-4" />
+              {itemCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
+              <span className="hidden md:inline ml-2">Carrinho</span>
+            </Button>
+
+            {/* Mobile Menu */}
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm" className="md:hidden">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80 p-0">
+                <SheetHeader className="px-6 py-4 border-b">
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+
+                <div className="p-6 space-y-4">
+                  {/* Mobile Search */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                    <Input
+                      placeholder="Buscar produtos..."
+                      className="pl-10"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Categories */}
+                  <div className="space-y-2">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-between"
+                      onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                    >
+                      <span>Categorias</span>
+                      <ChevronDown className={`h-4 w-4 transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} />
+                    </Button>
+                    
+                    {isCategoriesOpen && (
+                      <div className="ml-4 space-y-1">
+                        {categories.map((category) => (
+                          <button
+                            key={category.id}
+                            className="block w-full text-left text-sm text-muted-foreground hover:text-primary py-2"
+                            onClick={() => handleCategoryClick(category.id, category.name)}
+                          >
+                            {category.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Navigation Links */}
+                  <div className="space-y-2">
+                    <Link
+                      to="/produtos"
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Package className="h-4 w-4 text-primary" />
+                      Produtos
+                    </Link>
+                    <Link
+                      to="/sobre-nos"
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Info className="h-4 w-4 text-primary" />
+                      Sobre Nós
+                    </Link>
+                    <Link
+                      to="/contato"
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <MessageCircle className="h-4 w-4 text-primary" />
+                      Contato
+                    </Link>
+                    <Link
+                      to="/entrega"
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Truck className="h-4 w-4 text-primary" />
+                      Entrega
+                    </Link>
+                    <Link
+                      to="/trocas-e-devolucoes"
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <RefreshCw className="h-4 w-4 text-primary" />
+                      Trocas e Devoluções
+                    </Link>
+                  </div>
+
+                  {/* User Section */}
+                  <div className="border-t pt-4">
+                    {user ? (
+                      <div className="space-y-2">
+                        <div className="text-sm text-muted-foreground mb-3">
+                          {user.email}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start gap-3"
+                          onClick={() => {
+                            setIsMobileMenuOpen(false);
+                            navigate("/minha-conta");
+                          }}
+                        >
+                          <User className="h-4 w-4" />
+                          Minha Conta
+                        </Button>
+                        {isAdmin && (
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start gap-3"
+                            onClick={() => {
+                              setIsMobileMenuOpen(false);
+                              navigate("/admin");
+                            }}
+                          >
+                            <Settings className="h-4 w-4" />
+                            Painel Admin
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={async () => {
+                            setIsMobileMenuOpen(false);
+                            try {
+                              const { error } = await signOut();
+                              if (!error) {
+                                navigate("/");
+                              }
+                            } catch (err) {
+                              console.error(err);
+                            }
+                          }}
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Sair
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        className="w-full gap-3"
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          navigate("/auth");
+                        }}
+                      >
+                        <User className="h-4 w-4" />
+                        Entrar
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
 
-        {/* Mobile Layout */}
-        <div className="md:hidden space-y-4">
-          {/* Top Row - Logo and Menu */}
-          <div className="flex items-center justify-between">
-            <Link
-              to={isAdmin ? "/admin" : "/"}
-              className="hover:opacity-80 transition-opacity"
-            >
-              <img
-                src="/logo.png"
-                alt="Nova Casa Construção"
-                className="h-20 w-auto"
-              />
-            </Link>
-
-            <div className="flex items-center gap-3">
-              {/* User Menu Mobile */}
-              {user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex gap-2 h-10 px-3"
-                    >
-                      <User className="h-4 w-4" />
-                      <span className="hidden xs:inline text-sm truncate max-w-20">
-                        {user.email?.split('@')[0]}
-                      </span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => navigate("/minha-conta")}>
-                      <User className="mr-2 h-4 w-4" />
-                      Minha Conta
-                    </DropdownMenuItem>
-                    {isAdmin && (
-                      <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => navigate("/admin")}>
-                          <Settings className="mr-2 h-4 w-4" />
-                          Painel Admin
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={async () => {
-                        try {
-                          const { error } = await signOut();
-                          if (error) {
-                            toast({
-                              title: "Erro",
-                              description: error.message,
-                              variant: "destructive",
-                            });
-                          } else {
-                            toast({
-                              title: "Sucesso",
-                              description: "Logout realizado com sucesso!",
-                            });
-                            navigate("/");
-                          }
-                        } catch (err) {
-                          toast({
-                            title: "Erro inesperado",
-                            description: "Tente novamente mais tarde.",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sair
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex gap-2 h-10 px-3"
-                  onClick={() => navigate("/auth")}
-                >
-                  <User className="h-4 w-4" />
-                  <span className="text-sm">Entrar</span>
-                </Button>
-              )}
-
-              {/* Menu Hambúrguer */}
-              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-                <SheetTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="relative h-12 w-12 rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent hover:from-primary/20 hover:via-primary/10 hover:to-primary/5 border border-primary/20 hover:border-primary/40 transition-all duration-500 group shadow-lg hover:shadow-xl backdrop-blur-sm"
-                  >
-                    <div className="relative w-6 h-6 flex flex-col justify-center items-center">
-                      {/* Glow effect */}
-                      <div className="absolute inset-0 bg-primary/20 rounded-full blur-md scale-0 group-hover:scale-150 transition-all duration-500" />
-
-                      {/* Top line */}
-                      <span
-                        className={`absolute block h-0.5 w-6 bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-300 ease-out shadow-sm ${
-                          isMobileMenuOpen
-                            ? "rotate-45 translate-y-0"
-                            : "-translate-y-2"
-                        }`}
-                      />
-
-                      {/* Middle line */}
-                      <span
-                        className={`absolute block h-0.5 w-6 bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-300 ease-out shadow-sm ${
-                          isMobileMenuOpen
-                            ? "opacity-0 scale-0"
-                            : "opacity-100 scale-100"
-                        }`}
-                      />
-
-                      {/* Bottom line */}
-                      <span
-                        className={`absolute block h-0.5 w-6 bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-300 ease-out shadow-sm ${
-                          isMobileMenuOpen
-                            ? "-rotate-45 translate-y-0"
-                            : "translate-y-2"
-                        }`}
-                      />
-                    </div>
-
-                    {/* Animated ring border */}
-                    <div
-                      className={`absolute inset-0 rounded-2xl border-2 border-primary/30 transition-all duration-300 ${
-                        isMobileMenuOpen
-                          ? "scale-110 opacity-100"
-                          : "scale-100 opacity-0"
-                      }`}
-                    />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-80 p-0">
-                  <SheetHeader className="px-6 py-4 border-b">
-                    <SheetTitle className="text-xl font-bold text-primary">
-                      Menu
-                    </SheetTitle>
-                  </SheetHeader>
-
-                  <div className="p-0">
-                    {/* Navegação Principal */}
-                    <div className="p-6 space-y-4">
-                      <Link
-                        to="/produtos"
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <Package className="h-5 w-5 text-primary" />
-                        <span className="font-medium">Produtos</span>
-                      </Link>
-
-                      <Link
-                        to="/sobre-nos"
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <Info className="h-5 w-5 text-primary" />
-                        <span className="font-medium">Sobre Nós</span>
-                      </Link>
-
-                      <Link
-                        to="/contato"
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <MessageCircle className="h-5 w-5 text-primary" />
-                        <span className="font-medium">Contato</span>
-                      </Link>
-
-                      <Link
-                        to="/entrega"
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <Truck className="h-5 w-5 text-primary" />
-                        <span className="font-medium">Entrega</span>
-                      </Link>
-
-                      <Link
-                        to="/trocas-e-devolucoes"
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <RefreshCw className="h-5 w-5 text-primary" />
-                        <span className="font-medium">Trocas e Devoluções</span>
-                      </Link>
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-          </div>
-
-          {/* Search Bar Mobile */}
-          <div className="relative" ref={mobileSearchRef}>
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 z-10" />
+        {/* Mobile Search Bar */}
+        <div className="md:hidden mt-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="Buscar produtos..."
-              className="pl-10 h-12 text-base bg-muted/50 border-primary/20 focus:border-primary"
-              value={mobileSearchTerm}
-              onChange={(e) => setMobileSearchTerm(e.target.value)}
-              onFocus={() => {
-                if (mobileSearchResults.length > 0) {
-                  setIsMobileSearchOpen(true);
-                }
-              }}
+              className="pl-10 border-2 border-gray-200 focus:border-primary"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-
-            {/* Mobile Search Results */}
-            {isMobileSearchOpen && mobileSearchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-background border rounded-lg shadow-lg z-50 mt-1 max-h-60 overflow-y-auto">
-                {mobileSearchResults.map((product) => (
-                  <button
-                    key={product.id}
-                    className="w-full flex items-center gap-3 p-3 hover:bg-muted transition-colors border-b last:border-b-0"
-                    onClick={() => handleProductClick(product.id)}
-                  >
-                    <img
-                      src={getProductImageUrl(product.image_url)}
-                      alt={product.name}
-                      className="w-10 h-10 object-cover rounded-lg"
-                      onError={(e) => {
-                        e.currentTarget.src = "/placeholder.svg";
-                      }}
-                    />
-                    <div className="flex-1 text-left">
-                      <div className="font-medium text-sm line-clamp-1">
-                        {product.name}
-                      </div>
-                      <div className="text-primary font-bold text-sm">
-                        {formatCurrency(product.price)}
-                      </div>
-                    </div>
-                    <Search className="h-4 w-4 text-muted-foreground" />
-                  </button>
-                ))}
-
-                {mobileSearchTerm.length >= 2 && (
-                  <button
-                    className="w-full p-3 text-center text-sm text-primary hover:bg-muted transition-colors border-t"
-                    onClick={() => {
-                      navigate(
-                        `/produtos?search=${encodeURIComponent(
-                          mobileSearchTerm
-                        )}`
-                      );
-                      setMobileSearchTerm("");
-                      setIsMobileSearchOpen(false);
-                      setIsMobileMenuOpen(false);
-                    }}
-                  >
-                    Ver todos os resultados para "{mobileSearchTerm}"
-                  </button>
-                )}
-              </div>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Bottom Navigation Bar - Desktop */}
-      <div className="hidden md:block">
-        <nav className="bg-muted/30 border-t">
-          <div className="container mx-auto px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Phone className="h-4 w-4 text-primary" />
-                <span className="font-medium">(11) 99999-9999</span>
-                <div className="w-1 h-1 bg-muted-foreground/50 rounded-full mx-2" />
-                <MapPin className="h-4 w-4 text-primary" />
-                <span>Sorocaba, SP</span>
-                <div className="w-1 h-1 bg-muted-foreground/50 rounded-full mx-2" />
-                <span>🚚 Entrega em até 24h</span>
-              </div>
+      {/* Navigation Bar - Desktop */}
+      <div className="hidden md:block border-t bg-gray-50">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-8">
+              {/* Categories Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <Package className="h-4 w-4" />
+                    Categorias
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-64">
+                  {categories.map((category) => (
+                    <DropdownMenuItem
+                      key={category.id}
+                      onClick={() => handleCategoryClick(category.id, category.name)}
+                    >
+                      {category.name}
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/produtos")}>
+                    Ver Todos os Produtos
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-              <div className="flex items-center gap-6 text-sm">
-                <Link
-                  to="/produtos"
-                  className="hover:text-primary transition-colors"
-                >
+              {/* Navigation Links */}
+              <nav className="flex items-center gap-6 text-sm font-medium">
+                <Link to="/produtos" className="hover:text-primary transition-colors">
                   Produtos
                 </Link>
-                <Link
-                  to="/sobre-nos"
-                  className="hover:text-primary transition-colors"
-                >
+                <Link to="/sobre-nos" className="hover:text-primary transition-colors">
                   Sobre Nós
                 </Link>
-                <Link
-                  to="/contato"
-                  className="hover:text-primary transition-colors"
-                >
+                <Link to="/contato" className="hover:text-primary transition-colors">
                   Contato
                 </Link>
-                <Link
-                  to="/entrega"
-                  className="hover:text-primary transition-colors"
-                >
+                <Link to="/entrega" className="hover:text-primary transition-colors">
                   Entrega
                 </Link>
-                <Link
-                  to="/trocas-e-devolucoes"
-                  className="hover:text-primary transition-colors"
-                >
+                <Link to="/trocas-e-devolucoes" className="hover:text-primary transition-colors">
                   Trocas e Devoluções
                 </Link>
-              </div>
-
-              <div className="text-sm text-muted-foreground">
-                <span className="text-primary font-medium">Ofertas</span> até 50%
-                OFF
-              </div>
+              </nav>
             </div>
           </div>
-        </nav>
+        </div>
       </div>
     </header>
   );
