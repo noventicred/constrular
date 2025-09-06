@@ -330,9 +330,7 @@ const ProductForm = () => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {/* Coluna 1: Informações Básicas */}
-          <div className="space-y-8">
+        <div className="space-y-8">
             <Card className="shadow-lg border-0">
             <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b">
               <div className="flex items-center gap-3">
@@ -412,10 +410,7 @@ const ProductForm = () => {
               </div>
             </CardContent>
           </Card>
-          </div>
 
-          {/* Coluna 2: Preços e Imagens */}
-          <div className="space-y-8">
           {/* Preços e Desconto */}
           <Card className="shadow-lg border-0">
             <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
@@ -666,10 +661,6 @@ const ProductForm = () => {
               </div>
             </CardContent>
           </Card>
-          </div>
-
-          {/* Coluna 3: Comentários e Preview */}
-          <div className="space-y-8">
             {/* Comentários do Produto */}
             <Card className="shadow-lg border-0">
               <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 border-b">
@@ -800,12 +791,9 @@ const ProductForm = () => {
                 )}
               </CardContent>
             </Card>
-          </div>
 
-        </form>
-
-        {/* Actions - Full Width */}
-        <div className="flex flex-col sm:flex-row gap-4 pt-8 xl:col-span-3">
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row gap-4 pt-6">
             <Button
               type="button"
               variant="outline"
@@ -833,6 +821,7 @@ const ProductForm = () => {
                 </>
               )}
             </Button>
+          </div>
         </div>
       </div>
     </div>
