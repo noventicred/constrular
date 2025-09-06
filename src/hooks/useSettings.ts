@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Settings {
   whatsapp_number: string;
@@ -11,11 +11,11 @@ interface Settings {
 
 export const useSettings = () => {
   const [settings, setSettings] = useState<Settings>({
-    whatsapp_number: '5511999999999',
-    store_name: 'Minha Loja',
-    store_email: 'contato@minhaloja.com',
-    free_shipping_threshold: '299',
-    default_shipping_cost: '29.90'
+    whatsapp_number: "5511999999999",
+    store_name: "Minha Loja",
+    store_email: "contato@minhaloja.com",
+    free_shipping_threshold: "299",
+    default_shipping_cost: "29.90",
   });
   const [loading, setLoading] = useState(true);
 
@@ -26,34 +26,33 @@ export const useSettings = () => {
   const fetchSettings = async () => {
     try {
       const { data, error } = await supabase
-        .from('settings')
-        .select('key, value');
+        .from("settings")
+        .select("key, value");
 
       if (error) {
-        console.error('Error fetching settings:', error);
+        console.error("Error fetching settings:", error);
         return;
       }
 
       const settingsMap = data.reduce((acc, setting) => {
-        acc[setting.key as keyof Settings] = setting.value || '';
+        acc[setting.key as keyof Settings] = setting.value || "";
         return acc;
       }, {} as Partial<Settings>);
 
-      setSettings(prev => ({ ...prev, ...settingsMap }));
+      setSettings((prev) => ({ ...prev, ...settingsMap }));
     } catch (error) {
-      console.error('Error fetching settings:', error);
+      console.error("Error fetching settings:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const getSetting = (key: keyof Settings): string => {
-    return settings[key] || '';
+    return settings[key] || "";
   };
 
   const getWhatsAppNumber = (): string => {
-    const number = settings.whatsapp_number || '5511999999999';
-    console.log('📞 BUSCANDO NÚMERO WHATSAPP:', number);
+    const number = settings.whatsapp_number || "5511999999999";
     return number;
   };
 
@@ -62,7 +61,7 @@ export const useSettings = () => {
   };
 
   const getDefaultShippingCost = (): number => {
-    return parseFloat(settings.default_shipping_cost) || 29.90;
+    return parseFloat(settings.default_shipping_cost) || 29.9;
   };
 
   return {
@@ -72,6 +71,6 @@ export const useSettings = () => {
     getWhatsAppNumber,
     getFreeShippingThreshold,
     getDefaultShippingCost,
-    fetchSettings
+    fetchSettings,
   };
 };

@@ -11,7 +11,6 @@ import {
   MessageCircle,
   Truck,
   RefreshCw,
-  Headphones,
   User,
   LogOut,
   Settings,
@@ -172,7 +171,6 @@ const Header = () => {
     navigate(`/produto/${productId}`);
   };
 
-
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
     console.log("Category clicked:", categoryId, categoryName);
 
@@ -189,19 +187,19 @@ const Header = () => {
       {/* Main header */}
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-                     {/* Logo */}
-           <div className="flex items-center justify-start">
-             <Link
-               to={isAdmin ? "/admin" : "/"}
-               className="hover:opacity-80 transition-opacity"
-             >
-               <img
-                 src="/logo.png"
-                 alt="Nova Casa Construção"
-                 className="h-32 w-auto"
-               />
-             </Link>
-           </div>
+          {/* Logo */}
+          <div className="flex items-center justify-start">
+            <Link
+              to={isAdmin ? "/admin" : "/"}
+              className="hover:opacity-80 transition-opacity"
+            >
+              <img
+                src="/logo.png"
+                alt="Nova Casa Construção"
+                className="h-32 w-auto"
+              />
+            </Link>
+          </div>
 
           {/* Search bar */}
           <div className="flex-1 max-w-2xl mx-8 hidden md:block">
