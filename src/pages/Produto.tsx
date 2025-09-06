@@ -375,79 +375,101 @@ const Produto = () => {
               <span className="text-sm text-muted-foreground">({comments.length} avaliações)</span>
             </div>
 
-            {/* Price */}
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="text-3xl md:text-4xl font-bold text-primary break-all">
-                  {formatCurrency(product.price)}
-                </span>
-            {product.original_price && product.original_price !== product.price && (
-              <>
-                <span className="text-base md:text-lg text-muted-foreground line-through break-all">
-                  {formatCurrency(product.original_price)}
-                </span>
-                <Badge className="bg-red-500 text-white shrink-0">
-                  -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
-                </Badge>
-                <Badge className="bg-green-600 text-white shrink-0">
-                  PIX
-                </Badge>
-              </>
-            )}
+            {/* Price Section */}
+            <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+              {/* Original Price (if exists) */}
+              {product.original_price && product.original_price !== product.price && (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground font-medium">De:</span>
+                  <span className="text-lg text-muted-foreground line-through">
+                    {formatCurrency(product.original_price)}
+                  </span>
+                  <Badge className="bg-red-500 text-white text-xs px-2 py-1">
+                    -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
+                  </Badge>
+                </div>
+              )}
+
+              {/* PIX Badge - Full Width */}
+              <div className="w-full">
+                {product.original_price && product.original_price !== product.price ? (
+                  <PixBadge
+                    price={product.price}
+                    originalPrice={product.original_price}
+                    className="w-full text-xl md:text-2xl"
+                  />
+                ) : (
+                  <div className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-xl bg-gradient-to-r from-blue-400 to-blue-500 text-white shadow-xl">
+                    <span className="text-2xl md:text-3xl font-bold">{formatCurrency(product.price)}</span>
+                    <Badge className="bg-white/25 text-white font-bold px-3 py-1">PIX</Badge>
+                  </div>
+                )}
               </div>
-              <p className="text-sm text-muted-foreground break-words">
-                ou 10x de {formatCurrency(product.price / 10)} sem juros
-              </p>
+
+              {/* Payment Options */}
+              <div className="space-y-2 text-center">
+                <p className="text-sm text-gray-600">
+                  ou <span className="font-semibold text-gray-800">10x de {formatCurrency(product.price / 10)}</span> sem juros
+                </p>
+                <p className="text-xs text-gray-500">
+                  Cartão de crédito • Parcelamento sem juros
+                </p>
+              </div>
             </div>
 
             {/* Stock Status */}
-            <div className="flex items-center gap-2">
-              <Badge className={product.in_stock ? 'bg-green-500' : 'bg-red-500'}>
-                {product.in_stock ? 'Em Estoque' : 'Indisponível'}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 bg-green-50 rounded-xl border border-green-200">
+              <Badge className={`${product.in_stock ? 'bg-green-500' : 'bg-red-500'} text-white font-semibold`}>
+                {product.in_stock ? '✅ Em Estoque' : '❌ Indisponível'}
               </Badge>
               {product.in_stock && (
-                <span className="text-sm text-muted-foreground">
-                  Últimas unidades disponíveis
+                <span className="text-sm text-green-700 font-medium">
+                  🚚 Entrega rápida • Últimas unidades disponíveis
                 </span>
               )}
             </div>
 
-            {/* Quantity and Add to Cart */}
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                <label className="text-sm font-medium shrink-0">Quantidade:</label>
-                <div className="flex items-center border rounded-lg w-fit">
+            {/* Quantity and Actions */}
+            <div className="space-y-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+              {/* Quantity Selector */}
+              <div className="space-y-3">
+                <label className="text-base font-semibold text-gray-800">Quantidade:</label>
+                <div className="flex items-center justify-between bg-gray-50 rounded-xl border border-gray-200 p-1 max-w-40">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={quantity <= 1}
+                    className="h-10 w-10 rounded-lg hover:bg-white hover:shadow-sm transition-all duration-200"
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <span className="px-4 py-2 min-w-[60px] text-center">{quantity}</span>
+                  <span className="px-4 py-2 text-center font-bold text-lg min-w-[3rem] text-gray-800">
+                    {quantity}
+                  </span>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setQuantity(quantity + 1)}
+                    className="h-10 w-10 rounded-lg hover:bg-white hover:shadow-sm transition-all duration-200"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
 
-              <div className="space-y-6">
+              {/* Action Buttons */}
+              <div className="space-y-3">
                 <Button 
-                  className="w-full text-base font-bold py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 rounded-xl border-0" 
-                  size="lg"
+                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl" 
                   onClick={handleAddToCart}
                   disabled={!product.in_stock}
                 >
                   {product.in_stock ? (
-                    <div className="flex items-center justify-center">
+                    <>
                       <ShoppingCart className="h-5 w-5 mr-3" />
                       <span>Adicionar ao Carrinho</span>
-                    </div>
+                    </>
                   ) : (
                     <>
                       <Shield className="h-5 w-5 mr-3" />
@@ -457,8 +479,7 @@ const Produto = () => {
                  </Button>
                  
                  <Button 
-                   className="w-full text-base font-bold py-4 bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 rounded-xl border-0" 
-                   size="lg"
+                   className="w-full h-14 text-lg font-bold bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border-0" 
                    onClick={handleWhatsAppOrder}
                    disabled={!product.in_stock}
                  >
