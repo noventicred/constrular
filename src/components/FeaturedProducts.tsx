@@ -236,7 +236,7 @@ const FeaturedProducts = () => {
                   style={{ animationDelay: `${index * 150}ms` }}
                 >
               <Card 
-                className="group relative overflow-hidden bg-white dark:bg-gray-900 border-0 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 h-full cursor-pointer"
+                className="group/card relative overflow-hidden bg-white dark:bg-gray-900 border-0 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 h-full cursor-pointer"
                 onClick={() => navigate(`/produto/${product.id}`)}
               >
                 <CardContent className="p-0 h-full flex flex-col">
@@ -245,12 +245,12 @@ const FeaturedProducts = () => {
                       {...createImageProps(
                         product.image_url,
                         product.name,
-                        "w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-700 p-2"
+                        "w-full h-full object-contain bg-white group-hover/card:scale-105 transition-transform duration-700 p-2"
                       )}
                     />
                     
                     {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300" />
                     
                     {/* Discount Badge - Top Left */}
                     {product.original_price && product.original_price !== product.price && (
@@ -274,7 +274,7 @@ const FeaturedProducts = () => {
                   <div className="p-4 md:p-5 flex-1 flex flex-col">
                     <div className="space-y-2 flex-1">
                       <div>
-                        <h3 className="font-bold text-base md:text-lg mb-1 group-hover:text-primary transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
+                        <h3 className="font-bold text-base md:text-lg mb-1 group-hover/card:text-primary transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
                           {product.name}
                         </h3>
                       </div>
@@ -330,7 +330,7 @@ const FeaturedProducts = () => {
                      {/* Action Buttons */}
                      <div className="space-y-3 mt-6">
                       <Button 
-                        className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base"
+                        className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-bold py-2 transition-all duration-300 transform group-hover/card:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base"
                         disabled={!product.in_stock}
                         onClick={(e) => handleAddToCart(e, product)}
                       >
@@ -339,7 +339,7 @@ const FeaturedProducts = () => {
                       </Button>
                       
                       <Button 
-                        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base border-0"
+                        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 transition-all duration-300 transform group-hover/card:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base border-0"
                         disabled={!product.in_stock}
                         onClick={(e) => handleWhatsAppOrder(e, product)}
                       >

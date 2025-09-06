@@ -213,7 +213,7 @@ const SpecialOffers = () => {
           <Button
             variant="outline"
             size="sm"
-            className="absolute -left-6 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-xl bg-background/95 backdrop-blur-sm shadow-2xl border border-border hover:border-primary/50 hover:bg-primary/5 hover:scale-110 transition-all duration-300 hidden lg:flex items-center justify-center group-hover:opacity-100 opacity-80"
+            className="absolute -left-6 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-xl bg-background/95 backdrop-blur-sm shadow-2xl border border-border hover:border-primary/50 hover:bg-primary/5 hover:scale-110 transition-all duration-300 hidden lg:flex items-center justify-center group-hover/card:opacity-100 opacity-80"
             onClick={scrollPrev}
           >
             <ChevronLeft className="h-5 w-5 text-foreground" />
@@ -222,7 +222,7 @@ const SpecialOffers = () => {
           <Button
             variant="outline"
             size="sm"
-            className="absolute -right-6 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-xl bg-background/95 backdrop-blur-sm shadow-2xl border border-border hover:border-primary/50 hover:bg-primary/5 hover:scale-110 transition-all duration-300 hidden lg:flex items-center justify-center group-hover:opacity-100 opacity-80"
+            className="absolute -right-6 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-xl bg-background/95 backdrop-blur-sm shadow-2xl border border-border hover:border-primary/50 hover:bg-primary/5 hover:scale-110 transition-all duration-300 hidden lg:flex items-center justify-center group-hover/card:opacity-100 opacity-80"
             onClick={scrollNext}
           >
             <ChevronRight className="h-5 w-5 text-foreground" />
@@ -238,7 +238,7 @@ const SpecialOffers = () => {
                   style={{ animationDelay: `${index * 150}ms` }}
                 >
                   <Card 
-                    className="group relative overflow-hidden bg-white dark:bg-gray-900 border-0 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 h-full cursor-pointer"
+                    className="group/card relative overflow-hidden bg-white dark:bg-gray-900 border-0 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 h-full cursor-pointer"
                     onClick={() => navigate(`/produto/${product.id}`)}
                   >
                     <CardContent className="p-0 h-full flex flex-col">
@@ -247,12 +247,12 @@ const SpecialOffers = () => {
                           {...createImageProps(
                             product.image_url,
                             product.name,
-                            "w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-700 p-2"
+                            "w-full h-full object-contain bg-white group-hover/card:scale-105 transition-transform duration-700 p-2"
                           )}
                         />
                         
                         {/* Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300" />
                         
                         {/* Discount Badge - Top Left */}
                         {product.original_price && product.original_price !== product.price && (
@@ -276,7 +276,7 @@ const SpecialOffers = () => {
                       <div className="p-4 md:p-5 flex-1 flex flex-col">
                         <div className="space-y-2 flex-1">
                           <div>
-                            <h3 className="font-bold text-base md:text-lg mb-1 group-hover:text-construction-orange transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
+                            <h3 className="font-bold text-base md:text-lg mb-1 group-hover/card:text-construction-orange transition-colors line-clamp-2 text-gray-900 dark:text-white leading-tight">
                               {product.name}
                             </h3>
                           </div>
@@ -331,7 +331,7 @@ const SpecialOffers = () => {
                           {/* Action Buttons */}
                           <div className="space-y-3 mt-6">
                            <Button 
-                             className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base"
+                             className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 transition-all duration-300 transform group-hover/card:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base"
                              disabled={!product.in_stock}
                              onClick={(e) => handleAddToCart(e, product)}
                            >
@@ -340,7 +340,7 @@ const SpecialOffers = () => {
                            </Button>
                            
                            <Button 
-                             className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 transition-all duration-300 transform group-hover:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base border-0"
+                             className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 transition-all duration-300 transform group-hover/card:scale-105 rounded-xl shadow-lg hover:shadow-xl text-sm md:text-base border-0"
                              disabled={!product.in_stock}
                              onClick={(e) => handleWhatsAppOrder(e, product)}
                            >
@@ -372,7 +372,7 @@ const SpecialOffers = () => {
             onClick={() => navigate("/produtos?filter=ofertas")}
           >
             Ver Todas as Ofertas
-            <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="h-4 w-4 ml-2 group-hover/card:translate-x-1 transition-transform" />
           </Button>
         </div>
       </div>
