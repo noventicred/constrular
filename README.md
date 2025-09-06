@@ -1,73 +1,140 @@
-# Welcome to your Lovable project
+# Nova Casa Construção - E-commerce
 
-## Project info
+Loja online completa de material de construção desenvolvida com tecnologias modernas.
 
-**URL**: https://lovable.dev/projects/1c9b8e0a-da7f-4a06-be28-d5df1fb3748f
+## 🏗️ Sobre o Projeto
 
-## How can I edit this code?
+Sistema de e-commerce especializado em materiais de construção, oferecendo uma experiência completa de compra online com catálogo de produtos, carrinho de compras, sistema de autenticação e painel administrativo.
 
-There are several ways of editing your application.
+## 🚀 Tecnologias Utilizadas
 
-**Use Lovable**
+- **Frontend**: React 18 + TypeScript
+- **Build Tool**: Vite
+- **Estilização**: Tailwind CSS + shadcn/ui
+- **Banco de Dados**: Supabase (PostgreSQL)
+- **Autenticação**: Supabase Auth
+- **Roteamento**: React Router DOM
+- **Formulários**: React Hook Form + Zod
+- **Estado**: React Context API + TanStack Query
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/1c9b8e0a-da7f-4a06-be28-d5df1fb3748f) and start prompting.
+## 📦 Funcionalidades
 
-Changes made via Lovable will be committed automatically to this repo.
+- ✅ Catálogo de produtos com filtros e busca
+- ✅ Carrinho de compras persistente
+- ✅ Sistema de autenticação (login/registro)
+- ✅ Painel administrativo para gestão de produtos
+- ✅ Checkout completo com múltiplas formas de pagamento
+- ✅ Sistema de categorias
+- ✅ Responsivo para mobile e desktop
+- ✅ SEO otimizado
 
-**Use your preferred IDE**
+## 🛠️ Instalação e Configuração
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Pré-requisitos
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Node.js (versão 16 ou superior)
+- npm ou yarn
 
-Follow these steps:
+### Passos para instalação
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. **Clone o repositório**
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+```bash
+git clone <URL_DO_REPOSITORIO>
+cd buildkit-ecom
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+2. **Instale as dependências**
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+npm install
+```
+
+3. **Configure as variáveis de ambiente**
+
+   - Configure seu projeto no Supabase
+   - As configurações do Supabase estão em `src/integrations/supabase/client.ts`
+
+4. **Execute as migrações do banco de dados**
+
+```bash
+# Se estiver usando Supabase CLI
+supabase db push
+```
+
+5. **Inicie o servidor de desenvolvimento**
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+O projeto estará disponível em `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📁 Estrutura do Projeto
 
-**Use GitHub Codespaces**
+```
+src/
+├── components/          # Componentes reutilizáveis
+│   ├── ui/             # Componentes base do shadcn/ui
+│   ├── admin/          # Componentes do painel admin
+│   └── auth/           # Componentes de autenticação
+├── pages/              # Páginas da aplicação
+├── contexts/           # Contextos React
+├── hooks/              # Hooks customizados
+├── lib/                # Utilitários e helpers
+├── types/              # Definições de tipos TypeScript
+└── integrations/       # Integrações externas (Supabase)
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🎯 Scripts Disponíveis
 
-## What technologies are used for this project?
+- `npm run dev` - Inicia o servidor de desenvolvimento
+- `npm run build` - Gera build de produção
+- `npm run build:dev` - Gera build de desenvolvimento
+- `npm run preview` - Visualiza o build de produção
+- `npm run lint` - Executa o linter
 
-This project is built with:
+## 🔧 Configuração do Banco de Dados
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+O projeto utiliza Supabase como backend. As migrações estão localizadas em `supabase/migrations/` e incluem:
 
-## How can I deploy this project?
+- Tabelas de produtos, categorias e usuários
+- Políticas de segurança (RLS)
+- Funções e triggers necessários
 
-Simply open [Lovable](https://lovable.dev/projects/1c9b8e0a-da7f-4a06-be28-d5df1fb3748f) and click on Share -> Publish.
+## 📱 Responsividade
 
-## Can I connect a custom domain to my Lovable project?
+O projeto é totalmente responsivo, utilizando:
 
-Yes, you can!
+- Tailwind CSS para estilização responsiva
+- Componentes adaptativos do shadcn/ui
+- Hook customizado `use-mobile` para detecção de dispositivos
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🔐 Autenticação e Segurança
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- Autenticação via Supabase Auth
+- Row Level Security (RLS) configurado
+- Proteção de rotas administrativas
+- Validação de formulários com Zod
+
+## 🚀 Deploy
+
+O projeto pode ser facilmente deployado em plataformas como:
+
+- Vercel (configuração incluída em `vercel.json`)
+- Netlify (configuração incluída em `public/_redirects`)
+- Qualquer provedor que suporte aplicações React/Vite
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+
+## 🤝 Contribuição
+
+Contribuições são sempre bem-vindas! Sinta-se à vontade para:
+
+1. Fazer fork do projeto
+2. Criar uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abrir um Pull Request
