@@ -1,10 +1,7 @@
 import {
   Search,
   Menu,
-  Phone,
-  MapPin,
   ChevronDown,
-  X,
   Package,
   Info,
   MessageCircle,
@@ -13,7 +10,6 @@ import {
   User,
   LogOut,
   Settings,
-  ShoppingCart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,7 +31,6 @@ import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
 import { getProductImageUrl } from "@/lib/imageUtils";
@@ -63,7 +58,6 @@ const Header = () => {
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
 
   const { user, isAdmin, signOut } = useAuth();
-  const { itemCount } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
   const searchRef = useRef<HTMLDivElement>(null);
@@ -185,7 +179,9 @@ const Header = () => {
               {isSearchOpen && searchResults.length > 0 && (
                 <div className="absolute top-full left-0 right-0 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 mt-2 max-h-96 overflow-y-auto backdrop-blur-sm">
                   <div className="p-3 border-b border-gray-100 bg-gray-50 rounded-t-2xl">
-                    <p className="text-sm font-medium text-gray-600">Resultados da pesquisa</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Resultados da pesquisa
+                    </p>
                   </div>
                   {searchResults.map((product, index) => (
                     <button
@@ -203,7 +199,9 @@ const Header = () => {
                           }}
                         />
                         <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">{index + 1}</span>
+                          <span className="text-white text-xs font-bold">
+                            {index + 1}
+                          </span>
                         </div>
                       </div>
                       <div className="flex-1 text-left">
@@ -247,15 +245,21 @@ const Header = () => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="hidden md:flex gap-3 h-12 px-4 rounded-xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-200">
-                    <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
-                      <User className="h-4 w-4 text-white" />
-                    </div>
-                    <div className="flex flex-col items-start">
-                      <span className="text-xs text-gray-500">Olá,</span>
-                      <span className="text-sm font-medium max-w-32 truncate">{user.email?.split('@')[0]}</span>
-                    </div>
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      className="hidden md:flex gap-4 h-14 px-6 rounded-xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-200 group"
+                    >
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                        <User className="h-5 w-5 text-white" />
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <span className="text-xs text-gray-500 font-medium">Bem-vindo,</span>
+                        <span className="text-base font-semibold text-gray-800 max-w-40 truncate group-hover:text-primary transition-colors">
+                          {user.email?.split("@")[0]}
+                        </span>
+                        <span className="text-xs text-primary font-medium">Minha conta</span>
+                      </div>
+                    </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => navigate("/minha-conta")}>
@@ -304,33 +308,23 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button
-                className="hidden md:flex gap-3 h-12 px-6 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-200"
-                onClick={() => navigate("/auth")}
-              >
-                <User className="h-4 w-4" />
-                <span className="font-medium">Entrar</span>
-              </Button>
+              <div className="hidden md:flex items-center gap-4">
+                <Button
+                  variant="ghost"
+                  className="h-12 px-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all duration-200 font-medium text-primary"
+                  onClick={() => navigate("/auth")}
+                >
+                  Entrar
+                </Button>
+                <Button
+                  className="h-12 px-6 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-200 font-medium"
+                  onClick={() => navigate("/auth")}
+                >
+                  Cadastre-se
+                </Button>
+              </div>
             )}
 
-            {/* Cart Button */}
-            <Button
-              className="relative h-12 px-4 md:px-6 rounded-xl bg-white border-2 border-gray-200 hover:border-primary hover:bg-primary/5 transition-all duration-200 shadow-sm hover:shadow-md group"
-              variant="outline"
-              onClick={() => navigate("/carrinho")}
-            >
-              <div className="relative">
-                <ShoppingCart className="h-5 w-5 text-gray-600 group-hover:text-primary transition-colors" />
-                {itemCount > 0 && (
-                  <span className="absolute -top-3 -right-3 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center animate-pulse shadow-lg">
-                    {itemCount}
-                  </span>
-                )}
-              </div>
-              <span className="hidden md:inline ml-3 font-medium text-gray-700 group-hover:text-primary transition-colors">
-                Carrinho
-              </span>
-            </Button>
 
             {/* Mobile Menu */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -435,37 +429,45 @@ const Header = () => {
                   {/* User Section */}
                   <div className="border-t pt-4">
                     {user ? (
-                      <div className="space-y-2">
-                        <div className="text-sm text-muted-foreground mb-3">
-                          {user.email}
+                      <div className="space-y-3">
+                        <div className="p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
+                              <User className="h-4 w-4 text-white" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500 font-medium">Bem-vindo,</p>
+                              <p className="font-semibold text-gray-800">{user.email?.split("@")[0]}</p>
+                            </div>
+                          </div>
                         </div>
                         <Button
                           variant="ghost"
-                          className="w-full justify-start gap-3"
+                          className="w-full justify-start gap-3 h-12"
                           onClick={() => {
                             setIsMobileMenuOpen(false);
                             navigate("/minha-conta");
                           }}
                         >
-                          <User className="h-4 w-4" />
+                          <User className="h-4 w-4 text-primary" />
                           Minha Conta
                         </Button>
                         {isAdmin && (
                           <Button
                             variant="ghost"
-                            className="w-full justify-start gap-3"
+                            className="w-full justify-start gap-3 h-12"
                             onClick={() => {
                               setIsMobileMenuOpen(false);
                               navigate("/admin");
                             }}
                           >
-                            <Settings className="h-4 w-4" />
+                            <Settings className="h-4 w-4 text-primary" />
                             Painel Admin
                           </Button>
                         )}
                         <Button
                           variant="ghost"
-                          className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="w-full justify-start gap-3 h-12 text-red-600 hover:text-red-700 hover:bg-red-50"
                           onClick={async () => {
                             setIsMobileMenuOpen(false);
                             try {
@@ -483,16 +485,29 @@ const Header = () => {
                         </Button>
                       </div>
                     ) : (
-                      <Button
-                        className="w-full gap-3"
-                        onClick={() => {
-                          setIsMobileMenuOpen(false);
-                          navigate("/auth");
-                        }}
-                      >
-                        <User className="h-4 w-4" />
-                        Entrar
-                      </Button>
+                      <div className="space-y-3">
+                        <Button
+                          variant="outline"
+                          className="w-full gap-3 h-12 border-primary/20 text-primary hover:bg-primary/5"
+                          onClick={() => {
+                            setIsMobileMenuOpen(false);
+                            navigate("/auth");
+                          }}
+                        >
+                          <User className="h-4 w-4" />
+                          Entrar
+                        </Button>
+                        <Button
+                          className="w-full gap-3 h-12 bg-gradient-to-r from-primary to-primary/90"
+                          onClick={() => {
+                            setIsMobileMenuOpen(false);
+                            navigate("/auth");
+                          }}
+                        >
+                          <User className="h-4 w-4" />
+                          Cadastre-se
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>
