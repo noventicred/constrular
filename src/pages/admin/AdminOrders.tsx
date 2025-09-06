@@ -103,56 +103,87 @@ export default function AdminOrders() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
+      // Primeiro, buscar apenas os pedidos
       const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
-        .select(`
-          *,
-          profiles (
-            full_name,
-            email
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (ordersError) throw ordersError;
-
-      setOrders(ordersData || []);
-
-      // Buscar itens para cada pedido
-      if (ordersData && ordersData.length > 0) {
-        const itemsPromises = ordersData.map(async (order) => {
-          const { data: items } = await supabase
-            .from('order_items')
-            .select(`
-              *,
-              products (
-                id,
-                name,
-                image_url,
-                sku
-              )
-            `)
-            .eq('order_id', order.id);
-
-          return { orderId: order.id, items: items || [] };
-        });
-
-        const itemsResults = await Promise.all(itemsPromises);
-        const itemsMap: Record<string, OrderItem[]> = {};
-        
-        itemsResults.forEach(({ orderId, items }) => {
-          itemsMap[orderId] = items;
-        });
-
-        setOrderItems(itemsMap);
+      if (ordersError) {
+        console.error('Orders error:', ordersError);
+        throw ordersError;
       }
+
+      // Se não há pedidos, definir array vazio e sair
+      if (!ordersData || ordersData.length === 0) {
+        setOrders([]);
+        setOrderItems({});
+        return;
+      }
+
+      // Buscar perfis separadamente para evitar problemas de join
+      const userIds = [...new Set(ordersData.map(order => order.user_id).filter(Boolean))];
+      let profilesMap: Record<string, any> = {};
+
+      if (userIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .in('id', userIds);
+
+        if (profilesData) {
+          profilesMap = profilesData.reduce((acc, profile) => {
+            acc[profile.id] = profile;
+            return acc;
+          }, {} as Record<string, any>);
+        }
+      }
+
+      // Combinar pedidos com perfis
+      const ordersWithProfiles = ordersData.map(order => ({
+        ...order,
+        profiles: order.user_id ? profilesMap[order.user_id] : null
+      }));
+
+      setOrders(ordersWithProfiles);
+
+      // Buscar itens dos pedidos
+      const { data: itemsData } = await supabase
+        .from('order_items')
+        .select(`
+          *,
+          products (
+            id,
+            name,
+            image_url,
+            sku
+          )
+        `)
+        .in('order_id', ordersData.map(o => o.id));
+
+      // Organizar itens por pedido
+      const itemsMap: Record<string, OrderItem[]> = {};
+      if (itemsData) {
+        itemsData.forEach(item => {
+          if (!itemsMap[item.order_id]) {
+            itemsMap[item.order_id] = [];
+          }
+          itemsMap[item.order_id].push(item);
+        });
+      }
+
+      setOrderItems(itemsMap);
+
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast({
-        title: 'Erro',
-        description: 'Não foi possível carregar os pedidos.',
+        title: 'Erro ao carregar pedidos',
+        description: 'Verifique se as tabelas existem no banco de dados.',
         variant: 'destructive',
       });
+      // Em caso de erro, definir estados vazios para evitar crashes
+      setOrders([]);
+      setOrderItems({});
     } finally {
       setLoading(false);
     }
