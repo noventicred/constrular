@@ -334,11 +334,7 @@ const Header = () => {
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button className="md:hidden h-12 w-12 rounded-xl bg-white border-2 border-gray-200 hover:border-primary hover:bg-primary/5 transition-all duration-200 shadow-sm hover:shadow-md">
-                  {isMobileMenuOpen ? (
-                    <X className="h-5 w-5 text-gray-700 hover:text-red-500 transition-colors" />
-                  ) : (
-                    <Menu className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
-                  )}
+                  <Menu className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
                 </Button>
               </SheetTrigger>
               <SheetContent
@@ -346,16 +342,26 @@ const Header = () => {
                 className="w-80 p-0 flex flex-col h-full"
               >
                 <SheetHeader className="px-6 py-6 border-b bg-gradient-to-r from-primary/5 to-primary/10 flex-shrink-0">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center">
-                      <Menu className="h-5 w-5 text-white" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center">
+                        <Package className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <SheetTitle className="text-lg font-bold text-gray-800">
+                          Menu Principal
+                        </SheetTitle>
+                        <p className="text-sm text-gray-600">Navegue pela loja</p>
+                      </div>
                     </div>
-                    <div>
-                      <SheetTitle className="text-lg font-bold text-gray-800">
-                        Menu Principal
-                      </SheetTitle>
-                      <p className="text-sm text-gray-600">Navegue pela loja</p>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 rounded-lg hover:bg-white/50"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <X className="h-4 w-4 text-gray-600 hover:text-red-500 transition-colors" />
+                    </Button>
                   </div>
                 </SheetHeader>
 
