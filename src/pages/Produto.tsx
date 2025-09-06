@@ -125,6 +125,31 @@ const Produto = () => {
     setGalleryImageIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
   };
 
+  // Navegação por teclado
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!isGalleryOpen) return;
+
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault();
+          prevImage();
+          break;
+        case 'ArrowRight':
+          event.preventDefault();
+          nextImage();
+          break;
+        case 'Escape':
+          event.preventDefault();
+          setIsGalleryOpen(false);
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isGalleryOpen]);
+
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;
@@ -363,10 +388,15 @@ const Produto = () => {
                 onClick={() => openGallery(selectedImage)}
               />
               {/* Zoom Indicator */}
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <div className="bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full flex items-center gap-2">
-                  <ZoomIn className="h-4 w-4 text-gray-700" />
-                  <span className="text-sm font-medium text-gray-700">Clique para ampliar</span>
+              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center backdrop-blur-[1px]">
+                <div className="bg-white/95 backdrop-blur-sm px-4 py-3 rounded-xl flex items-center gap-3 shadow-xl border border-white/20 transform scale-95 group-hover:scale-100 transition-transform duration-300">
+                  <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                    <ZoomIn className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-bold text-gray-800">Ampliar Imagem</p>
+                    <p className="text-xs text-gray-600">Clique para ver em tamanho real</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -733,73 +763,124 @@ const Produto = () => {
 
       {/* Gallery Modal */}
       <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
-        <DialogContent className="max-w-4xl w-full p-0 bg-black/95 border-0">
+        <DialogContent className="max-w-7xl w-full h-[90vh] p-0 bg-black border-0 rounded-2xl overflow-hidden">
           <DialogHeader className="sr-only">
-            <DialogTitle>Galeria de Imagens</DialogTitle>
+            <DialogTitle>Galeria de Imagens - {product?.name}</DialogTitle>
           </DialogHeader>
           
-          <div className="relative aspect-square w-full">
-            {/* Close Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute top-4 right-4 z-50 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white border-0"
-              onClick={() => setIsGalleryOpen(false)}
-            >
-              <X className="h-5 w-5" />
-            </Button>
+          <div className="relative w-full h-full flex flex-col">
+            {/* Top Bar */}
+            <div className="flex items-center justify-between p-6 bg-black/80 backdrop-blur-sm border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                  <ZoomIn className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold text-lg">{product?.name}</h3>
+                  <p className="text-white/70 text-sm">Galeria de Imagens</p>
+                </div>
+              </div>
+              
+              {/* Image Counter */}
+              {(() => {
+                const imageUrls = getProductImageUrls(product?.image_url || '');
+                if (imageUrls.length > 1) {
+                  return (
+                    <div className="flex items-center gap-4">
+                      <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm font-medium">
+                        {galleryImageIndex + 1} de {imageUrls.length}
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
 
-            {/* Navigation Buttons */}
-            {(() => {
-              const imageUrls = getProductImageUrls(product?.image_url || '');
-              if (imageUrls.length > 1) {
-                return (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="absolute left-4 top-1/2 -translate-y-1/2 z-40 h-12 w-12 rounded-full bg-black/50 hover:bg-black/70 text-white border-0"
-                      onClick={prevImage}
-                    >
-                      <ChevronLeft className="h-6 w-6" />
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 z-40 h-12 w-12 rounded-full bg-black/50 hover:bg-black/70 text-white border-0"
-                      onClick={nextImage}
-                    >
-                      <ChevronRight className="h-6 w-6" />
-                    </Button>
-                  </>
-                );
-              }
-              return null;
-            })()}
-
-            {/* Main Image */}
-            <div className="w-full h-full flex items-center justify-center p-8">
-              <img
-                src={(() => {
-                  const imageUrls = getProductImageUrls(product?.image_url || '');
-                  return imageUrls[galleryImageIndex] || imageUrls[0] || '/placeholder.svg';
-                })()}
-                alt={`${product?.name} - Imagem ${galleryImageIndex + 1}`}
-                className="max-w-full max-h-full object-contain"
-                onError={(e) => {
-                  e.currentTarget.src = "/placeholder.svg";
-                }}
-              />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 text-white border-0 transition-all duration-200"
+                onClick={() => setIsGalleryOpen(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
             </div>
 
-            {/* Image Counter */}
+            {/* Main Image Area */}
+            <div className="flex-1 relative overflow-hidden">
+              {/* Navigation Buttons */}
+              {(() => {
+                const imageUrls = getProductImageUrls(product?.image_url || '');
+                if (imageUrls.length > 1) {
+                  return (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute left-6 top-1/2 -translate-y-1/2 z-40 h-14 w-14 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border-0 transition-all duration-200 hover:scale-110"
+                        onClick={prevImage}
+                      >
+                        <ChevronLeft className="h-6 w-6" />
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-6 top-1/2 -translate-y-1/2 z-40 h-14 w-14 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border-0 transition-all duration-200 hover:scale-110"
+                        onClick={nextImage}
+                      >
+                        <ChevronRight className="h-6 w-6" />
+                      </Button>
+                    </>
+                  );
+                }
+                return null;
+              })()}
+
+              {/* Main Image */}
+              <div className="w-full h-full flex items-center justify-center p-8">
+                <img
+                  src={(() => {
+                    const imageUrls = getProductImageUrls(product?.image_url || '');
+                    return imageUrls[galleryImageIndex] || imageUrls[0] || '/placeholder.svg';
+                  })()}
+                  alt={`${product?.name} - Imagem ${galleryImageIndex + 1}`}
+                  className="max-w-full max-h-full object-contain shadow-2xl rounded-lg"
+                  onError={(e) => {
+                    e.currentTarget.src = "/placeholder.svg";
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Bottom Thumbnails */}
             {(() => {
               const imageUrls = getProductImageUrls(product?.image_url || '');
               if (imageUrls.length > 1) {
                 return (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                    {galleryImageIndex + 1} / {imageUrls.length}
+                  <div className="p-6 bg-black/80 backdrop-blur-sm border-t border-white/10">
+                    <div className="flex justify-center gap-3 max-w-md mx-auto">
+                      {imageUrls.map((url, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setGalleryImageIndex(index)}
+                          className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${
+                            galleryImageIndex === index 
+                              ? 'border-primary shadow-lg shadow-primary/25' 
+                              : 'border-white/20 hover:border-white/40'
+                          }`}
+                        >
+                          <img 
+                            src={url}
+                            alt={`Miniatura ${index + 1}`}
+                            className="w-full h-full object-contain bg-white/5"
+                            onError={(e) => {
+                              e.currentTarget.src = "/placeholder.svg";
+                            }}
+                          />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 );
               }
