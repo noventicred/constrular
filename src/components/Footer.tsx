@@ -5,7 +5,6 @@ import {
   Phone,
   Mail,
   MapPin,
-  Clock,
   Facebook,
   Instagram,
   Youtube,
@@ -173,33 +172,6 @@ const Footer = () => {
               </li>
             </ul>
 
-            <div className="pt-4 bg-white/5 rounded-lg p-3">
-              <div className="flex items-center gap-2 text-gray-300 mb-2">
-                <Clock className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="font-medium text-sm md:text-base">
-                  Horário de Atendimento:
-                </span>
-              </div>
-              <div className="text-xs md:text-sm text-gray-300 space-y-1">
-                <div className="flex justify-between">
-                  <span>Segunda a Sexta:</span>
-                  <span className="text-primary font-medium">7h às 18h</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Sábado:</span>
-                  <span className="text-primary font-medium">7h às 17h</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Domingo:</span>
-                  <span className="text-primary font-medium">8h às 12h</span>
-                </div>
-              </div>
-              <div className="mt-3 pt-2 border-t border-white/10">
-                <p className="text-xs text-gray-400">
-                  📞 Urgências 24h: (11) 9 8888-7777
-                </p>
-              </div>
-            </div>
           </div>
 
           {/* Newsletter */}

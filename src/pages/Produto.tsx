@@ -7,21 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PromoBanner from "@/components/PromoBanner";
-import { 
-  Star, 
-  ShoppingCart, 
-  Truck, 
-  Shield, 
+import {
+  Star,
+  ShoppingCart,
+  Truck,
+  Shield,
   ArrowLeft,
   Plus,
   Minus,
@@ -32,14 +25,17 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  ZoomIn
 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSettings } from "@/hooks/useSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
-import { getProductImageUrl, getProductImageUrls, createImageProps } from "@/lib/imageUtils";
+import {
+  getProductImageUrl,
+  getProductImageUrls,
+  createImageProps,
+} from "@/lib/imageUtils";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 
 // Componente do ícone PIX
@@ -92,79 +88,50 @@ const Produto = () => {
   const { addItem } = useCart();
   const { toast } = useToast();
   const { getWhatsAppNumber, getSetting } = useSettings();
-  
+
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [product, setProduct] = useState<Product | null>(null);
   const [comments, setComments] = useState<ProductComment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [galleryImageIndex, setGalleryImageIndex] = useState(0);
 
-  
   // Calcular rating baseado nos comentários
-  const averageRating = comments.length > 0 
-    ? comments.reduce((acc, comment) => acc + comment.rating, 0) / comments.length 
-    : 0;
+  const averageRating =
+    comments.length > 0
+      ? comments.reduce((acc, comment) => acc + comment.rating, 0) /
+        comments.length
+      : 0;
 
-  // Funções da galeria
-  const openGallery = (imageIndex: number) => {
-    setGalleryImageIndex(imageIndex);
-    setIsGalleryOpen(true);
-  };
-
+  // Funções de navegação das imagens
   const nextImage = () => {
     if (!product) return;
     const imageUrls = getProductImageUrls(product.image_url);
-    setGalleryImageIndex((prev) => (prev + 1) % imageUrls.length);
+    setSelectedImage((prev) => (prev + 1) % imageUrls.length);
   };
 
   const prevImage = () => {
     if (!product) return;
     const imageUrls = getProductImageUrls(product.image_url);
-    setGalleryImageIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
+    setSelectedImage(
+      (prev) => (prev - 1 + imageUrls.length) % imageUrls.length
+    );
   };
-
-  // Navegação por teclado
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (!isGalleryOpen) return;
-
-      switch (event.key) {
-        case 'ArrowLeft':
-          event.preventDefault();
-          prevImage();
-          break;
-        case 'ArrowRight':
-          event.preventDefault();
-          nextImage();
-          break;
-        case 'Escape':
-          event.preventDefault();
-          setIsGalleryOpen(false);
-          break;
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isGalleryOpen]);
 
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;
-      
+
       setLoading(true);
       try {
         // Buscar produto
         const { data: productData, error: productError } = await supabase
-          .from('products')
-          .select('*')
-          .eq('id', id)
+          .from("products")
+          .select("*")
+          .eq("id", id)
           .single();
 
         if (productError) {
-          console.error('Erro ao carregar produto:', productError);
+          console.error("Erro ao carregar produto:", productError);
           toast({
             title: "Erro",
             description: "Não foi possível carregar o produto.",
@@ -177,19 +144,18 @@ const Produto = () => {
 
         // Buscar comentários
         const { data: commentsData, error: commentsError } = await supabase
-          .from('product_comments')
-          .select('*')
-          .eq('product_id', id)
-          .order('created_at', { ascending: false });
+          .from("product_comments")
+          .select("*")
+          .eq("product_id", id)
+          .order("created_at", { ascending: false });
 
         if (commentsError) {
-          console.error('Erro ao carregar comentários:', commentsError);
+          console.error("Erro ao carregar comentários:", commentsError);
         } else {
           setComments(commentsData || []);
         }
-
       } catch (error) {
-        console.error('Erro ao carregar dados:', error);
+        console.error("Erro ao carregar dados:", error);
         toast({
           title: "Erro",
           description: "Não foi possível carregar os dados.",
@@ -202,7 +168,7 @@ const Produto = () => {
 
     fetchData();
   }, [id, toast]);
-  
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -213,9 +179,11 @@ const Produto = () => {
             <div className="space-y-4">
               <Skeleton className="aspect-square w-full" />
               <div className="grid grid-cols-4 gap-2">
-                {Array(4).fill(0).map((_, i) => (
-                  <Skeleton key={i} className="aspect-square" />
-                ))}
+                {Array(4)
+                  .fill(0)
+                  .map((_, i) => (
+                    <Skeleton key={i} className="aspect-square" />
+                  ))}
               </div>
             </div>
             <div className="space-y-6">
@@ -247,26 +215,27 @@ const Produto = () => {
     );
   }
 
-
   const handleAddToCart = () => {
     try {
       for (let i = 0; i < quantity; i++) {
         addItem({
           id: product.id,
           name: product.name,
-          brand: product.brand || 'Marca não informada',
+          brand: product.brand || "Marca não informada",
           price: product.price,
-          image: getProductImageUrl(product.image_url)
+          image: getProductImageUrl(product.image_url),
         });
       }
-      
+
       // Notificação melhorada
       toast({
         title: "✅ Produto adicionado!",
         description: (
           <div className="flex items-center gap-2">
             <div className="flex-1">
-              <p className="font-semibold">{quantity}x {product.name}</p>
+              <p className="font-semibold">
+                {quantity}x {product.name}
+              </p>
               <p className="text-sm text-muted-foreground">
                 {formatCurrency(product.price)} cada • Agora no seu carrinho
               </p>
@@ -278,14 +247,15 @@ const Produto = () => {
 
       // Pequeno delay para mostrar a notificação antes de abrir o carrinho
       setTimeout(() => {
-        const cartButton = document.querySelector('[data-cart-trigger]') as HTMLButtonElement;
+        const cartButton = document.querySelector(
+          "[data-cart-trigger]"
+        ) as HTMLButtonElement;
         if (cartButton) {
           cartButton.click();
         }
       }, 800);
-      
     } catch (error) {
-      console.error('Erro ao adicionar produto ao carrinho:', error);
+      console.error("Erro ao adicionar produto ao carrinho:", error);
       toast({
         title: "❌ Erro",
         description: "Não foi possível adicionar o produto ao carrinho.",
@@ -295,32 +265,35 @@ const Produto = () => {
   };
 
   const handleWhatsAppOrder = () => {
-    const storeName = getSetting('store_name') || 'Minha Loja';
+    const storeName = getSetting("store_name") || "Minha Loja";
     const currentUrl = window.location.href;
-    
-    const message = `Olá! Gostaria de fazer um pedido desse item específico:\n\n` +
-                   `*${product.name}*\n` +
-                   `SKU: ${product.sku || 'N/A'}\n` +
-                   `Preço: ${formatCurrency(product.price)}\n` +
-                   `Loja: ${storeName}\n\n` +
-                   `Link do produto: ${currentUrl}\n\n` +
-                   `Aguardo informações sobre disponibilidade e formas de pagamento!`;
-    
+
+    const message =
+      `Olá! Gostaria de fazer um pedido desse item específico:\n\n` +
+      `*${product.name}*\n` +
+      `SKU: ${product.sku || "N/A"}\n` +
+      `Preço: ${formatCurrency(product.price)}\n` +
+      `Loja: ${storeName}\n\n` +
+      `Link do produto: ${currentUrl}\n\n` +
+      `Aguardo informações sobre disponibilidade e formas de pagamento!`;
+
     const phoneNumber = getWhatsAppNumber();
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
-    
-    window.open(whatsappUrl, '_blank');
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
+      message
+    )}`;
+
+    window.open(whatsappUrl, "_blank");
   };
 
   const renderStars = (rating: number, size: string = "h-4 w-4") => {
     return [...Array(5)].map((_, i) => (
-      <Star 
-        key={i} 
+      <Star
+        key={i}
         className={`${size} ${
-          i < Math.floor(rating) 
-            ? 'text-yellow-400 fill-current' 
-            : 'text-gray-300'
-        }`} 
+          i < Math.floor(rating)
+            ? "text-yellow-400 fill-current"
+            : "text-gray-300"
+        }`}
       />
     ));
   };
@@ -329,23 +302,23 @@ const Produto = () => {
     <div className="min-h-screen bg-background">
       <PromoBanner />
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8 overflow-x-hidden">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-6 text-sm overflow-hidden">
           <div className="flex items-center gap-2 min-w-0 flex-shrink">
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => navigate("/")}
               className="p-0 h-auto font-normal text-muted-foreground hover:text-primary shrink-0"
             >
               Início
             </Button>
             <span className="text-muted-foreground shrink-0">/</span>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => navigate("/produtos")}
               className="p-0 h-auto font-normal text-muted-foreground hover:text-primary shrink-0"
             >
@@ -354,7 +327,9 @@ const Produto = () => {
             <span className="text-muted-foreground shrink-0">/</span>
             {product.category && (
               <>
-                <span className="text-muted-foreground shrink-0">{product.category}</span>
+                <span className="text-muted-foreground shrink-0">
+                  {product.category}
+                </span>
                 <span className="text-muted-foreground shrink-0">/</span>
               </>
             )}
@@ -363,11 +338,7 @@ const Produto = () => {
         </div>
 
         {/* Back button */}
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate(-1)}
-          className="mb-6"
-        >
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar
         </Button>
@@ -375,32 +346,61 @@ const Produto = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12 overflow-hidden">
           {/* Product Images */}
           <div className="space-y-4 min-w-0">
-            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative group cursor-pointer">
-              <img 
+            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative group">
+              <img
                 {...createImageProps(
                   (() => {
                     const imageUrls = getProductImageUrls(product.image_url);
                     return imageUrls[selectedImage] || imageUrls[0];
                   })(),
                   product.name,
-                  "w-full h-full object-contain bg-white p-4 transition-transform duration-300 group-hover:scale-105"
+                  "w-full h-full object-contain bg-white p-4 transition-transform duration-300"
                 )}
-                onClick={() => openGallery(selectedImage)}
               />
-              {/* Zoom Indicator */}
-              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center backdrop-blur-[1px]">
-                <div className="bg-white/95 backdrop-blur-sm px-4 py-3 rounded-xl flex items-center gap-3 shadow-xl border border-white/20 transform scale-95 group-hover:scale-100 transition-transform duration-300">
-                  <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                    <ZoomIn className="h-4 w-4 text-white" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-bold text-gray-800">Ampliar Imagem</p>
-                    <p className="text-xs text-gray-600">Clique para ver em tamanho real</p>
-                  </div>
-                </div>
-              </div>
+
+              {/* Navigation Arrows */}
+              {(() => {
+                const imageUrls = getProductImageUrls(product.image_url);
+                if (imageUrls.length > 1) {
+                  return (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 z-40 h-10 w-10 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 border border-gray-200 shadow-lg transition-all duration-200 hover:scale-110"
+                        onClick={prevImage}
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 z-40 h-10 w-10 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 border border-gray-200 shadow-lg transition-all duration-200 hover:scale-110"
+                        onClick={nextImage}
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </Button>
+                    </>
+                  );
+                }
+                return null;
+              })()}
+
+              {/* Image Counter */}
+              {(() => {
+                const imageUrls = getProductImageUrls(product.image_url);
+                if (imageUrls.length > 1) {
+                  return (
+                    <div className="absolute top-3 right-3 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      {selectedImage + 1} / {imageUrls.length}
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
-            
+
             {/* Multiple Image Thumbnails */}
             {(() => {
               const imageUrls = getProductImageUrls(product.image_url);
@@ -410,25 +410,21 @@ const Produto = () => {
                     {imageUrls.map((url, index) => (
                       <button
                         key={index}
-                        onClick={() => {
-                          setSelectedImage(index);
-                          openGallery(index);
-                        }}
+                        onClick={() => setSelectedImage(index)}
                         className={`aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:border-primary/50 ${
-                          selectedImage === index ? 'border-primary' : 'border-transparent'
-                        } relative group`}
+                          selectedImage === index
+                            ? "border-primary shadow-lg"
+                            : "border-gray-200"
+                        }`}
                       >
-                        <img 
-                          src={url} 
+                        <img
+                          src={url}
                           alt={`${product.name} ${index + 1}`}
-                          className="w-full h-full object-contain bg-white p-2 group-hover:scale-105 transition-transform duration-200"
+                          className="w-full h-full object-contain bg-white p-2 hover:scale-105 transition-transform duration-200"
                           onError={(e) => {
                             e.currentTarget.src = "/placeholder.svg";
                           }}
                         />
-                        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                          <ZoomIn className="h-4 w-4 text-white drop-shadow-lg" />
-                        </div>
                       </button>
                     ))}
                   </div>
@@ -442,21 +438,27 @@ const Produto = () => {
           <div className="space-y-6 min-w-0">
             <div>
               {product.brand && (
-                <p className="text-sm text-muted-foreground mb-1">{product.brand}</p>
+                <p className="text-sm text-muted-foreground mb-1">
+                  {product.brand}
+                </p>
               )}
-              <h1 className="text-2xl md:text-3xl font-bold mb-2 break-words">{product.name}</h1>
-              <p className="text-sm text-muted-foreground">SKU: {product.sku || 'N/A'}</p>
+              <h1 className="text-2xl md:text-3xl font-bold mb-2 break-words">
+                {product.name}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                SKU: {product.sku || "N/A"}
+              </p>
             </div>
 
             {/* Rating */}
             <div className="flex items-center gap-2">
-              <div className="flex">
-                {renderStars(averageRating)}
-              </div>
+              <div className="flex">{renderStars(averageRating)}</div>
               <span className="text-sm font-medium">
-                {averageRating > 0 ? averageRating.toFixed(1) : '0.0'}
+                {averageRating > 0 ? averageRating.toFixed(1) : "0.0"}
               </span>
-              <span className="text-sm text-muted-foreground">({comments.length} avaliações)</span>
+              <span className="text-sm text-muted-foreground">
+                ({comments.length} avaliações)
+              </span>
             </div>
 
             {/* Price Section */}
@@ -465,12 +467,21 @@ const Produto = () => {
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <PixIcon className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-600">À vista no PIX</span>
-                  {product.original_price && product.original_price !== product.price && (
-                    <Badge className="bg-green-500 text-white text-xs px-2 py-1">
-                      -{Math.round(((product.original_price - product.price) / product.original_price) * 100)}% de desconto
-                    </Badge>
-                  )}
+                  <span className="text-sm font-medium text-blue-600">
+                    À vista no PIX
+                  </span>
+                  {product.original_price &&
+                    product.original_price !== product.price && (
+                      <Badge className="bg-green-500 text-white text-xs px-2 py-1">
+                        -
+                        {Math.round(
+                          ((product.original_price - product.price) /
+                            product.original_price) *
+                            100
+                        )}
+                        % de desconto
+                      </Badge>
+                    )}
                 </div>
                 <div className="text-left">
                   <span className="text-4xl md:text-5xl font-bold text-primary">
@@ -483,25 +494,41 @@ const Produto = () => {
               <div className="space-y-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
                 <div className="flex items-center gap-2">
                   <CreditCard className="h-4 w-4 text-gray-600" />
-                  <span className="text-sm font-medium text-gray-600">No cartão de crédito</span>
+                  <span className="text-sm font-medium text-gray-600">
+                    No cartão de crédito
+                  </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-2xl font-bold text-gray-700">
                     {formatCurrency(product.original_price || product.price)}
                   </span>
-                  {product.original_price && product.original_price !== product.price && (
-                    <span className="text-sm text-gray-500">(preço normal)</span>
-                  )}
+                  {product.original_price &&
+                    product.original_price !== product.price && (
+                      <span className="text-sm text-gray-500">
+                        (preço normal)
+                      </span>
+                    )}
                 </div>
                 <p className="text-sm text-gray-600">
-                  ou <span className="font-semibold text-gray-800">10x de {formatCurrency((product.original_price || product.price) / 10)}</span> sem juros
+                  ou{" "}
+                  <span className="font-semibold text-gray-800">
+                    10x de{" "}
+                    {formatCurrency(
+                      (product.original_price || product.price) / 10
+                    )}
+                  </span>{" "}
+                  sem juros
                 </p>
               </div>
             </div>
 
             {/* Stock Status */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
-              <Badge className={`${product.in_stock ? 'bg-green-500' : 'bg-red-500'} text-white font-semibold flex items-center gap-2`}>
+              <Badge
+                className={`${
+                  product.in_stock ? "bg-green-500" : "bg-red-500"
+                } text-white font-semibold flex items-center gap-2`}
+              >
                 {product.in_stock ? (
                   <>
                     <CheckCircle className="h-4 w-4" />
@@ -526,7 +553,9 @@ const Produto = () => {
             <div className="space-y-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
               {/* Quantity Selector */}
               <div className="space-y-3">
-                <label className="text-base font-semibold text-gray-800">Quantidade:</label>
+                <label className="text-base font-semibold text-gray-800">
+                  Quantidade:
+                </label>
                 <div className="flex items-center justify-between bg-gray-50 rounded-xl border border-gray-200 p-1 max-w-40">
                   <Button
                     variant="ghost"
@@ -553,8 +582,8 @@ const Produto = () => {
 
               {/* Action Buttons */}
               <div className="space-y-3">
-                <Button 
-                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl" 
+                <Button
+                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
                   onClick={handleAddToCart}
                   disabled={!product.in_stock}
                 >
@@ -569,18 +598,18 @@ const Produto = () => {
                       Produto Indisponível
                     </>
                   )}
-                 </Button>
-                 
-                 <Button 
-                   className="w-full h-14 text-lg font-bold bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border-0" 
-                   onClick={handleWhatsAppOrder}
-                   disabled={!product.in_stock}
-                 >
-                   <WhatsAppIcon className="h-5 w-5 mr-3" />
-                   Comprar pelo WhatsApp
-                 </Button>
-                 
-                 {product.in_stock && (
+                </Button>
+
+                <Button
+                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border-0"
+                  onClick={handleWhatsAppOrder}
+                  disabled={!product.in_stock}
+                >
+                  <WhatsAppIcon className="h-5 w-5 mr-3" />
+                  Comprar pelo WhatsApp
+                </Button>
+
+                {product.in_stock && (
                   <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center space-y-2">
                     <div className="flex items-center justify-center gap-2 text-sm text-green-700 font-bold">
                       <CheckCircle className="h-4 w-4" />
@@ -601,14 +630,18 @@ const Produto = () => {
                   <Truck className="h-5 w-5 text-primary" />
                   <div>
                     <p className="font-medium">Frete Grátis</p>
-                    <p className="text-sm text-muted-foreground">Para compras acima de R$ 299</p>
+                    <p className="text-sm text-muted-foreground">
+                      Para compras acima de R$ 299
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Shield className="h-5 w-5 text-primary" />
                   <div>
                     <p className="font-medium">Compra Protegida</p>
-                    <p className="text-sm text-muted-foreground">Garantia de 30 dias</p>
+                    <p className="text-sm text-muted-foreground">
+                      Garantia de 30 dias
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -620,9 +653,11 @@ const Produto = () => {
         <Tabs defaultValue="description" className="mb-12">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="description">Descrição</TabsTrigger>
-            <TabsTrigger value="reviews">Avaliações ({comments.length})</TabsTrigger>
+            <TabsTrigger value="reviews">
+              Avaliações ({comments.length})
+            </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="description" className="mt-6">
             <Card>
               <CardHeader>
@@ -632,15 +667,19 @@ const Produto = () => {
                 <p className="text-muted-foreground leading-relaxed">
                   {product.description}
                 </p>
-                
+
                 {product.benefits && product.benefits.length > 0 && (
                   <div>
-                    <h4 className="font-semibold mb-3">Principais Benefícios:</h4>
+                    <h4 className="font-semibold mb-3">
+                      Principais Benefícios:
+                    </h4>
                     <ul className="space-y-2">
                       {product.benefits.map((benefit, index) => (
                         <li key={index} className="flex items-center gap-2">
                           <div className="h-2 w-2 bg-primary rounded-full"></div>
-                          <span className="text-muted-foreground">{benefit}</span>
+                          <span className="text-muted-foreground">
+                            {benefit}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -649,7 +688,7 @@ const Produto = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="reviews" className="mt-6">
             <div className="space-y-6">
               {/* Reviews Summary */}
@@ -661,29 +700,38 @@ const Produto = () => {
                   {comments.length > 0 ? (
                     <div className="flex items-center gap-6 mb-6">
                       <div className="text-center">
-                         <div className="text-4xl font-bold text-primary mb-1">
-                           {averageRating.toFixed(1)}
-                         </div>
-                         <div className="flex justify-center mb-1">
-                           {renderStars(averageRating)}
-                         </div>
+                        <div className="text-4xl font-bold text-primary mb-1">
+                          {averageRating.toFixed(1)}
+                        </div>
+                        <div className="flex justify-center mb-1">
+                          {renderStars(averageRating)}
+                        </div>
                         <div className="text-sm text-muted-foreground">
-                          {comments.length} avaliação{comments.length !== 1 ? 'ões' : ''}
+                          {comments.length} avaliação
+                          {comments.length !== 1 ? "ões" : ""}
                         </div>
                       </div>
-                      
+
                       <div className="flex-1">
                         {[5, 4, 3, 2, 1].map((stars) => {
-                          const count = comments.filter(comment => comment.rating === stars).length;
-                          const percentage = comments.length > 0 ? (count / comments.length) * 100 : 0;
-                          
+                          const count = comments.filter(
+                            (comment) => comment.rating === stars
+                          ).length;
+                          const percentage =
+                            comments.length > 0
+                              ? (count / comments.length) * 100
+                              : 0;
+
                           return (
-                            <div key={stars} className="flex items-center gap-2 mb-1">
+                            <div
+                              key={stars}
+                              className="flex items-center gap-2 mb-1"
+                            >
                               <span className="text-sm w-8">{stars}</span>
                               <Star className="h-3 w-3 text-yellow-400 fill-current" />
                               <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                <div 
-                                  className="bg-yellow-400 rounded-full h-2" 
+                                <div
+                                  className="bg-yellow-400 rounded-full h-2"
                                   style={{ width: `${percentage}%` }}
                                 ></div>
                               </div>
@@ -717,34 +765,48 @@ const Produto = () => {
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <p className="font-medium">{comment.author_name}</p>
+                              <p className="font-medium">
+                                {comment.author_name}
+                              </p>
                               <div className="flex items-center gap-2">
                                 <div className="flex">
                                   {renderStars(comment.rating, "h-3 w-3")}
                                 </div>
                                 <span className="text-sm text-muted-foreground">
-                                  {new Date(comment.created_at).toLocaleDateString('pt-BR')}
+                                  {new Date(
+                                    comment.created_at
+                                  ).toLocaleDateString("pt-BR")}
                                 </span>
                               </div>
                             </div>
                           </div>
                         </div>
-                        
+
                         <p className="text-muted-foreground mb-4 leading-relaxed">
                           {comment.comment_text}
                         </p>
-                        
+
                         <div className="flex items-center gap-6">
                           <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" className="h-8 px-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 px-2"
+                            >
                               <ThumbsUp className="h-3 w-3 mr-1" />
                               <span className="text-sm">{comment.likes}</span>
                             </Button>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" className="h-8 px-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 px-2"
+                            >
                               <ThumbsDown className="h-3 w-3 mr-1" />
-                              <span className="text-sm">{comment.dislikes}</span>
+                              <span className="text-sm">
+                                {comment.dislikes}
+                              </span>
                             </Button>
                           </div>
                         </div>
@@ -757,138 +819,9 @@ const Produto = () => {
           </TabsContent>
         </Tabs>
       </main>
-      
+
       <Footer />
       <FloatingCart />
-
-      {/* Gallery Modal */}
-      <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
-        <DialogContent className="max-w-7xl w-full h-[90vh] p-0 bg-black border-0 rounded-2xl overflow-hidden">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Galeria de Imagens - {product?.name}</DialogTitle>
-          </DialogHeader>
-          
-          <div className="relative w-full h-full flex flex-col">
-            {/* Top Bar */}
-            <div className="flex items-center justify-between p-6 bg-black/80 backdrop-blur-sm border-b border-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <ZoomIn className="h-4 w-4 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold text-lg">{product?.name}</h3>
-                  <p className="text-white/70 text-sm">Galeria de Imagens</p>
-                </div>
-              </div>
-              
-              {/* Image Counter */}
-              {(() => {
-                const imageUrls = getProductImageUrls(product?.image_url || '');
-                if (imageUrls.length > 1) {
-                  return (
-                    <div className="flex items-center gap-4">
-                      <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm font-medium">
-                        {galleryImageIndex + 1} de {imageUrls.length}
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
-              })()}
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 text-white border-0 transition-all duration-200"
-                onClick={() => setIsGalleryOpen(false)}
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-
-            {/* Main Image Area */}
-            <div className="flex-1 relative overflow-hidden">
-              {/* Navigation Buttons */}
-              {(() => {
-                const imageUrls = getProductImageUrls(product?.image_url || '');
-                if (imageUrls.length > 1) {
-                  return (
-                    <>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="absolute left-6 top-1/2 -translate-y-1/2 z-40 h-14 w-14 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border-0 transition-all duration-200 hover:scale-110"
-                        onClick={prevImage}
-                      >
-                        <ChevronLeft className="h-6 w-6" />
-                      </Button>
-
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-6 top-1/2 -translate-y-1/2 z-40 h-14 w-14 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border-0 transition-all duration-200 hover:scale-110"
-                        onClick={nextImage}
-                      >
-                        <ChevronRight className="h-6 w-6" />
-                      </Button>
-                    </>
-                  );
-                }
-                return null;
-              })()}
-
-              {/* Main Image */}
-              <div className="w-full h-full flex items-center justify-center p-8">
-                <img
-                  src={(() => {
-                    const imageUrls = getProductImageUrls(product?.image_url || '');
-                    return imageUrls[galleryImageIndex] || imageUrls[0] || '/placeholder.svg';
-                  })()}
-                  alt={`${product?.name} - Imagem ${galleryImageIndex + 1}`}
-                  className="max-w-full max-h-full object-contain shadow-2xl rounded-lg"
-                  onError={(e) => {
-                    e.currentTarget.src = "/placeholder.svg";
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Bottom Thumbnails */}
-            {(() => {
-              const imageUrls = getProductImageUrls(product?.image_url || '');
-              if (imageUrls.length > 1) {
-                return (
-                  <div className="p-6 bg-black/80 backdrop-blur-sm border-t border-white/10">
-                    <div className="flex justify-center gap-3 max-w-md mx-auto">
-                      {imageUrls.map((url, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setGalleryImageIndex(index)}
-                          className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${
-                            galleryImageIndex === index 
-                              ? 'border-primary shadow-lg shadow-primary/25' 
-                              : 'border-white/20 hover:border-white/40'
-                          }`}
-                        >
-                          <img 
-                            src={url}
-                            alt={`Miniatura ${index + 1}`}
-                            className="w-full h-full object-contain bg-white/5"
-                            onError={(e) => {
-                              e.currentTarget.src = "/placeholder.svg";
-                            }}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            })()}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
