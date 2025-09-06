@@ -671,7 +671,7 @@ const Header = () => {
                       {categories.map((category) => (
                         <DropdownMenuItem
                           key={category.id}
-                          className="p-4 rounded-2xl hover:bg-white hover:shadow-lg transition-all duration-300 cursor-pointer border-2 border-gray-100 hover:border-primary/40 group"
+                          className="p-4 rounded-2xl transition-all duration-200 cursor-pointer border border-gray-100 hover:border-gray-200"
                           onClick={() =>
                             handleCategoryClick(category.id, category.name)
                           }
@@ -681,29 +681,21 @@ const Header = () => {
                               <img
                                 src={category.image_url || "/placeholder.svg"}
                                 alt={category.name}
-                                className="w-16 h-16 object-cover rounded-xl shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105 border border-gray-100"
+                                className="w-16 h-16 object-cover rounded-xl shadow-sm border border-gray-100"
                                 onError={(e) => {
                                   e.currentTarget.src = "/placeholder.svg";
                                 }}
                               />
-                              <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-primary to-primary/90 rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300">
-                                <ChevronDown className="h-3 w-3 text-white rotate-[-90deg]" />
-                              </div>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-bold text-base text-gray-800 group-hover:text-primary transition-colors line-clamp-1 mb-1">
+                              <h4 className="font-bold text-base text-gray-800 line-clamp-1 mb-1">
                                 {category.name}
                               </h4>
                               {category.description && (
-                                <p className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors line-clamp-2 leading-relaxed">
+                                <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
                                   {category.description}
                                 </p>
                               )}
-                              <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <span className="text-xs text-primary font-bold bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-                                  Explorar produtos →
-                                </span>
-                              </div>
                             </div>
                           </div>
                         </DropdownMenuItem>
