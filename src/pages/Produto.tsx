@@ -376,7 +376,7 @@ const Produto = () => {
             </div>
 
             {/* Price Section */}
-            <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+            <div className="space-y-4">
               {/* Original Price (if exists) */}
               {product.original_price && product.original_price !== product.price && (
                 <div className="flex items-center gap-3">
@@ -391,29 +391,32 @@ const Produto = () => {
               )}
 
               {/* Current Price */}
-              <div className="w-full">
-                {product.original_price && product.original_price !== product.price ? (
-                  <PixBadge
-                    price={product.price}
-                    originalPrice={product.original_price}
-                    className="w-full text-xl md:text-2xl"
-                  />
-                ) : (
-                  <div className="text-center">
-                    <span className="text-4xl md:text-5xl font-bold text-primary">
-                      {formatCurrency(product.price)}
-                    </span>
+              <div className="space-y-3">
+                <div className="text-center md:text-left">
+                  <span className="text-4xl md:text-5xl font-bold text-primary">
+                    {formatCurrency(product.price)}
+                  </span>
+                </div>
+
+                {/* PIX Badge - Only when there's discount */}
+                {product.original_price && product.original_price !== product.price && (
+                  <div className="w-full">
+                    <PixBadge
+                      price={product.price}
+                      originalPrice={product.original_price}
+                      className="w-full text-lg"
+                    />
                   </div>
                 )}
               </div>
 
               {/* Payment Options */}
-              <div className="space-y-2 text-center">
-                <p className="text-sm text-gray-600">
+              <div className="space-y-2 p-4 bg-gray-50 rounded-xl">
+                <p className="text-sm text-gray-600 text-center">
                   ou <span className="font-semibold text-gray-800">10x de {formatCurrency(product.price / 10)}</span> sem juros
                 </p>
-                <p className="text-xs text-gray-500">
-                  Cartão de crédito • Parcelamento sem juros
+                <p className="text-xs text-gray-500 text-center">
+                  💳 Cartão de crédito • Parcelamento sem juros
                 </p>
               </div>
             </div>
