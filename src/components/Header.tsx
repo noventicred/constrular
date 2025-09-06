@@ -638,7 +638,7 @@ const Header = () => {
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent 
+                <DropdownMenuContent
                   className="w-[800px] max-h-[80vh] p-0 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden"
                   align="start"
                   sideOffset={12}
@@ -671,7 +671,7 @@ const Header = () => {
                       {categories.map((category) => (
                         <DropdownMenuItem
                           key={category.id}
-                          className="p-4 rounded-2xl hover:bg-gradient-to-br hover:from-primary/5 hover:to-primary/10 transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-primary/20 group hover:shadow-lg"
+                          className="p-4 rounded-2xl hover:bg-gradient-to-br hover:from-primary hover:to-primary/90 transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-primary group hover:shadow-xl"
                           onClick={() =>
                             handleCategoryClick(category.id, category.name)
                           }
@@ -691,16 +691,16 @@ const Header = () => {
                               </div>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-bold text-base text-gray-800 group-hover:text-primary transition-colors line-clamp-1 mb-1">
+                              <h4 className="font-bold text-base text-gray-800 group-hover:text-white transition-colors line-clamp-1 mb-1">
                                 {category.name}
                               </h4>
                               {category.description && (
-                                <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
+                                <p className="text-sm text-gray-500 group-hover:text-white/90 transition-colors line-clamp-2 leading-relaxed">
                                   {category.description}
                                 </p>
                               )}
                               <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <span className="text-xs text-primary font-semibold">
+                                <span className="text-xs text-white font-bold bg-white/20 px-2 py-1 rounded-full">
                                   Explorar produtos →
                                 </span>
                               </div>
