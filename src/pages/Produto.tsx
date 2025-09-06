@@ -664,9 +664,13 @@ const Produto = () => {
                 <CardTitle>Descrição do Produto</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-muted-foreground leading-relaxed">
-                  {product.description}
-                </p>
+                <div className="text-muted-foreground leading-relaxed">
+                  {product.description?.split('\n').map((line, index) => (
+                    <p key={index} className={line.trim() === '' ? 'h-4' : 'mb-3'}>
+                      {line.trim() === '' ? '\u00A0' : line}
+                    </p>
+                  ))}
+                </div>
 
                 {product.benefits && product.benefits.length > 0 && (
                   <div>

@@ -397,16 +397,21 @@ const ProductForm = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-sm font-semibold text-gray-700">
-                  Descrição
+                  Descrição do Produto
                 </Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Descreva as características e benefícios do produto..."
-                  className="min-h-24 border-2 border-gray-200 focus:border-primary resize-none"
-                  rows={4}
-                />
+                <div className="space-y-2">
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Descreva detalhadamente as características, benefícios e especificações do produto...&#10;&#10;Use quebras de linha para organizar melhor a informação:&#10;• Características principais&#10;• Benefícios para o cliente&#10;• Especificações técnicas&#10;• Forma de uso&#10;• Garantia e cuidados"
+                    className="min-h-48 border-2 border-gray-200 focus:border-primary resize-y"
+                    rows={12}
+                  />
+                  <p className="text-xs text-gray-500">
+                    💡 Dica: Use quebras de linha e bullet points (•) para organizar melhor a informação
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>
