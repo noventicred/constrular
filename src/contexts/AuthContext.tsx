@@ -125,8 +125,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      // Ignorar mudanças quando a app não está ativa (exceto login e logout)
-      if (!isAppActive() && event !== "SIGNED_OUT" && event !== "SIGNED_IN") {
+      // Sempre processar login e logout, independente do estado da app
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        handleAuthStateChange(session, event);
+        return;
+      }
+
+      // Para outros eventos, verificar se app está ativa
+      if (!isAppActive()) {
         return;
       }
 
@@ -136,12 +142,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return;
       }
 
-      // Filtrar eventos que realmente precisam de ação
-      if (
-        event === "SIGNED_IN" ||
-        event === "SIGNED_OUT" ||
-        event === "INITIAL_SESSION"
-      ) {
+      // Processar outros eventos
+      if (event === "INITIAL_SESSION") {
         handleAuthStateChange(session, event);
       }
       // TOKEN_REFRESHED não precisa refazer tudo, apenas atualizar session
@@ -165,6 +167,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         email,
         password,
       });
+      
+      // Se login bem-sucedido, forçar atualização do estado
+      if (!error && data.session) {
+        handleAuthStateChange(data.session, "SIGNED_IN");
+      }
+      
       return { error };
     } catch (error) {
       return { error: error as Error };
