@@ -21,10 +21,6 @@ function PixBadge({
   className,
   ...props
 }: PixBadgeProps) {
-  const discount = originalPrice
-    ? ((originalPrice - price) / originalPrice) * 100
-    : 0;
-
   return (
     <div
       className={cn(
@@ -37,18 +33,13 @@ function PixBadge({
       )}
       {...props}
     >
-      <PixIcon className="w-5 h-5 drop-shadow-sm" />
       <div className="flex items-center gap-3">
+        <PixIcon className="w-6 h-6 flex-shrink-0" />
         <span className="font-bold text-xl">{formatCurrency(price)}</span>
-        <span className="text-sm font-bold bg-white/25 px-3 py-1 rounded-full border border-white/20">
+        <span className="text-sm font-bold bg-white/25 px-3 py-1 rounded-full border border-white/20 flex-shrink-0">
           PIX
         </span>
       </div>
-      {discount > 0 && (
-        <span className="text-sm font-bold bg-white/30 px-3 py-1 rounded-full border border-white/20">
-          -{discount.toFixed(0)}%
-        </span>
-      )}
     </div>
   );
 }
