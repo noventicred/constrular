@@ -28,7 +28,7 @@ function PixBadge({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-3 px-4 py-3 rounded-xl",
+        "flex items-center justify-center gap-3 px-4 py-3 rounded-xl w-full",
         "bg-gradient-to-r from-blue-400 to-blue-500",
         "text-white text-lg font-bold shadow-xl",
         "border border-blue-300/20 backdrop-blur-sm",
