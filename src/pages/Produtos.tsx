@@ -8,7 +8,6 @@ import {
   Sliders,
   SlidersHorizontal,
   Search,
-  MessageCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -44,6 +43,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { useAdvancedSearch } from "@/hooks/useAdvancedSearch";
 import { formatCurrency } from "@/lib/formatters";
 import { getProductImageUrl, createImageProps } from "@/lib/imageUtils";
+import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import FloatingCart from "@/components/FloatingCart";
 
 interface Category {
@@ -662,7 +662,7 @@ const Produtos = () => {
                       disabled={!product.in_stock}
                       className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 border-0"
                     >
-                      <MessageCircle className="h-4 w-4 mr-2" />
+                      <WhatsAppIcon className="h-4 w-4 mr-2" />
                       Comprar pelo WhatsApp
                     </Button>
                   </div>

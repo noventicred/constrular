@@ -20,8 +20,7 @@ import {
   Minus,
   ThumbsUp,
   ThumbsDown,
-  CheckCircle,
-  MessageCircle
+  CheckCircle
 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +28,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
 import { getProductImageUrl, getProductImageUrls, createImageProps } from "@/lib/imageUtils";
+import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 import FloatingCart from "@/components/FloatingCart";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -462,7 +462,7 @@ const Produto = () => {
                    onClick={handleWhatsAppOrder}
                    disabled={!product.in_stock}
                  >
-                   <MessageCircle className="h-5 w-5 mr-3" />
+                   <WhatsAppIcon className="h-5 w-5 mr-3" />
                    Comprar pelo WhatsApp
                  </Button>
                  

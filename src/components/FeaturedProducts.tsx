@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PixBadge } from "@/components/ui/pix-badge";
-import { Star, ShoppingCart, MessageCircle } from "lucide-react";
+import { Star, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSettings } from "@/hooks/useSettings";
@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/formatters";
 import { getProductImageUrl, createImageProps } from "@/lib/imageUtils";
+import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
 
 interface Product {
   id: string;
@@ -303,7 +304,7 @@ const FeaturedProducts = () => {
                         disabled={!product.in_stock}
                         onClick={(e) => handleWhatsAppOrder(e, product)}
                       >
-                        <MessageCircle className="h-4 w-4 mr-2" />
+                        <WhatsAppIcon className="h-4 w-4 mr-2" />
                         Comprar pelo WhatsApp
                       </Button>
                     </div>
