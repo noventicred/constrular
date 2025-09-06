@@ -10,13 +10,6 @@ import {
   User,
   LogOut,
   Settings,
-  Hammer,
-  Paintbrush,
-  Wrench,
-  Zap,
-  Home,
-  TreePine,
-  HardHat,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,33 +49,6 @@ interface Product {
   image_url: string | null;
 }
 
-// Mapeamento de ícones para categorias
-const categoryIcons: Record<string, any> = {
-  "Cimento & Argamassa": HardHat,
-  "Tijolos & Blocos": Home,
-  "Tintas & Vernizes": Paintbrush,
-  "Ferramentas": Hammer,
-  "Hidráulica": Wrench,
-  "Elétrica": Zap,
-  "Madeiras": TreePine,
-  "Transporte": Truck,
-  "Pisos & Revestimentos": Home,
-  "Iluminação": Zap,
-};
-
-// Cores para cada categoria
-const categoryColors: Record<string, string> = {
-  "Cimento & Argamassa": "from-gray-500 to-gray-600",
-  "Tijolos & Blocos": "from-red-500 to-red-600",
-  "Tintas & Vernizes": "from-green-500 to-green-600",
-  "Ferramentas": "from-amber-500 to-amber-600",
-  "Hidráulica": "from-blue-500 to-blue-600",
-  "Elétrica": "from-yellow-500 to-yellow-600",
-  "Madeiras": "from-amber-600 to-amber-700",
-  "Transporte": "from-stone-500 to-stone-600",
-  "Pisos & Revestimentos": "from-neutral-500 to-neutral-600",
-  "Iluminação": "from-orange-500 to-orange-600",
-};
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -589,75 +555,84 @@ const Header = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent 
-                  className="w-96 p-0 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden"
+                  className="w-[800px] p-0 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden"
                   align="start"
-                  sideOffset={8}
+                  sideOffset={12}
                 >
                   {/* Header do Dropdown */}
-                  <div className="p-6 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
-                        <Package className="h-5 w-5 text-white" />
+                  <div className="p-6 bg-gradient-to-r from-primary/8 via-primary/5 to-primary/8 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-lg">
+                          <Package className="h-6 w-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-800">Categorias de Produtos</h3>
+                          <p className="text-sm text-gray-600">Encontre exatamente o que você precisa para sua obra</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-800">Categorias</h3>
-                        <p className="text-sm text-gray-500">Encontre o que você precisa</p>
+                      <div className="text-xs text-gray-500 bg-white px-3 py-1 rounded-full font-medium">
+                        {categories.length} categorias
                       </div>
                     </div>
                   </div>
 
-                  {/* Grid de Categorias */}
-                  <div className="p-4">
-                    <div className="grid grid-cols-2 gap-3">
-                      {categories.map((category, index) => {
-                        const IconComponent = categoryIcons[category.name] || Package;
-                        const colorClass = categoryColors[category.name] || "from-gray-500 to-gray-600";
-                        
-                        return (
-                          <DropdownMenuItem
-                            key={category.id}
-                            className="p-4 rounded-xl hover:bg-gradient-to-r hover:from-primary/5 hover:to-primary/10 transition-all duration-300 cursor-pointer border border-transparent hover:border-primary/20 group hover:shadow-lg"
-                            onClick={() => handleCategoryClick(category.id, category.name)}
-                          >
-                            <div className="flex flex-col items-center text-center space-y-3 w-full">
-                              <div className={`w-14 h-14 bg-gradient-to-br ${colorClass} rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-md group-hover:shadow-lg`}>
-                                <IconComponent className="h-7 w-7 text-white drop-shadow-sm" />
+                  {/* Grid Horizontal de Categorias */}
+                  <div className="p-6">
+                    <div className="grid grid-cols-3 gap-4">
+                      {categories.map((category) => (
+                        <DropdownMenuItem
+                          key={category.id}
+                          className="p-4 rounded-2xl hover:bg-gradient-to-br hover:from-primary/5 hover:to-primary/10 transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-primary/20 group hover:shadow-lg"
+                          onClick={() => handleCategoryClick(category.id, category.name)}
+                        >
+                          <div className="flex items-center gap-4 w-full">
+                            <div className="relative flex-shrink-0">
+                              <img
+                                src={category.image_url || "/placeholder.svg"}
+                                alt={category.name}
+                                className="w-16 h-16 object-cover rounded-xl shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105"
+                                onError={(e) => {
+                                  e.currentTarget.src = "/placeholder.svg";
+                                }}
+                              />
+                              <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                <ChevronDown className="h-3 w-3 text-white rotate-[-90deg]" />
                               </div>
-                              <div className="space-y-1">
-                                <p className="font-semibold text-sm text-gray-800 group-hover:text-primary transition-colors line-clamp-2 leading-tight">
-                                  {category.name}
-                                </p>
-                                {category.description && (
-                                  <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
-                                    {category.description}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="w-full h-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></div>
                             </div>
-                          </DropdownMenuItem>
-                        );
-                      })}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-bold text-base text-gray-800 group-hover:text-primary transition-colors line-clamp-1 mb-1">
+                                {category.name}
+                              </h4>
+                              {category.description && (
+                                <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
+                                  {category.description}
+                                </p>
+                              )}
+                              <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <span className="text-xs text-primary font-semibold">Explorar produtos →</span>
+                              </div>
+                            </div>
+                          </div>
+                        </DropdownMenuItem>
+                      ))}
                     </div>
                   </div>
 
                   {/* Footer do Dropdown */}
-                  <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-100">
-                    <div className="space-y-3">
-                      <div className="text-center">
-                        <p className="text-xs text-gray-500 font-medium">Explore nossa coleção completa</p>
-                      </div>
-                      <DropdownMenuItem 
-                        className="w-full p-4 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold text-center justify-center transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl border-0"
-                        onClick={() => navigate("/produtos")}
-                      >
-                        <div className="flex items-center gap-3">
+                  <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100/50 border-t border-gray-100">
+                    <DropdownMenuItem 
+                      className="w-full p-5 rounded-2xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-bold text-center justify-center transition-all duration-300 hover:scale-[1.02] shadow-xl hover:shadow-2xl border-0 group"
+                      onClick={() => navigate("/produtos")}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
                           <Search className="h-5 w-5" />
-                          <span>Ver Todos os Produtos</span>
-                          <div className="w-2 h-2 bg-white/30 rounded-full animate-pulse"></div>
                         </div>
-                      </DropdownMenuItem>
-                    </div>
+                        <span className="text-lg">Ver Todos os Produtos</span>
+                        <div className="w-2 h-2 bg-white/40 rounded-full animate-bounce"></div>
+                      </div>
+                    </DropdownMenuItem>
                   </div>
                 </DropdownMenuContent>
               </DropdownMenu>
