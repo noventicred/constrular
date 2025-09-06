@@ -151,31 +151,6 @@ const Header = () => {
 
   return (
     <header className="bg-white shadow-lg sticky top-0 z-50 border-b border-gray-100">
-      {/* Top Bar - Desktop Only */}
-      <div className="hidden lg:block bg-gradient-to-r from-primary/8 via-primary/5 to-primary/8 border-b border-primary/10">
-        <div className="container mx-auto px-6 py-3">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-8 text-gray-600">
-              <div className="flex items-center gap-2 hover:text-primary transition-colors group">
-                <Phone className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
-                <span className="font-medium">(11) 99999-9999</span>
-              </div>
-              <div className="flex items-center gap-2 hover:text-primary transition-colors group">
-                <MapPin className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
-                <span className="font-medium">Sorocaba, SP</span>
-              </div>
-              <div className="flex items-center gap-2 text-green-600 font-medium">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>🚚 Entrega em até 24h</span>
-              </div>
-            </div>
-            <div className="bg-gradient-to-r from-primary to-primary/80 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md animate-pulse">
-              ⚡ Ofertas até 50% OFF
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Header */}
       <div className="container mx-auto px-6 py-6">
         <div className="flex items-center justify-between gap-6">
