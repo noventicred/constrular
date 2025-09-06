@@ -327,7 +327,7 @@ const Produto = () => {
                     return imageUrls[selectedImage] || imageUrls[0];
                   })(),
                   product.name,
-                  "w-full h-full object-cover"
+                  "w-full h-full object-contain bg-white p-4"
                 )}
               />
             </div>

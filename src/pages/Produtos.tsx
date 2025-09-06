@@ -545,7 +545,7 @@ const Produtos = () => {
                     <img
                       src={getProductImageUrl(product.image_url)}
                       alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-500 p-2"
                       onError={(e) => {
                         e.currentTarget.src = "/placeholder.svg";
                       }}

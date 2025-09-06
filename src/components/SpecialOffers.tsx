@@ -213,19 +213,19 @@ const SpecialOffers = () => {
           <Button
             variant="outline"
             size="sm"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 md:h-10 md:w-10 rounded-full bg-white shadow-lg border-2 hover:bg-gray-50 hidden lg:flex items-center justify-center"
+            className="absolute -left-6 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-xl bg-background/95 backdrop-blur-sm shadow-2xl border border-border hover:border-primary/50 hover:bg-primary/5 hover:scale-110 transition-all duration-300 hidden lg:flex items-center justify-center group-hover:opacity-100 opacity-80"
             onClick={scrollPrev}
           >
-            <ChevronLeft className="h-3 w-3 md:h-4 md:w-4" />
+            <ChevronLeft className="h-5 w-5 text-foreground" />
           </Button>
 
           <Button
             variant="outline"
             size="sm"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 md:h-10 md:w-10 rounded-full bg-white shadow-lg border-2 hover:bg-gray-50 hidden lg:flex items-center justify-center"
+            className="absolute -right-6 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-xl bg-background/95 backdrop-blur-sm shadow-2xl border border-border hover:border-primary/50 hover:bg-primary/5 hover:scale-110 transition-all duration-300 hidden lg:flex items-center justify-center group-hover:opacity-100 opacity-80"
             onClick={scrollNext}
           >
-            <ChevronRight className="h-3 w-3 md:h-4 md:w-4" />
+            <ChevronRight className="h-5 w-5 text-foreground" />
           </Button>
 
           {/* Carousel */}
@@ -247,7 +247,7 @@ const SpecialOffers = () => {
                           {...createImageProps(
                             product.image_url,
                             product.name,
-                            "w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            "w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-700 p-2"
                           )}
                         />
                         

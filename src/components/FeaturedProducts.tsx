@@ -3,7 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PixBadge } from "@/components/ui/pix-badge";
-import { Star, ShoppingCart } from "lucide-react";
+import { Star, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
+import useEmblaCarousel from 'embla-carousel-react';
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSettings } from "@/hooks/useSettings";
@@ -36,6 +37,22 @@ const FeaturedProducts = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { getWhatsAppNumber, getSetting } = useSettings();
+  
+  // Embla Carousel
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: false,
+    dragFree: true,
+    containScroll: 'trimSnaps',
+    align: 'start'
+  });
+
+  const scrollPrev = () => {
+    if (emblaApi) emblaApi.scrollPrev();
+  };
+
+  const scrollNext = () => {
+    if (emblaApi) emblaApi.scrollNext();
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -189,13 +206,35 @@ const FeaturedProducts = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-          {products.map((product, index) => (
-            <div 
-              key={product.id} 
-              className="animate-fade-in"
-              style={{ animationDelay: `${index * 150}ms` }}
-            >
+        <div className="relative group">
+          {/* Navigation Buttons */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="absolute -left-6 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-xl bg-background/95 backdrop-blur-sm shadow-2xl border border-border hover:border-primary/50 hover:bg-primary/5 hover:scale-110 transition-all duration-300 hidden lg:flex items-center justify-center group-hover:opacity-100 opacity-80"
+            onClick={scrollPrev}
+          >
+            <ChevronLeft className="h-5 w-5 text-foreground" />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="absolute -right-6 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-xl bg-background/95 backdrop-blur-sm shadow-2xl border border-border hover:border-primary/50 hover:bg-primary/5 hover:scale-110 transition-all duration-300 hidden lg:flex items-center justify-center group-hover:opacity-100 opacity-80"
+            onClick={scrollNext}
+          >
+            <ChevronRight className="h-5 w-5 text-foreground" />
+          </Button>
+
+          {/* Carousel Container */}
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex gap-6 md:gap-8">
+              {products.map((product, index) => (
+                <div 
+                  key={product.id} 
+                  className="flex-none w-72 md:w-80 animate-fade-in"
+                  style={{ animationDelay: `${index * 150}ms` }}
+                >
               <Card 
                 className="group relative overflow-hidden bg-white dark:bg-gray-900 border-0 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 h-full cursor-pointer"
                 onClick={() => navigate(`/produto/${product.id}`)}
@@ -206,7 +245,7 @@ const FeaturedProducts = () => {
                       {...createImageProps(
                         product.image_url,
                         product.name,
-                        "w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        "w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-700 p-2"
                       )}
                     />
                     
@@ -311,8 +350,10 @@ const FeaturedProducts = () => {
                   </div>
                 </CardContent>
               </Card>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
         
         <div className="text-center mt-8 md:mt-12">
