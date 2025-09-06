@@ -398,16 +398,6 @@ const Produto = () => {
                   </span>
                 </div>
 
-                {/* PIX Badge - Only when there's discount */}
-                {product.original_price && product.original_price !== product.price && (
-                  <div className="w-full">
-                    <PixBadge
-                      price={product.price}
-                      originalPrice={product.original_price}
-                      className="w-full text-lg"
-                    />
-                  </div>
-                )}
               </div>
 
               {/* Payment Options */}
