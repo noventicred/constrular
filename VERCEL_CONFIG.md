@@ -4,16 +4,21 @@
 
 ## 🔧 **Variáveis de Ambiente para Configurar na Vercel:**
 
-Copie e cole estas variáveis exatamente na dashboard da Vercel:
+⚠️ **Apenas 2 variáveis são obrigatórias:**
 
 ```env
 VITE_SUPABASE_URL=https://jynklrscgeshapzrogfa.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bmtscnNjZ2VzaGFwenJvZ2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjE0NTYsImV4cCI6MjA3MDY5NzQ1Nn0.Erc_w4exzWUdtt0WXDbqwcFiJgPvAVWrYQYjj4s8ld0
-VITE_APP_NAME=Nova Casa Construção
-VITE_APP_URL=https://seu-dominio.vercel.app
-VITE_WHATSAPP_NUMBER=5515999999999
-NODE_ENV=production
 ```
+
+### **📋 Por que apenas 2?**
+
+- ✅ **VITE_SUPABASE_URL** - Obrigatória para conexão com banco
+- ✅ **VITE_SUPABASE_ANON_KEY** - Obrigatória para autenticação
+- ❌ **VITE_APP_NAME** - Não usada no código (valor fixo)
+- ❌ **VITE_APP_URL** - Não usada no código (usa window.location)
+- ❌ **VITE_WHATSAPP_NUMBER** - Não usada (vem do banco via useSettings)
+- ❌ **NODE_ENV** - Definida automaticamente pela Vercel
 
 ## 📋 **Checklist de Deploy:**
 
