@@ -49,7 +49,6 @@ interface Product {
   image_url: string | null;
 }
 
-
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -147,14 +146,14 @@ const Header = () => {
   return (
     <header className="bg-white shadow-lg sticky top-0 z-50 border-b border-gray-100">
       {/* Main Header */}
-      <div className="container mx-auto px-6 py-6">
-        <div className="flex items-center justify-between gap-6">
+      <div className="container mx-auto px-4 md:px-6 py-4 md:py-6">
+        <div className="flex items-center justify-between gap-4 md:gap-6">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0 group">
             <img
               src="/logo.png"
               alt="Nova Casa Construção"
-              className="h-16 md:h-24 w-auto transition-all duration-300 group-hover:scale-105 drop-shadow-md"
+              className="h-12 md:h-24 w-auto transition-all duration-300 group-hover:scale-105 drop-shadow-md"
             />
           </Link>
 
@@ -338,96 +337,117 @@ const Header = () => {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-80 p-0">
-                <SheetHeader className="px-6 py-4 border-b">
-                  <SheetTitle>Menu</SheetTitle>
+                <SheetHeader className="px-6 py-6 border-b bg-gradient-to-r from-primary/5 to-primary/10">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center">
+                      <Menu className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <SheetTitle className="text-lg font-bold text-gray-800">Menu Principal</SheetTitle>
+                      <p className="text-sm text-gray-600">Navegue pela loja</p>
+                    </div>
+                  </div>
                 </SheetHeader>
 
-                <div className="p-6 space-y-4">
-                  {/* Mobile Search */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                    <Input
-                      placeholder="Buscar produtos..."
-                      className="pl-10"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
+                <div className="p-6 space-y-6">
 
                   {/* Categories */}
-                  <div className="space-y-2">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-between"
-                      onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                    >
-                      <span>Categorias</span>
-                      <ChevronDown
-                        className={`h-4 w-4 transition-transform ${
-                          isCategoriesOpen ? "rotate-180" : ""
-                        }`}
-                      />
-                    </Button>
-
-                    {isCategoriesOpen && (
-                      <div className="ml-4 space-y-1">
-                        {categories.map((category) => (
-                          <button
-                            key={category.id}
-                            className="block w-full text-left text-sm text-muted-foreground hover:text-primary py-2"
-                            onClick={() =>
-                              handleCategoryClick(category.id, category.name)
-                            }
-                          >
-                            {category.name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Package className="h-5 w-5 text-primary" />
+                      <h3 className="font-bold text-gray-800">Categorias</h3>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {categories.map((category) => (
+                        <button
+                          key={category.id}
+                          className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
+                          onClick={() => handleCategoryClick(category.id, category.name)}
+                        >
+                          <img
+                            src={category.image_url || "/placeholder.svg"}
+                            alt={category.name}
+                            className="w-10 h-10 object-cover rounded-lg shadow-sm group-hover:scale-105 transition-transform"
+                            onError={(e) => {
+                              e.currentTarget.src = "/placeholder.svg";
+                            }}
+                          />
+                          <div className="flex-1 text-left">
+                            <p className="font-semibold text-sm text-gray-800 group-hover:text-primary transition-colors">
+                              {category.name}
+                            </p>
+                            {category.description && (
+                              <p className="text-xs text-gray-500 line-clamp-1">
+                                {category.description}
+                              </p>
+                            )}
+                          </div>
+                          <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-primary rotate-[-90deg] transition-colors" />
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Navigation Links */}
-                  <div className="space-y-2">
-                    <Link
-                      to="/produtos"
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Package className="h-4 w-4 text-primary" />
-                      Produtos
-                    </Link>
-                    <Link
-                      to="/sobre-nos"
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Info className="h-4 w-4 text-primary" />
-                      Sobre Nós
-                    </Link>
-                    <Link
-                      to="/contato"
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <MessageCircle className="h-4 w-4 text-primary" />
-                      Contato
-                    </Link>
-                    <Link
-                      to="/entrega"
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Truck className="h-4 w-4 text-primary" />
-                      Entrega
-                    </Link>
-                    <Link
-                      to="/trocas-e-devolucoes"
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <RefreshCw className="h-4 w-4 text-primary" />
-                      Trocas e Devoluções
-                    </Link>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Info className="h-5 w-5 text-primary" />
+                      <h3 className="font-bold text-gray-800">Páginas</h3>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Link
+                        to="/produtos"
+                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
+                          <Package className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">Produtos</span>
+                      </Link>
+                      <Link
+                        to="/sobre-nos"
+                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
+                          <Info className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">Sobre Nós</span>
+                      </Link>
+                      <Link
+                        to="/contato"
+                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
+                          <MessageCircle className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">Contato</span>
+                      </Link>
+                      <Link
+                        to="/entrega"
+                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
+                          <Truck className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">Entrega</span>
+                      </Link>
+                      <Link
+                        to="/trocas-e-devolucoes"
+                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 transition-all duration-200 group border border-transparent hover:border-primary/20"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <div className="w-8 h-8 bg-primary/10 group-hover:bg-primary/20 rounded-lg flex items-center justify-center transition-colors">
+                          <RefreshCw className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="font-medium text-gray-700 group-hover:text-primary transition-colors">Trocas e Devoluções</span>
+                      </Link>
+                    </div>
                   </div>
 
                   {/* User Section */}
@@ -525,17 +545,58 @@ const Header = () => {
         </div>
 
         {/* Mobile Search Bar */}
-        <div className="md:hidden mt-6">
+        <div className="md:hidden mt-4 px-2">
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 flex items-center pl-4">
-              <Search className="h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+              <Search className="h-4 w-4 text-gray-400 group-focus-within:text-primary transition-colors" />
             </div>
             <Input
               placeholder="Buscar produtos..."
-              className="pl-12 pr-4 h-12 text-base bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 shadow-sm placeholder:text-gray-400"
+              className="pl-11 pr-4 h-11 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary transition-all duration-200 shadow-sm placeholder:text-gray-400 w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            
+            {/* Mobile Search Results */}
+            {isSearchOpen && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-100 rounded-xl shadow-xl z-50 mt-1 max-h-64 overflow-y-auto">
+                {searchResults.map((product) => (
+                  <button
+                    key={product.id}
+                    className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-b-0"
+                    onClick={() => handleProductClick(product.id)}
+                  >
+                    <img
+                      src={getProductImageUrl(product.image_url)}
+                      alt={product.name}
+                      className="w-10 h-10 object-cover rounded-lg"
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.svg";
+                      }}
+                    />
+                    <div className="flex-1 text-left">
+                      <div className="font-medium text-sm line-clamp-1">{product.name}</div>
+                      <div className="text-primary font-bold text-sm">
+                        {formatCurrency(product.price)}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+                
+                {searchTerm.length >= 2 && (
+                  <button
+                    className="w-full p-3 text-center text-sm text-white bg-primary hover:bg-primary/90 transition-colors rounded-b-xl"
+                    onClick={() => {
+                      navigate(`/produtos?search=${encodeURIComponent(searchTerm)}`);
+                      setSearchTerm("");
+                      setIsSearchOpen(false);
+                    }}
+                  >
+                    Ver todos os resultados
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -554,7 +615,7 @@ const Header = () => {
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent 
+                <DropdownMenuContent
                   className="w-[800px] p-0 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden"
                   align="start"
                   sideOffset={12}
@@ -567,8 +628,12 @@ const Header = () => {
                           <Package className="h-6 w-6 text-white" />
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold text-gray-800">Categorias de Produtos</h3>
-                          <p className="text-sm text-gray-600">Encontre exatamente o que você precisa para sua obra</p>
+                          <h3 className="text-xl font-bold text-gray-800">
+                            Categorias de Produtos
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            Encontre exatamente o que você precisa para sua obra
+                          </p>
                         </div>
                       </div>
                       <div className="text-xs text-gray-500 bg-white px-3 py-1 rounded-full font-medium">
@@ -584,7 +649,9 @@ const Header = () => {
                         <DropdownMenuItem
                           key={category.id}
                           className="p-4 rounded-2xl hover:bg-gradient-to-br hover:from-primary/5 hover:to-primary/10 transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-primary/20 group hover:shadow-lg"
-                          onClick={() => handleCategoryClick(category.id, category.name)}
+                          onClick={() =>
+                            handleCategoryClick(category.id, category.name)
+                          }
                         >
                           <div className="flex items-center gap-4 w-full">
                             <div className="relative flex-shrink-0">
@@ -610,7 +677,9 @@ const Header = () => {
                                 </p>
                               )}
                               <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <span className="text-xs text-primary font-semibold">Explorar produtos →</span>
+                                <span className="text-xs text-primary font-semibold">
+                                  Explorar produtos →
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -621,7 +690,7 @@ const Header = () => {
 
                   {/* Footer do Dropdown */}
                   <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100/50 border-t border-gray-100">
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       className="w-full p-5 rounded-2xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-bold text-center justify-center transition-all duration-300 hover:scale-[1.02] shadow-xl hover:shadow-2xl border-0 group"
                       onClick={() => navigate("/produtos")}
                     >
