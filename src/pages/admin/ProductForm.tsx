@@ -120,14 +120,27 @@ const ProductForm = () => {
     }
   };
 
+  const testImageUrl = (url: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = url;
+      // Timeout após 5 segundos
+      setTimeout(() => resolve(false), 5000);
+    });
+  };
+
   const getCorrectImageUrl = async (imagePath: string): Promise<string> => {
     const trimmedPath = imagePath.trim();
     console.log('Processing image path:', trimmedPath);
     
-    // Se já é uma URL completa, retorna ela
+    // Se já é uma URL completa, testa se funciona
     if (trimmedPath.startsWith('http')) {
       console.log('URL completa encontrada:', trimmedPath);
-      return trimmedPath;
+      const isValid = await testImageUrl(trimmedPath);
+      console.log('URL test result:', isValid);
+      return isValid ? trimmedPath : '';
     }
     
     // Se parece com um caminho do storage, constrói a URL
@@ -138,8 +151,10 @@ const ProductForm = () => {
       
       console.log('URL construída:', publicUrl.publicUrl);
       
-      // Retornar a URL sem verificação HEAD (que pode estar causando problemas)
-      return publicUrl.publicUrl;
+      // Testa se a URL construída funciona
+      const isValid = await testImageUrl(publicUrl.publicUrl);
+      console.log('Constructed URL test result:', isValid);
+      return isValid ? publicUrl.publicUrl : '';
       
     } catch (error) {
       console.error('Error constructing image URL:', error);
@@ -185,40 +200,63 @@ const ProductForm = () => {
       // Carregar imagens existentes com URLs corretas
       if (data.image_url) {
         console.log('Raw image_url from DB:', data.image_url);
+        console.log('Type of image_url:', typeof data.image_url);
         
-        const images = data.image_url.split(',').filter(Boolean);
-        console.log('Split images array:', images);
+        let images: string[] = [];
+        
+        // Tentar diferentes formatos de parsing
+        try {
+          // Primeiro, tentar como JSON (array de URLs)
+          const parsed = JSON.parse(data.image_url);
+          if (Array.isArray(parsed)) {
+            images = parsed.filter(Boolean).map(img => String(img).trim());
+            console.log('Parsed as JSON array:', images);
+          } else if (typeof parsed === 'string') {
+            images = [parsed.trim()];
+            console.log('Parsed as JSON string:', images);
+          }
+        } catch (jsonError) {
+          console.log('Not JSON format, trying as comma-separated string');
+          
+          // Se não for JSON, tentar como string separada por vírgulas
+          if (typeof data.image_url === 'string') {
+            images = data.image_url.split(',').filter(Boolean).map(img => img.trim());
+            console.log('Parsed as comma-separated string:', images);
+          }
+        }
+        
+        console.log('Final parsed images array:', images);
         console.log('Number of images found:', images.length);
         
         if (images.length === 0) {
-          console.log('No images found after split');
+          console.log('No valid images found after parsing');
           setExistingImages([]);
         } else {
-          // Processar cada imagem com fallback simples
-          const correctedImages = images.map((img) => {
-            const trimmedImg = img.trim();
-            console.log(`Processing image:`, trimmedImg);
+          // Processar cada imagem com teste de validade
+          const imagePromises = images.map(async (img, index) => {
+            console.log(`Processing image ${index + 1}/${images.length}:`, img);
             
-            // Se já é uma URL completa, usa ela
-            if (trimmedImg.startsWith('http')) {
-              console.log('Complete URL found:', trimmedImg);
-              return trimmedImg;
+            // Se já é uma URL completa, usa ela (com teste opcional)
+            if (img.startsWith('http')) {
+              console.log('Complete URL found:', img);
+              return img; // Assumir que URLs completas são válidas
             }
             
-            // Senão, constrói a URL do Supabase Storage
+            // Se é um caminho relativo, constrói a URL do Supabase Storage
             try {
               const { data: publicUrl } = supabase.storage
                 .from('product-images')
-                .getPublicUrl(trimmedImg);
+                .getPublicUrl(img);
               
               console.log('Constructed URL:', publicUrl.publicUrl);
               return publicUrl.publicUrl;
             } catch (error) {
-              console.error('Error constructing URL for:', trimmedImg, error);
+              console.error('Error constructing URL for:', img, error);
               return ''; // Retorna string vazia em caso de erro
             }
           });
           
+          const correctedImages = await Promise.all(imagePromises);
           console.log('All processed images:', correctedImages);
           
           // Filtrar URLs vazias (imagens que falharam)
@@ -323,9 +361,13 @@ const ProductForm = () => {
     try {
       // Upload das imagens primeiro
       let imageUrls: string[] = [...existingImages];
+      console.log('Existing images before upload:', existingImages);
       
       if (imageFiles.length > 0) {
+        console.log('Uploading new images:', imageFiles.length);
+        
         const uploadPromises = imageFiles.map(async (file) => {
+          console.log('Uploading file:', file.name);
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
           
@@ -333,18 +375,25 @@ const ProductForm = () => {
             .from('product-images')
             .upload(fileName, file);
 
-          if (error) throw error;
+          if (error) {
+            console.error('Upload error for file:', file.name, error);
+            throw error;
+          }
           
           const { data: publicUrl } = supabase.storage
             .from('product-images')
             .getPublicUrl(fileName);
-            
+          
+          console.log('Generated public URL:', publicUrl.publicUrl);
           return publicUrl.publicUrl;
         });
 
         const uploadedUrls = await Promise.all(uploadPromises);
+        console.log('All uploaded URLs:', uploadedUrls);
         imageUrls = [...imageUrls, ...uploadedUrls];
       }
+      
+      console.log('Final image URLs to save:', imageUrls);
 
       const productData = {
         name: formData.name,
@@ -359,6 +408,9 @@ const ProductForm = () => {
         is_special_offer: formData.is_special_offer,
         image_url: imageUrls.join(','),
       };
+      
+      console.log('Product data to save:', productData);
+      console.log('Image URLs being saved:', productData.image_url);
 
       if (isEditing) {
         const { error } = await supabase
