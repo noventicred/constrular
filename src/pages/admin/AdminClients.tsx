@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency, formatOrderNumber } from '@/lib/formatters';
-import { Search, Eye, Users, ShoppingBag, Edit, Save, X, Mail, Phone, MapPin, Calendar, FileText, Filter, MoreHorizontal, CreditCard, Package, TrendingUp } from 'lucide-react';
+import { Search, Eye, Users, ShoppingBag, Edit, Save, X, Mail, Phone, MapPin, Calendar, FileText, Filter, MoreHorizontal, CreditCard, Package, TrendingUp, Trash2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Client {
@@ -59,6 +59,8 @@ const AdminClients = () => {
   const [clientOrders, setClientOrders] = useState<Order[]>([]);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -184,6 +186,52 @@ const AdminClients = () => {
       toast({
         title: 'Erro ao atualizar',
         description: 'Não foi possível atualizar as informações do cliente.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeleteClient = (client: Client) => {
+    setClientToDelete(client);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteClient = async () => {
+    if (!clientToDelete) return;
+
+    try {
+      // Verificar se o cliente tem pedidos
+      if (clientToDelete.orders_count > 0) {
+        toast({
+          title: 'Não é possível excluir',
+          description: 'Este cliente possui pedidos associados. Não é possível excluí-lo.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', clientToDelete.id);
+
+      if (error) throw error;
+
+      // Remover da lista local
+      setClients(clients.filter(client => client.id !== clientToDelete.id));
+
+      toast({
+        title: 'Cliente excluído',
+        description: 'O cliente foi removido com sucesso.',
+      });
+
+      setDeleteDialogOpen(false);
+      setClientToDelete(null);
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      toast({
+        title: 'Erro ao excluir',
+        description: 'Não foi possível excluir o cliente. Tente novamente.',
         variant: 'destructive',
       });
     }
@@ -435,6 +483,7 @@ const AdminClients = () => {
                             variant="ghost" 
                             size="sm"
                             onClick={() => handleViewClient(client)}
+                            title="Visualizar cliente"
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -442,8 +491,18 @@ const AdminClients = () => {
                             variant="ghost" 
                             size="sm"
                             onClick={() => handleEditClient(client)}
+                            title="Editar cliente"
                           >
                             <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleDeleteClient(client)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            title="Excluir cliente"
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -768,6 +827,70 @@ const AdminClients = () => {
             <Button onClick={handleSaveClient}>
               <Save className="mr-2 h-4 w-4" />
               Salvar Alterações
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para Confirmar Exclusão */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              Confirmar Exclusão
+            </DialogTitle>
+            <DialogDescription>
+              Esta ação não pode ser desfeita. Tem certeza de que deseja excluir este cliente?
+            </DialogDescription>
+          </DialogHeader>
+
+          {clientToDelete && (
+            <div className="py-4">
+              <div className="p-4 bg-muted rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback>
+                      {clientToDelete.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-medium">{clientToDelete.full_name || 'Sem nome'}</div>
+                    <div className="text-sm text-muted-foreground">{clientToDelete.email}</div>
+                    {clientToDelete.orders_count > 0 && (
+                      <div className="text-xs text-amber-600 font-medium mt-1">
+                        ⚠️ Este cliente possui {clientToDelete.orders_count} pedidos
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {clientToDelete.orders_count > 0 && (
+                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div className="flex items-center gap-2 text-amber-800">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span className="text-sm font-medium">Não é possível excluir</span>
+                  </div>
+                  <p className="text-xs text-amber-700 mt-1">
+                    Clientes com pedidos associados não podem ser excluídos para manter a integridade dos dados.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmDeleteClient}
+              disabled={clientToDelete?.orders_count > 0}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Excluir Cliente
             </Button>
           </DialogFooter>
         </DialogContent>
