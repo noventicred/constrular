@@ -91,6 +91,9 @@ export default function AdminOrders() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState('all');
+  const [customDateFrom, setCustomDateFrom] = useState('');
+  const [customDateTo, setCustomDateTo] = useState('');
   const [editingOrder, setEditingOrder] = useState<Partial<Order>>({});
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
@@ -369,7 +372,27 @@ export default function AdminOrders() {
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     const matchesPayment = paymentFilter === 'all' || order.payment_status === paymentFilter;
     
-    return matchesSearch && matchesStatus && matchesPayment;
+    // Filtro de data
+    let matchesDate = true;
+    const orderDate = new Date(order.created_at);
+    const today = new Date();
+    
+    if (dateFilter === 'today') {
+      matchesDate = orderDate.toDateString() === today.toDateString();
+    } else if (dateFilter === 'week') {
+      const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      matchesDate = orderDate >= weekAgo;
+    } else if (dateFilter === 'month') {
+      const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+      matchesDate = orderDate >= monthAgo;
+    } else if (dateFilter === 'custom' && customDateFrom && customDateTo) {
+      const fromDate = new Date(customDateFrom);
+      const toDate = new Date(customDateTo);
+      toDate.setHours(23, 59, 59); // Incluir todo o dia
+      matchesDate = orderDate >= fromDate && orderDate <= toDate;
+    }
+    
+    return matchesSearch && matchesStatus && matchesPayment && matchesDate;
   });
 
   const stats = {
@@ -474,46 +497,98 @@ export default function AdminOrders() {
       {/* Filters */}
       <Card>
         <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Buscar por ID, cliente ou email..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+          <div className="space-y-4">
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    placeholder="Buscar por ID, cliente ou email..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
               </div>
-            </div>
-            
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Status do Pedido" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os Status</SelectItem>
-                {statusOptions.map((status) => (
-                  <SelectItem key={status.value} value={status.value}>
-                    {status.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full lg:w-48">
+                  <SelectValue placeholder="Status do Pedido" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os Status</SelectItem>
+                  {statusOptions.map((status) => (
+                    <SelectItem key={status.value} value={status.value}>
+                      {status.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Status do Pagamento" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os Pagamentos</SelectItem>
-                {paymentStatusOptions.map((status) => (
-                  <SelectItem key={status.value} value={status.value}>
-                    {status.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+                <SelectTrigger className="w-full lg:w-48">
+                  <SelectValue placeholder="Status do Pagamento" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os Pagamentos</SelectItem>
+                  {paymentStatusOptions.map((status) => (
+                    <SelectItem key={status.value} value={status.value}>
+                      {status.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={dateFilter} onValueChange={setDateFilter}>
+                <SelectTrigger className="w-full lg:w-48">
+                  <SelectValue placeholder="Período" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as Datas</SelectItem>
+                  <SelectItem value="today">Hoje</SelectItem>
+                  <SelectItem value="week">Última Semana</SelectItem>
+                  <SelectItem value="month">Último Mês</SelectItem>
+                  <SelectItem value="custom">Período Personalizado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Custom Date Range */}
+            {dateFilter === 'custom' && (
+              <div className="flex gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex-1">
+                  <Label className="text-sm font-semibold text-blue-700">Data Inicial</Label>
+                  <Input
+                    type="date"
+                    value={customDateFrom}
+                    onChange={(e) => setCustomDateFrom(e.target.value)}
+                    className="mt-1 border-blue-200 focus:border-blue-400"
+                  />
+                </div>
+                <div className="flex-1">
+                  <Label className="text-sm font-semibold text-blue-700">Data Final</Label>
+                  <Input
+                    type="date"
+                    value={customDateTo}
+                    onChange={(e) => setCustomDateTo(e.target.value)}
+                    className="mt-1 border-blue-200 focus:border-blue-400"
+                  />
+                </div>
+                <div className="flex items-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setCustomDateFrom('');
+                      setCustomDateTo('');
+                      setDateFilter('all');
+                    }}
+                    className="h-10"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -650,112 +725,146 @@ export default function AdminOrders() {
 
       {/* Order Details Modal */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5" />
-              Detalhes do Pedido #{selectedOrder ? formatOrderNumber(selectedOrder.id) : ''}
+            <DialogTitle className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+                <Eye className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold">Detalhes do Pedido #{selectedOrder ? formatOrderNumber(selectedOrder.id) : ''}</h2>
+                <p className="text-sm text-gray-600">Informações completas do pedido</p>
+              </div>
             </DialogTitle>
           </DialogHeader>
           
           {selectedOrder && (
-            <div className="space-y-6 mt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
               {/* Customer Info */}
-              <Card>
-                <CardHeader>
+              <Card className="lg:col-span-1">
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 border-b">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Informações do Cliente
+                    <User className="h-5 w-5 text-blue-600" />
+                    Cliente
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="p-6 space-y-4">
+                  <div className="space-y-3">
                     <div>
-                      <Label className="text-sm font-semibold text-gray-600">Nome</Label>
-                      <p className="font-medium">{selectedOrder.profiles?.full_name || 'Não informado'}</p>
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Nome</Label>
+                      <p className="font-semibold text-gray-800">{selectedOrder.profiles?.full_name || 'Não informado'}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-semibold text-gray-600">Email</Label>
-                      <p className="font-medium">{selectedOrder.profiles?.email || 'Não informado'}</p>
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Email</Label>
+                      <p className="font-medium text-gray-700">{selectedOrder.profiles?.email || 'Não informado'}</p>
                     </div>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-semibold text-gray-600">Endereço de Entrega</Label>
-                    <p className="font-medium">{selectedOrder.shipping_address || 'Não informado'}</p>
+                    <div>
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Endereço</Label>
+                      <p className="font-medium text-gray-700 leading-relaxed">{selectedOrder.shipping_address || 'Não informado'}</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Order Info */}
-              <Card>
-                <CardHeader>
+              <Card className="lg:col-span-1">
+                <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 border-b">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Package className="h-5 w-5" />
-                    Informações do Pedido
+                    <Package className="h-5 w-5 text-green-600" />
+                    Pedido
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <Label className="text-sm font-semibold text-gray-600">Status</Label>
-                      <div className="mt-1">{getStatusBadge(selectedOrder.status)}</div>
+                <CardContent className="p-6 space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</Label>
+                      {getStatusBadge(selectedOrder.status)}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Pagamento</Label>
+                      {getPaymentBadge(selectedOrder.payment_status)}
                     </div>
                     <div>
-                      <Label className="text-sm font-semibold text-gray-600">Pagamento</Label>
-                      <div className="mt-1">{getPaymentBadge(selectedOrder.payment_status)}</div>
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Método</Label>
+                      <p className="font-semibold text-gray-800 capitalize">{selectedOrder.payment_method || 'Não informado'}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-semibold text-gray-600">Método</Label>
-                      <p className="font-medium capitalize">{selectedOrder.payment_method}</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-semibold text-gray-600">Data do Pedido</Label>
-                      <p className="font-medium">
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Data</Label>
+                      <p className="font-medium text-gray-700">
                         {new Date(selectedOrder.created_at).toLocaleString('pt-BR')}
                       </p>
                     </div>
-                    <div>
-                      <Label className="text-sm font-semibold text-gray-600">Total</Label>
-                      <p className="text-xl font-bold text-primary">{formatCurrency(selectedOrder.total_amount)}</p>
+                    <div className="pt-2 border-t border-gray-200">
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total</Label>
+                      <p className="text-2xl font-bold text-primary">{formatCurrency(selectedOrder.total_amount)}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Order Items */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Itens do Pedido</CardTitle>
+              <Card className="lg:col-span-1">
+                <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100 border-b">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <ShoppingCart className="h-5 w-5 text-purple-600" />
+                    Itens ({orderItems[selectedOrder.id]?.length || 0})
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
                   {orderItems[selectedOrder.id] && orderItems[selectedOrder.id].length > 0 ? (
-                    <div className="space-y-4">
+                    <div className="space-y-4 max-h-96 overflow-y-auto">
                       {orderItems[selectedOrder.id].map((item) => (
-                        <div key={item.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                          {item.products?.image_url && (
-                            <img
-                              src={item.products.image_url}
-                              alt={item.product_name}
-                              className="w-16 h-16 object-contain bg-white rounded-lg border"
-                            />
-                          )}
-                          <div className="flex-1">
-                            <h4 className="font-semibold">{item.product_name}</h4>
-                            <p className="text-sm text-gray-500">SKU: {item.products?.sku || 'N/A'}</p>
-                            <p className="text-sm text-gray-500">
-                              Quantidade: {item.quantity} × {formatCurrency(item.unit_price)}
-                            </p>
+                        <div key={item.id} className="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                          <div className="w-16 h-16 bg-gray-50 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                            {item.products?.image_url ? (
+                              <img
+                                src={item.products.image_url.split(',')[0]}
+                                alt={item.product_name}
+                                className="w-full h-full object-contain bg-white p-1"
+                                onError={(e) => {
+                                  e.currentTarget.src = "/placeholder.svg";
+                                }}
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Package className="h-6 w-6 text-gray-400" />
+                              </div>
+                            )}
                           </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-lg">{formatCurrency(item.total_price)}</p>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-gray-800 text-sm line-clamp-2 leading-tight mb-1">
+                              {item.product_name}
+                            </h4>
+                            <p className="text-xs text-gray-500 mb-1">
+                              SKU: {item.products?.sku || 'N/A'}
+                            </p>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-gray-600">
+                                {item.quantity}x {formatCurrency(item.unit_price)}
+                              </span>
+                              <span className="font-bold text-sm text-primary">
+                                {formatCurrency(item.total_price)}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       ))}
+                      
+                      {/* Total Summary */}
+                      <div className="pt-4 border-t border-gray-200">
+                        <div className="flex items-center justify-between text-lg">
+                          <span className="font-semibold text-gray-800">Total do Pedido:</span>
+                          <span className="font-bold text-xl text-primary">
+                            {formatCurrency(selectedOrder.total_amount)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   ) : (
-                    <p className="text-gray-500 text-center py-4">Nenhum item encontrado</p>
+                    <div className="text-center py-8">
+                      <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500">Nenhum item encontrado</p>
+                    </div>
                   )}
                 </CardContent>
               </Card>
