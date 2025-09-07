@@ -316,23 +316,46 @@ export default function AdminOrders() {
 
   const deleteOrder = async (orderId: string) => {
     try {
-      // Primeiro deletar os itens do pedido
-      const { error: itemsError } = await supabase
-        .from("order_items")
-        .delete()
-        .eq("order_id", orderId);
+      // Verificar se o usuário é admin
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Usuário não autenticado');
+      }
 
-      if (itemsError) throw itemsError;
+      // Buscar perfil para verificar se é admin
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
 
-      // Depois deletar o pedido
+      if (!profile?.is_admin) {
+        throw new Error('Apenas administradores podem excluir pedidos');
+      }
+
+      console.log('Tentando excluir pedido:', orderId);
+
+      // Como há CASCADE na FK, deletar apenas o pedido deve deletar os itens automaticamente
       const { error: orderError } = await supabase
         .from("orders")
         .delete()
         .eq("id", orderId);
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('Erro ao deletar pedido:', orderError);
+        throw orderError;
+      }
 
+      console.log('Pedido excluído com sucesso');
+
+      // Atualizar estado local
       setOrders((prev) => prev.filter((order) => order.id !== orderId));
+      setOrderItems(prev => {
+        const newItems = { ...prev };
+        delete newItems[orderId];
+        return newItems;
+      });
+      
       setDeleteConfirmOpen(false);
       setOrderToDelete(null);
 
@@ -340,11 +363,17 @@ export default function AdminOrders() {
         title: "✅ Pedido excluído!",
         description: "Pedido foi removido permanentemente.",
       });
-    } catch (error) {
+
+      // Recarregar dados para garantir consistência
+      setTimeout(() => {
+        fetchOrders();
+      }, 1000);
+
+    } catch (error: any) {
       console.error("Error deleting order:", error);
       toast({
-        title: "Erro",
-        description: "Não foi possível excluir o pedido.",
+        title: "Erro ao excluir pedido",
+        description: error.message || "Não foi possível excluir o pedido. Verifique suas permissões.",
         variant: "destructive",
       });
     }
