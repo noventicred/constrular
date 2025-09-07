@@ -14,7 +14,9 @@ import {
   RefreshCw,
   Phone,
   Truck,
-  DollarSign
+  DollarSign,
+  Plus,
+  X
 } from 'lucide-react';
 
 const AdminConfiguracoes = () => {
@@ -23,10 +25,11 @@ const AdminConfiguracoes = () => {
   const [settings, setSettings] = useState({
     store_name: '',
     store_email: '',
-    whatsapp_number: '',
+    whatsapp_numbers: [] as string[],
     free_shipping_threshold: '',
     default_shipping_cost: '',
   });
+  const [newWhatsAppNumber, setNewWhatsAppNumber] = useState('');
 
   useEffect(() => {
     fetchSettings();
@@ -45,7 +48,16 @@ const AdminConfiguracoes = () => {
         return acc;
       }, {} as Record<string, string>);
 
-      setSettings(prev => ({ ...prev, ...settingsMap }));
+      // Processar números do WhatsApp como array
+      const whatsappNumbers = settingsMap.whatsapp_numbers 
+        ? JSON.parse(settingsMap.whatsapp_numbers) 
+        : [];
+
+      setSettings(prev => ({ 
+        ...prev, 
+        ...settingsMap,
+        whatsapp_numbers: Array.isArray(whatsappNumbers) ? whatsappNumbers : []
+      }));
     } catch (error) {
       console.error('Error fetching settings:', error);
       toast({
@@ -70,12 +82,35 @@ const AdminConfiguracoes = () => {
     }
   };
 
+  const addWhatsAppNumber = () => {
+    if (newWhatsAppNumber.trim()) {
+      setSettings(prev => ({
+        ...prev,
+        whatsapp_numbers: [...prev.whatsapp_numbers, newWhatsAppNumber.trim()]
+      }));
+      setNewWhatsAppNumber('');
+    }
+  };
+
+  const removeWhatsAppNumber = (index: number) => {
+    setSettings(prev => ({
+      ...prev,
+      whatsapp_numbers: prev.whatsapp_numbers.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleSave = async () => {
     setIsLoading(true);
     
     try {
-      const promises = Object.entries(settings).map(([key, value]) => 
-        updateSetting(key, value)
+      // Preparar dados para salvar
+      const settingsToSave = {
+        ...settings,
+        whatsapp_numbers: JSON.stringify(settings.whatsapp_numbers)
+      };
+
+      const promises = Object.entries(settingsToSave).map(([key, value]) => 
+        updateSetting(key, typeof value === 'string' ? value : JSON.stringify(value))
       );
       
       const results = await Promise.all(promises);
@@ -170,27 +205,88 @@ const AdminConfiguracoes = () => {
                   <MessageCircle className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <CardTitle className="text-xl">WhatsApp</CardTitle>
-                  <CardDescription>Configure o número para vendas pelo WhatsApp</CardDescription>
+                  <CardTitle className="text-xl">WhatsApp - Múltiplos Números</CardTitle>
+                  <CardDescription>Configure múltiplos números para rotação automática</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="whatsapp_number" className="text-sm font-semibold text-gray-700">
-                  Número do WhatsApp
-                </Label>
-                <Input
-                  id="whatsapp_number"
-                  value={settings.whatsapp_number}
-                  onChange={(e) => setSettings(prev => ({ ...prev, whatsapp_number: e.target.value }))}
-                  placeholder="5511999999999"
-                  className="border-2 border-gray-200 focus:border-primary"
-                />
-                <p className="text-xs text-gray-500">
-                  Formato: Código do país + DDD + número (ex: 5511999999999)
-                </p>
+              {/* Adicionar Novo Número */}
+              <div className="space-y-4 p-4 bg-green-50 rounded-xl border border-green-200">
+                <h4 className="font-semibold text-green-800">Adicionar Novo Número</h4>
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <Input
+                      value={newWhatsAppNumber}
+                      onChange={(e) => setNewWhatsAppNumber(e.target.value)}
+                      placeholder="5511999999999"
+                      className="border-2 border-green-200 focus:border-green-400"
+                    />
+                    <p className="text-xs text-green-600 mt-1">
+                      Formato: Código do país + DDD + número (ex: 5511999999999)
+                    </p>
+                  </div>
+                  <Button
+                    onClick={addWhatsAppNumber}
+                    className="bg-green-500 hover:bg-green-600 h-10"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
+
+              {/* Lista de Números */}
+              {settings.whatsapp_numbers.length > 0 && (
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-gray-800">
+                    Números Cadastrados ({settings.whatsapp_numbers.length})
+                  </h4>
+                  <div className="space-y-3">
+                    {settings.whatsapp_numbers.map((number, index) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                          <span className="text-sm font-bold text-green-600">#{index + 1}</span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-800">{number}</p>
+                          <p className="text-xs text-gray-500">
+                            Posição na rotação: {index + 1}
+                          </p>
+                        </div>
+                        <Badge className="bg-green-100 text-green-800">
+                          {index === 0 ? 'Próximo' : `Posição ${index + 1}`}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeWhatsAppNumber(index)}
+                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                    <h5 className="font-semibold text-blue-800 mb-2">Como funciona a rotação:</h5>
+                    <div className="text-sm text-blue-700 space-y-1">
+                      <p>• 1º clique: WhatsApp #{settings.whatsapp_numbers.length > 0 ? '1' : '-'}</p>
+                      <p>• 2º clique: WhatsApp #{settings.whatsapp_numbers.length > 1 ? '2' : '1'}</p>
+                      <p>• 3º clique: WhatsApp #{settings.whatsapp_numbers.length > 2 ? '3' : settings.whatsapp_numbers.length > 1 ? '1' : '1'}</p>
+                      <p className="font-medium">A rotação é automática e distribui os clientes entre os números.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {settings.whatsapp_numbers.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  <MessageCircle className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                  <p>Nenhum número cadastrado</p>
+                  <p className="text-sm">Adicione pelo menos um número para ativar o WhatsApp</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
