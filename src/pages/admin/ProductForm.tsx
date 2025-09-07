@@ -22,6 +22,7 @@ import {
   Camera,
   Save,
   Eye,
+  Edit,
   AlertCircle,
   CheckCircle
 } from 'lucide-react';
@@ -66,6 +67,14 @@ const ProductForm = () => {
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<Comment>({
+    author_name: '',
+    comment_text: '',
+    rating: 5,
+    likes: 0,
+    dislikes: 0,
+  });
+  const [editingComment, setEditingComment] = useState<string | null>(null);
+  const [editCommentData, setEditCommentData] = useState<Comment>({
     author_name: '',
     comment_text: '',
     rating: 5,
@@ -493,6 +502,93 @@ const ProductForm = () => {
       toast({
         title: 'Erro ao excluir comentário',
         description: 'Não foi possível excluir o comentário.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const startEditComment = (comment: Comment) => {
+    setEditingComment(comment.id || '');
+    setEditCommentData({
+      author_name: comment.author_name,
+      comment_text: comment.comment_text,
+      rating: comment.rating,
+      likes: comment.likes,
+      dislikes: comment.dislikes,
+    });
+  };
+
+  const cancelEditComment = () => {
+    setEditingComment(null);
+    setEditCommentData({
+      author_name: '',
+      comment_text: '',
+      rating: 5,
+      likes: 0,
+      dislikes: 0,
+    });
+  };
+
+  const saveEditComment = async (commentId: string) => {
+    if (!editCommentData.author_name || !editCommentData.comment_text) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Preencha o nome do autor e o comentário.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      if (commentId.length > 10) { // ID do banco (UUID)
+        const { error } = await supabase
+          .from('product_comments')
+          .update({
+            author_name: editCommentData.author_name,
+            comment_text: editCommentData.comment_text,
+            rating: editCommentData.rating,
+            likes: editCommentData.likes,
+            dislikes: editCommentData.dislikes,
+          })
+          .eq('id', commentId);
+
+        if (error) throw error;
+
+        toast({
+          title: '✅ Comentário atualizado!',
+          description: 'Alterações salvas com sucesso.',
+        });
+      }
+
+      // Atualizar estado local
+      setComments(prev => prev.map(comment => 
+        comment.id === commentId 
+          ? { 
+              ...comment, 
+              author_name: editCommentData.author_name,
+              comment_text: editCommentData.comment_text,
+              rating: editCommentData.rating,
+              likes: editCommentData.likes,
+              dislikes: editCommentData.dislikes,
+            }
+          : comment
+      ));
+
+      // Limpar edição
+      setEditingComment(null);
+      setEditCommentData({
+        author_name: '',
+        comment_text: '',
+        rating: 5,
+        likes: 0,
+        dislikes: 0,
+      });
+
+    } catch (error) {
+      console.error('Error updating comment:', error);
+      toast({
+        title: 'Erro ao atualizar comentário',
+        description: 'Não foi possível salvar as alterações.',
         variant: 'destructive',
       });
     }
@@ -966,30 +1062,159 @@ const ProductForm = () => {
                     <div className="max-h-96 overflow-y-auto space-y-3">
                       {comments.map((comment, index) => (
                         <div key={comment.id || index} className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <p className="font-medium text-gray-800">{comment.author_name}</p>
-                              <div className="flex items-center gap-1">
-                                {[...Array(comment.rating)].map((_, i) => (
-                                  <Star key={i} className="h-3 w-3 text-yellow-400 fill-current" />
-                                ))}
+                          {editingComment === comment.id ? (
+                            // Modo de Edição
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <h5 className="font-medium text-gray-800">Editando Comentário</h5>
+                                <div className="flex gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={cancelEditComment}
+                                    className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-semibold text-gray-700">Nome do Autor</Label>
+                                  <Input
+                                    value={editCommentData.author_name}
+                                    onChange={(e) => setEditCommentData(prev => ({ ...prev, author_name: e.target.value }))}
+                                    placeholder="Nome do cliente"
+                                    className="border-2 border-gray-200 focus:border-primary"
+                                  />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-semibold text-gray-700">Avaliação</Label>
+                                  <Select
+                                    value={editCommentData.rating.toString()}
+                                    onValueChange={(value) => setEditCommentData(prev => ({ ...prev, rating: parseInt(value) }))}
+                                  >
+                                    <SelectTrigger className="border-2 border-gray-200 focus:border-primary">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {[1, 2, 3, 4, 5].map(rating => (
+                                        <SelectItem key={rating} value={rating.toString()}>
+                                          <div className="flex items-center gap-2">
+                                            <span>{rating}</span>
+                                            <div className="flex">
+                                              {[...Array(rating)].map((_, i) => (
+                                                <Star key={i} className="h-3 w-3 text-yellow-400 fill-current" />
+                                              ))}
+                                            </div>
+                                          </div>
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-gray-700">Comentário</Label>
+                                <Textarea
+                                  value={editCommentData.comment_text}
+                                  onChange={(e) => setEditCommentData(prev => ({ ...prev, comment_text: e.target.value }))}
+                                  placeholder="Comentário do cliente..."
+                                  className="border-2 border-gray-200 focus:border-primary resize-none"
+                                  rows={3}
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-semibold text-gray-700">Curtidas</Label>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    value={editCommentData.likes}
+                                    onChange={(e) => setEditCommentData(prev => ({ ...prev, likes: parseInt(e.target.value) || 0 }))}
+                                    className="border-2 border-gray-200 focus:border-primary"
+                                  />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-semibold text-gray-700">Descurtidas</Label>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    value={editCommentData.dislikes}
+                                    onChange={(e) => setEditCommentData(prev => ({ ...prev, dislikes: parseInt(e.target.value) || 0 }))}
+                                    className="border-2 border-gray-200 focus:border-primary"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="flex gap-3">
+                                <Button
+                                  type="button"
+                                  onClick={() => comment.id && saveEditComment(comment.id)}
+                                  className="flex-1 bg-green-500 hover:bg-green-600"
+                                  disabled={loading}
+                                >
+                                  <CheckCircle className="h-4 w-4 mr-2" />
+                                  Salvar Alterações
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={cancelEditComment}
+                                  className="px-6"
+                                >
+                                  Cancelar
+                                </Button>
                               </div>
                             </div>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => comment.id && deleteComment(comment.id)}
-                              className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </div>
-                          <p className="text-sm text-gray-600 leading-relaxed">{comment.comment_text}</p>
-                          <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
-                            <span>👍 {comment.likes}</span>
-                            <span>👎 {comment.dislikes}</span>
-                          </div>
+                          ) : (
+                            // Modo de Visualização
+                            <>
+                              <div className="flex items-start justify-between mb-2">
+                                <div>
+                                  <p className="font-medium text-gray-800">{comment.author_name}</p>
+                                  <div className="flex items-center gap-1">
+                                    {[...Array(comment.rating)].map((_, i) => (
+                                      <Star key={i} className="h-3 w-3 text-yellow-400 fill-current" />
+                                    ))}
+                                  </div>
+                                </div>
+                                <div className="flex gap-1">
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => startEditComment(comment)}
+                                    className="h-6 w-6 p-0 text-gray-400 hover:text-blue-500"
+                                    title="Editar comentário"
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => comment.id && deleteComment(comment.id)}
+                                    className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
+                                    title="Excluir comentário"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <p className="text-sm text-gray-600 leading-relaxed">{comment.comment_text}</p>
+                              <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+                                <span>👍 {comment.likes}</span>
+                                <span>👎 {comment.dislikes}</span>
+                              </div>
+                            </>
+                          )}
                         </div>
                       ))}
                     </div>
