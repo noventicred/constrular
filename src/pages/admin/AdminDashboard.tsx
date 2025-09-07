@@ -15,8 +15,14 @@ interface DashboardStats {
   activeProducts: number;
   totalOrders: number;
   pendingOrders: number;
+  confirmedOrders: number;
+  deliveredOrders: number;
+  featuredProducts: number;
   monthlyRevenue: number;
-  weeklyGrowth: number;
+  monthlyGrowth: number;
+  conversionRate: number;
+  activeProductsPercentage: number;
+  orderEfficiency: number;
 }
 
 interface RecentActivity {
@@ -40,8 +46,14 @@ const AdminDashboard = () => {
     activeProducts: 0,
     totalOrders: 0,
     pendingOrders: 0,
+    confirmedOrders: 0,
+    deliveredOrders: 0,
+    featuredProducts: 0,
     monthlyRevenue: 0,
-    weeklyGrowth: 0,
+    monthlyGrowth: 0,
+    conversionRate: 0,
+    activeProductsPercentage: 0,
+    orderEfficiency: 0,
   });
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,6 +81,15 @@ const AdminDashboard = () => {
     try {
       // Atualizar timestamp do último fetch
       lastFetchTime.current = Date.now();
+      
+      // Datas para cálculos
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+      const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const previous30Days = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
       const [
         productsResult, 
         categoriesResult, 
@@ -76,49 +97,107 @@ const AdminDashboard = () => {
         activeProductsResult, 
         ordersResult,
         pendingOrdersResult,
-        revenueResult
+        confirmedOrdersResult,
+        deliveredOrdersResult,
+        currentMonthRevenueResult,
+        lastMonthRevenueResult,
+        last30DaysOrdersResult,
+        previous30DaysOrdersResult,
+        featuredProductsResult
       ] = await Promise.all([
+        // Contagens básicas
         supabase.from('products').select('*', { count: 'exact', head: true }),
         supabase.from('categories').select('*', { count: 'exact', head: true }),
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('products').select('*', { count: 'exact', head: true }).eq('in_stock', true),
+        
+        // Status dos pedidos
         supabase.from('orders').select('*', { count: 'exact', head: true }),
         supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('orders').select('total_amount').gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
+        supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'confirmed'),
+        supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'delivered'),
+        
+        // Receita mensal
+        supabase.from('orders').select('total_amount, status').gte('created_at', startOfMonth.toISOString()),
+        supabase.from('orders').select('total_amount, status')
+          .gte('created_at', startOfLastMonth.toISOString())
+          .lte('created_at', endOfLastMonth.toISOString()),
+        
+        // Comparação últimos 30 dias
+        supabase.from('orders').select('total_amount, status').gte('created_at', last30Days.toISOString()),
+        supabase.from('orders').select('total_amount, status')
+          .gte('created_at', previous30Days.toISOString())
+          .lt('created_at', last30Days.toISOString()),
+        
+        // Produtos em destaque
+        supabase.from('products').select('*', { count: 'exact', head: true }).eq('is_featured', true)
       ]);
 
-      // Calculando receita real do mês atual
-      const monthlyRevenue = revenueResult.data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
-      
-      // Calculando crescimento com base nos últimos 7 dias vs 7 dias anteriores
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      
-      const twoWeeksAgo = new Date();
-      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+      // Calcular receita do mês atual (apenas pedidos confirmados/entregues)
+      const currentMonthRevenue = currentMonthRevenueResult.data
+        ?.filter(order => ['confirmed', 'shipped', 'delivered'].includes(order.status))
+        .reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0;
 
-      const [thisWeekOrders, lastWeekOrders] = await Promise.all([
-        supabase.from('orders').select('total_amount').gte('created_at', weekAgo.toISOString()),
-        supabase.from('orders').select('total_amount').gte('created_at', twoWeeksAgo.toISOString()).lt('created_at', weekAgo.toISOString())
-      ]);
+      // Calcular receita do mês passado
+      const lastMonthRevenue = lastMonthRevenueResult.data
+        ?.filter(order => ['confirmed', 'shipped', 'delivered'].includes(order.status))
+        .reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0;
 
-      const thisWeekRevenue = thisWeekOrders.data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
-      const lastWeekRevenue = lastWeekOrders.data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
-      
-      const weeklyGrowth = lastWeekRevenue > 0 ? Math.round(((thisWeekRevenue - lastWeekRevenue) / lastWeekRevenue) * 100) : 0;
+      // Calcular crescimento mensal
+      const monthlyGrowth = lastMonthRevenue > 0 
+        ? Math.round(((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100) 
+        : currentMonthRevenue > 0 ? 100 : 0;
+
+      // Calcular taxa de conversão (pedidos entregues vs total)
+      const totalOrders = ordersResult.count || 0;
+      const deliveredOrders = deliveredOrdersResult.count || 0;
+      const conversionRate = totalOrders > 0 ? Math.round((deliveredOrders / totalOrders) * 100) : 0;
+
+      // Calcular porcentagem de produtos ativos
+      const totalProducts = productsResult.count || 0;
+      const activeProducts = activeProductsResult.count || 0;
+      const activeProductsPercentage = totalProducts > 0 ? Math.round((activeProducts / totalProducts) * 100) : 0;
+
+      // Calcular eficiência de pedidos (confirmados + entregues vs total)
+      const confirmedOrders = confirmedOrdersResult.count || 0;
+      const processedOrders = confirmedOrders + deliveredOrders;
+      const orderEfficiency = totalOrders > 0 ? Math.round((processedOrders / totalOrders) * 100) : 0;
 
       setStats({
-        totalProducts: productsResult.count || 0,
+        totalProducts,
         totalCategories: categoriesResult.count || 0,
         totalUsers: usersResult.count || 0,
-        activeProducts: activeProductsResult.count || 0,
-        totalOrders: ordersResult.count || 0,
+        activeProducts,
+        totalOrders,
         pendingOrders: pendingOrdersResult.count || 0,
-        monthlyRevenue,
-        weeklyGrowth: Math.max(weeklyGrowth, 0),
+        confirmedOrders,
+        deliveredOrders,
+        featuredProducts: featuredProductsResult.count || 0,
+        monthlyRevenue: currentMonthRevenue,
+        monthlyGrowth,
+        conversionRate,
+        activeProductsPercentage,
+        orderEfficiency
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
+      // Em caso de erro, manter dados vazios mas válidos
+      setStats({
+        totalProducts: 0,
+        totalCategories: 0,
+        totalUsers: 0,
+        activeProducts: 0,
+        totalOrders: 0,
+        pendingOrders: 0,
+        confirmedOrders: 0,
+        deliveredOrders: 0,
+        featuredProducts: 0,
+        monthlyRevenue: 0,
+        monthlyGrowth: 0,
+        conversionRate: 0,
+        activeProductsPercentage: 0,
+        orderEfficiency: 0
+      });
     } finally {
       setLoading(false);
     }
@@ -242,43 +321,45 @@ const AdminDashboard = () => {
   const statCards = [
     {
       title: 'Receita Mensal',
-      value: `R$ ${stats.monthlyRevenue.toLocaleString()}`,
-      description: `+${stats.weeklyGrowth}% vs semana passada`,
+      value: `R$ ${stats.monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+      description: stats.monthlyGrowth >= 0 
+        ? `+${stats.monthlyGrowth}% vs mês passado` 
+        : `${stats.monthlyGrowth}% vs mês passado`,
       icon: DollarSign,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
-      trend: 'up',
-      progress: stats.weeklyGrowth,
+      trend: stats.monthlyGrowth >= 0 ? 'up' : 'down',
+      progress: Math.min(Math.abs(stats.monthlyGrowth), 100),
     },
     {
-      title: 'Total de Pedidos',
-      value: stats.totalOrders,
-      description: `${stats.pendingOrders} pendentes`,
-      icon: ShoppingCart,
+      title: 'Eficiência de Pedidos',
+      value: `${stats.orderEfficiency}%`,
+      description: `${stats.confirmedOrders + stats.deliveredOrders} de ${stats.totalOrders} processados`,
+      icon: TrendingUp,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
-      trend: 'up',
-      progress: 75,
+      trend: stats.orderEfficiency >= 70 ? 'up' : stats.orderEfficiency >= 40 ? 'stable' : 'down',
+      progress: stats.orderEfficiency,
     },
     {
       title: 'Produtos Ativos',
       value: stats.activeProducts,
-      description: `de ${stats.totalProducts} total`,
+      description: `${stats.activeProductsPercentage}% de ${stats.totalProducts} produtos`,
       icon: Package,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
-      trend: 'stable',
-      progress: stats.totalProducts > 0 ? (stats.activeProducts / stats.totalProducts) * 100 : 0,
+      trend: stats.activeProductsPercentage >= 80 ? 'up' : 'stable',
+      progress: stats.activeProductsPercentage,
     },
     {
-      title: 'Usuários Registrados',
-      value: stats.totalUsers,
-      description: 'Clientes cadastrados',
-      icon: Users,
-      color: 'text-construction-orange',
+      title: 'Taxa de Entrega',
+      value: `${stats.conversionRate}%`,
+      description: `${stats.deliveredOrders} pedidos entregues`,
+      icon: Activity,
+      color: 'text-orange-600',
       bgColor: 'bg-orange-50',
-      trend: 'up',
-      progress: 60,
+      trend: stats.conversionRate >= 60 ? 'up' : stats.conversionRate >= 30 ? 'stable' : 'down',
+      progress: stats.conversionRate,
     },
   ];
 
