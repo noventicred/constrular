@@ -79,6 +79,7 @@ const Produtos = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [productComments, setProductComments] = useState<Record<string, { rating: number; count: number }>>({});
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { addItem } = useCart();
@@ -117,6 +118,43 @@ const Produtos = () => {
       updateFilters({ searchTerm: decodeURIComponent(searchParam) });
     }
   }, []);
+
+  // Buscar comentários quando os produtos mudarem
+  useEffect(() => {
+    if (products.length > 0) {
+      fetchProductComments();
+    }
+  }, [products]);
+
+  const fetchProductComments = async () => {
+    try {
+      const commentsData: Record<string, { rating: number; count: number }> = {};
+      
+      for (const product of products) {
+        const { data: comments } = await supabase
+          .from('product_comments')
+          .select('rating')
+          .eq('product_id', product.id);
+        
+        if (comments && comments.length > 0) {
+          const averageRating = comments.reduce((acc, comment) => acc + comment.rating, 0) / comments.length;
+          commentsData[product.id] = {
+            rating: averageRating,
+            count: comments.length
+          };
+        } else {
+          commentsData[product.id] = {
+            rating: 0,
+            count: 0
+          };
+        }
+      }
+      
+      setProductComments(commentsData);
+    } catch (error) {
+      console.error('Error fetching product comments:', error);
+    }
+  };
 
   // Update URL when filters change
   useEffect(() => {
@@ -592,17 +630,14 @@ const Produtos = () => {
                     </div>
 
                     {/* Rating */}
-                    {product.rating &&
-                    product.reviews &&
-                    product.rating > 0 &&
-                    product.reviews > 0 ? (
+                    {productComments[product.id] && productComments[product.id].count > 0 ? (
                       <div className="flex items-center gap-2">
                         <div className="flex items-center">
                           {Array.from({ length: 5 }, (_, i) => (
                             <Star
                               key={`star-${i}`}
                               className={`h-4 w-4 ${
-                                i < Math.floor(product.rating!)
+                                i < Math.floor(productComments[product.id].rating)
                                   ? "text-yellow-400 fill-current"
                                   : "text-gray-300"
                               }`}
@@ -610,7 +645,7 @@ const Produtos = () => {
                           ))}
                         </div>
                         <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                          {product.rating} ({product.reviews} avaliações)
+                          {productComments[product.id].rating.toFixed(1)} ({productComments[product.id].count} avaliações)
                         </span>
                       </div>
                     ) : (
