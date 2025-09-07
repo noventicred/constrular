@@ -1,5 +1,6 @@
 import { Package, FolderOpen, Users, BarChart3, Settings, Home, ShoppingCart } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -13,14 +14,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Badge } from '@/components/ui/badge';
-
-const adminMenuItems = [
-  { title: 'Dashboard', url: '/admin', icon: BarChart3, exactMatch: true },
-  { title: 'Produtos', url: '/admin/produtos', icon: Package, badge: 'Hot' },
-  { title: 'Categorias', url: '/admin/categorias', icon: FolderOpen },
-  { title: 'Clientes', url: '/admin/clientes', icon: Users },
-  { title: 'Pedidos', url: '/admin/pedidos', icon: ShoppingCart, badge: '5' },
-];
+import { supabase } from '@/integrations/supabase/client';
 
 const bottomMenuItems = [
   { title: 'Configurações', url: '/admin/configuracoes', icon: Settings },
@@ -32,6 +26,73 @@ export function AdminSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
+  
+  // Estados para contadores dinâmicos
+  const [counts, setCounts] = useState({
+    products: 0,
+    categories: 0,
+    users: 0,
+    pendingOrders: 0,
+  });
+
+  useEffect(() => {
+    fetchCounts();
+  }, []);
+
+  const fetchCounts = async () => {
+    try {
+      // Buscar contadores em paralelo
+      const [productsResult, categoriesResult, usersResult, ordersResult] = await Promise.all([
+        supabase.from('products').select('id', { count: 'exact' }),
+        supabase.from('categories').select('id', { count: 'exact' }),
+        supabase.from('profiles').select('id', { count: 'exact' }),
+        supabase.from('orders').select('id', { count: 'exact' }).eq('status', 'pending'),
+      ]);
+
+      setCounts({
+        products: productsResult.count || 0,
+        categories: categoriesResult.count || 0,
+        users: usersResult.count || 0,
+        pendingOrders: ordersResult.count || 0,
+      });
+    } catch (error) {
+      console.error('Error fetching counts:', error);
+    }
+  };
+
+  const adminMenuItems = [
+    { title: 'Dashboard', url: '/admin', icon: BarChart3, exactMatch: true },
+    { 
+      title: 'Produtos', 
+      url: '/admin/produtos', 
+      icon: Package, 
+      count: counts.products,
+      showCount: true 
+    },
+    { 
+      title: 'Categorias', 
+      url: '/admin/categorias', 
+      icon: FolderOpen, 
+      count: counts.categories,
+      showCount: true 
+    },
+    { 
+      title: 'Clientes', 
+      url: '/admin/clientes', 
+      icon: Users, 
+      count: counts.users,
+      showCount: true 
+    },
+    { 
+      title: 'Pedidos', 
+      url: '/admin/pedidos', 
+      icon: ShoppingCart, 
+      count: counts.pendingOrders,
+      showCount: true,
+      badge: counts.pendingOrders > 0 ? 'Pendentes' : null,
+      badgeVariant: 'destructive'
+    },
+  ];
 
   const isActive = (path: string, exactMatch = false) => {
     if (exactMatch) {
@@ -84,14 +145,21 @@ export function AdminSidebar() {
                       {!isCollapsed && (
                         <div className="flex items-center justify-between w-full">
                           <span>{item.title}</span>
-                          {item.badge && (
-                            <Badge 
-                              variant={item.badge === 'Hot' ? 'destructive' : 'secondary'} 
-                              className="text-xs px-1.5 py-0.5"
-                            >
-                              {item.badge}
-                            </Badge>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {item.showCount && (
+                              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full font-medium">
+                                {item.count}
+                              </span>
+                            )}
+                            {item.badge && (
+                              <Badge 
+                                variant={item.badgeVariant || 'secondary'} 
+                                className="text-xs px-1.5 py-0.5 animate-pulse"
+                              >
+                                {item.badge}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       )}
                     </NavLink>
