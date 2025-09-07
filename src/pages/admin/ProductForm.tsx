@@ -116,14 +116,23 @@ const ProductForm = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .single();
+      // Buscar dados do produto e comentários em paralelo
+      const [productResult, commentsResult] = await Promise.all([
+        supabase
+          .from('products')
+          .select('*')
+          .eq('id', id)
+          .single(),
+        supabase
+          .from('product_comments')
+          .select('*')
+          .eq('product_id', id)
+          .order('created_at', { ascending: false })
+      ]);
 
-      if (error) throw error;
+      if (productResult.error) throw productResult.error;
 
+      const data = productResult.data;
       setFormData({
         name: data.name || '',
         description: data.description || '',
@@ -137,10 +146,37 @@ const ProductForm = () => {
         is_special_offer: data.is_special_offer ?? false,
       });
 
+      // Carregar imagens existentes com URLs corretas
       if (data.image_url) {
         const images = data.image_url.split(',').filter(Boolean);
-        setExistingImages(images);
+        // Verificar se as URLs são completas ou precisam do prefixo do Supabase
+        const correctedImages = images.map(img => {
+          if (img.startsWith('http')) {
+            return img; // URL já completa
+          } else {
+            // Construir URL completa do Supabase Storage
+            const { data: publicUrl } = supabase.storage
+              .from('product-images')
+              .getPublicUrl(img);
+            return publicUrl.publicUrl;
+          }
+        });
+        setExistingImages(correctedImages);
       }
+
+      // Carregar comentários existentes
+      if (commentsResult.data) {
+        const existingComments = commentsResult.data.map(comment => ({
+          id: comment.id,
+          author_name: comment.author_name || 'Cliente',
+          comment_text: comment.comment_text || '',
+          rating: comment.rating || 5,
+          likes: comment.likes || 0,
+          dislikes: comment.dislikes || 0,
+        }));
+        setComments(existingComments);
+      }
+
     } catch (error) {
       console.error('Error fetching product:', error);
       toast({
@@ -268,11 +304,34 @@ const ProductForm = () => {
           description: 'As alterações foram salvas com sucesso.',
         });
       } else {
-        const { error } = await supabase
+        const { data: newProduct, error } = await supabase
           .from('products')
-          .insert([productData]);
+          .insert([productData])
+          .select()
+          .single();
 
         if (error) throw error;
+
+        // Salvar comentários se existirem
+        if (comments.length > 0 && newProduct) {
+          const commentsToInsert = comments.map(comment => ({
+            product_id: newProduct.id,
+            author_name: comment.author_name,
+            comment_text: comment.comment_text,
+            rating: comment.rating,
+            likes: comment.likes,
+            dislikes: comment.dislikes,
+          }));
+
+          const { error: commentsError } = await supabase
+            .from('product_comments')
+            .insert(commentsToInsert);
+
+          if (commentsError) {
+            console.error('Error saving comments:', commentsError);
+            // Não bloquear o sucesso do produto por erro nos comentários
+          }
+        }
 
         toast({
           title: '✅ Produto criado!',
@@ -301,6 +360,112 @@ const ProductForm = () => {
         const discount = Math.round(((originalPrice - price) / originalPrice) * 100);
         setFormData(prev => ({ ...prev, discount: discount.toString() }));
       }
+    }
+  };
+
+  const addComment = async () => {
+    if (!newComment.author_name || !newComment.comment_text) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Preencha o nome do autor e o comentário.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      if (isEditing && id) {
+        // Salvar comentário no banco de dados
+        const { data, error } = await supabase
+          .from('product_comments')
+          .insert([{
+            product_id: id,
+            author_name: newComment.author_name,
+            comment_text: newComment.comment_text,
+            rating: newComment.rating,
+            likes: newComment.likes,
+            dislikes: newComment.dislikes,
+          }])
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // Adicionar ao estado local
+        setComments(prev => [
+          {
+            id: data.id,
+            author_name: data.author_name,
+            comment_text: data.comment_text,
+            rating: data.rating,
+            likes: data.likes,
+            dislikes: data.dislikes,
+          },
+          ...prev
+        ]);
+
+        toast({
+          title: '✅ Comentário salvo!',
+          description: 'Comentário adicionado ao produto com sucesso.',
+        });
+      } else {
+        // Para produtos novos, apenas adicionar ao estado local
+        setComments(prev => [
+          { ...newComment, id: Date.now().toString() },
+          ...prev
+        ]);
+
+        toast({
+          title: '✅ Comentário adicionado!',
+          description: 'Comentário será salvo quando o produto for criado.',
+        });
+      }
+
+      // Limpar formulário
+      setNewComment({
+        author_name: '',
+        comment_text: '',
+        rating: 5,
+        likes: 0,
+        dislikes: 0,
+      });
+
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      toast({
+        title: 'Erro ao salvar comentário',
+        description: 'Não foi possível salvar o comentário.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const deleteComment = async (commentId: string) => {
+    try {
+      if (commentId.length > 10) { // ID do banco (UUID)
+        const { error } = await supabase
+          .from('product_comments')
+          .delete()
+          .eq('id', commentId);
+
+        if (error) throw error;
+
+        toast({
+          title: '✅ Comentário excluído!',
+          description: 'Comentário removido com sucesso.',
+        });
+      }
+
+      // Remover do estado local
+      setComments(prev => prev.filter(comment => comment.id !== commentId));
+
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      toast({
+        title: 'Erro ao excluir comentário',
+        description: 'Não foi possível excluir o comentário.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -735,26 +900,12 @@ const ProductForm = () => {
 
                   <Button
                     type="button"
-                    onClick={() => {
-                      if (newComment.author_name && newComment.comment_text) {
-                        setComments(prev => [...prev, { ...newComment, id: Date.now().toString() }]);
-                        setNewComment({
-                          author_name: '',
-                          comment_text: '',
-                          rating: 5,
-                          likes: 0,
-                          dislikes: 0,
-                        });
-                        toast({
-                          title: '✅ Comentário adicionado!',
-                          description: 'Comentário de teste criado com sucesso.',
-                        });
-                      }
-                    }}
+                    onClick={addComment}
                     className="w-full bg-blue-500 hover:bg-blue-600"
+                    disabled={loading}
                   >
                     <Star className="h-4 w-4 mr-2" />
-                    Adicionar Comentário
+                    {isEditing ? 'Salvar Comentário' : 'Adicionar Comentário'}
                   </Button>
                 </div>
 
@@ -778,7 +929,7 @@ const ProductForm = () => {
                               type="button"
                               variant="ghost"
                               size="sm"
-                              onClick={() => setComments(prev => prev.filter((_, i) => i !== index))}
+                              onClick={() => comment.id && deleteComment(comment.id)}
                               className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
                             >
                               <X className="h-3 w-3" />
