@@ -1,40 +1,65 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { 
-  Eye, 
-  Package, 
-  Clock, 
-  CheckCircle2, 
-  XCircle, 
-  Truck, 
-  Search, 
-  Filter, 
-  Edit, 
-  Save, 
-  X, 
-  Calendar, 
-  CreditCard, 
-  MapPin, 
-  User, 
-  Phone, 
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Eye,
+  Package,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Truck,
+  Search,
+  Filter,
+  Edit,
+  Save,
+  X,
+  Calendar,
+  CreditCard,
+  MapPin,
+  User,
+  Phone,
   Mail,
-  TrendingUp, 
-  DollarSign, 
-  ShoppingCart, 
+  TrendingUp,
+  DollarSign,
+  ShoppingCart,
   RefreshCw,
   Trash2,
-  AlertTriangle
-} from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { formatCurrency, formatOrderNumber } from '@/lib/formatters';
+  AlertTriangle,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { formatCurrency, formatOrderNumber } from "@/lib/formatters";
 
 interface Order {
   id: string;
@@ -67,18 +92,33 @@ interface OrderItem {
 }
 
 const statusOptions = [
-  { value: 'pending', label: 'Pendente', color: 'bg-yellow-500', icon: Clock },
-  { value: 'confirmed', label: 'Confirmado', color: 'bg-blue-500', icon: CheckCircle2 },
-  { value: 'shipped', label: 'Enviado', color: 'bg-purple-500', icon: Truck },
-  { value: 'delivered', label: 'Entregue', color: 'bg-green-500', icon: CheckCircle2 },
-  { value: 'cancelled', label: 'Cancelado', color: 'bg-red-500', icon: XCircle },
+  { value: "pending", label: "Pendente", color: "bg-yellow-500", icon: Clock },
+  {
+    value: "confirmed",
+    label: "Confirmado",
+    color: "bg-blue-500",
+    icon: CheckCircle2,
+  },
+  { value: "shipped", label: "Enviado", color: "bg-purple-500", icon: Truck },
+  {
+    value: "delivered",
+    label: "Entregue",
+    color: "bg-green-500",
+    icon: CheckCircle2,
+  },
+  {
+    value: "cancelled",
+    label: "Cancelado",
+    color: "bg-red-500",
+    icon: XCircle,
+  },
 ];
 
 const paymentStatusOptions = [
-  { value: 'pending', label: 'Pendente', color: 'bg-yellow-500' },
-  { value: 'paid', label: 'Pago', color: 'bg-green-500' },
-  { value: 'failed', label: 'Falhou', color: 'bg-red-500' },
-  { value: 'refunded', label: 'Reembolsado', color: 'bg-gray-500' },
+  { value: "pending", label: "Pendente", color: "bg-yellow-500" },
+  { value: "paid", label: "Pago", color: "bg-green-500" },
+  { value: "failed", label: "Falhou", color: "bg-red-500" },
+  { value: "refunded", label: "Reembolsado", color: "bg-gray-500" },
 ];
 
 export default function AdminOrders() {
@@ -88,12 +128,12 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [paymentFilter, setPaymentFilter] = useState('all');
-  const [dateFilter, setDateFilter] = useState('all');
-  const [customDateFrom, setCustomDateFrom] = useState('');
-  const [customDateTo, setCustomDateTo] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [paymentFilter, setPaymentFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [customDateFrom, setCustomDateFrom] = useState("");
+  const [customDateTo, setCustomDateTo] = useState("");
   const [editingOrder, setEditingOrder] = useState<Partial<Order>>({});
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
@@ -108,12 +148,12 @@ export default function AdminOrders() {
     try {
       // Primeiro, buscar apenas os pedidos
       const { data: ordersData, error: ordersError } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from("orders")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (ordersError) {
-        console.error('Orders error:', ordersError);
+        console.error("Orders error:", ordersError);
         throw ordersError;
       }
 
@@ -125,14 +165,16 @@ export default function AdminOrders() {
       }
 
       // Buscar perfis separadamente para evitar problemas de join
-      const userIds = [...new Set(ordersData.map(order => order.user_id).filter(Boolean))];
+      const userIds = [
+        ...new Set(ordersData.map((order) => order.user_id).filter(Boolean)),
+      ];
       let profilesMap: Record<string, any> = {};
 
       if (userIds.length > 0) {
         const { data: profilesData } = await supabase
-          .from('profiles')
-          .select('id, full_name, email')
-          .in('id', userIds);
+          .from("profiles")
+          .select("id, full_name, email")
+          .in("id", userIds);
 
         if (profilesData) {
           profilesMap = profilesData.reduce((acc, profile) => {
@@ -143,17 +185,18 @@ export default function AdminOrders() {
       }
 
       // Combinar pedidos com perfis
-      const ordersWithProfiles = ordersData.map(order => ({
+      const ordersWithProfiles = ordersData.map((order) => ({
         ...order,
-        profiles: order.user_id ? profilesMap[order.user_id] : null
+        profiles: order.user_id ? profilesMap[order.user_id] : null,
       }));
 
       setOrders(ordersWithProfiles);
 
       // Buscar itens dos pedidos
       const { data: itemsData } = await supabase
-        .from('order_items')
-        .select(`
+        .from("order_items")
+        .select(
+          `
           *,
           products (
             id,
@@ -161,13 +204,17 @@ export default function AdminOrders() {
             image_url,
             sku
           )
-        `)
-        .in('order_id', ordersData.map(o => o.id));
+        `
+        )
+        .in(
+          "order_id",
+          ordersData.map((o) => o.id)
+        );
 
       // Organizar itens por pedido
       const itemsMap: Record<string, OrderItem[]> = {};
       if (itemsData) {
-        itemsData.forEach(item => {
+        itemsData.forEach((item) => {
           if (!itemsMap[item.order_id]) {
             itemsMap[item.order_id] = [];
           }
@@ -176,13 +223,12 @@ export default function AdminOrders() {
       }
 
       setOrderItems(itemsMap);
-
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error("Error fetching orders:", error);
       toast({
-        title: 'Erro ao carregar pedidos',
-        description: 'Verifique se as tabelas existem no banco de dados.',
-        variant: 'destructive',
+        title: "Erro ao carregar pedidos",
+        description: "Verifique se as tabelas existem no banco de dados.",
+        variant: "destructive",
       });
       // Em caso de erro, definir estados vazios para evitar crashes
       setOrders([]);
@@ -195,57 +241,75 @@ export default function AdminOrders() {
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
       const { error } = await supabase
-        .from('orders')
+        .from("orders")
         .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq('id', orderId);
+        .eq("id", orderId);
 
       if (error) throw error;
 
-      setOrders(prev => prev.map(order => 
-        order.id === orderId 
-          ? { ...order, status: newStatus, updated_at: new Date().toISOString() }
-          : order
-      ));
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === orderId
+            ? {
+                ...order,
+                status: newStatus,
+                updated_at: new Date().toISOString(),
+              }
+            : order
+        )
+      );
 
       toast({
-        title: '✅ Status atualizado!',
-        description: 'Status do pedido foi alterado com sucesso.',
+        title: "✅ Status atualizado!",
+        description: "Status do pedido foi alterado com sucesso.",
       });
     } catch (error) {
-      console.error('Error updating order status:', error);
+      console.error("Error updating order status:", error);
       toast({
-        title: 'Erro',
-        description: 'Não foi possível atualizar o status.',
-        variant: 'destructive',
+        title: "Erro",
+        description: "Não foi possível atualizar o status.",
+        variant: "destructive",
       });
     }
   };
 
-  const updatePaymentStatus = async (orderId: string, newPaymentStatus: string) => {
+  const updatePaymentStatus = async (
+    orderId: string,
+    newPaymentStatus: string
+  ) => {
     try {
       const { error } = await supabase
-        .from('orders')
-        .update({ payment_status: newPaymentStatus, updated_at: new Date().toISOString() })
-        .eq('id', orderId);
+        .from("orders")
+        .update({
+          payment_status: newPaymentStatus,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", orderId);
 
       if (error) throw error;
 
-      setOrders(prev => prev.map(order => 
-        order.id === orderId 
-          ? { ...order, payment_status: newPaymentStatus, updated_at: new Date().toISOString() }
-          : order
-      ));
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === orderId
+            ? {
+                ...order,
+                payment_status: newPaymentStatus,
+                updated_at: new Date().toISOString(),
+              }
+            : order
+        )
+      );
 
       toast({
-        title: '✅ Pagamento atualizado!',
-        description: 'Status do pagamento foi alterado com sucesso.',
+        title: "✅ Pagamento atualizado!",
+        description: "Status do pagamento foi alterado com sucesso.",
       });
     } catch (error) {
-      console.error('Error updating payment status:', error);
+      console.error("Error updating payment status:", error);
       toast({
-        title: 'Erro',
-        description: 'Não foi possível atualizar o pagamento.',
-        variant: 'destructive',
+        title: "Erro",
+        description: "Não foi possível atualizar o pagamento.",
+        variant: "destructive",
       });
     }
   };
@@ -254,34 +318,34 @@ export default function AdminOrders() {
     try {
       // Primeiro deletar os itens do pedido
       const { error: itemsError } = await supabase
-        .from('order_items')
+        .from("order_items")
         .delete()
-        .eq('order_id', orderId);
+        .eq("order_id", orderId);
 
       if (itemsError) throw itemsError;
 
       // Depois deletar o pedido
       const { error: orderError } = await supabase
-        .from('orders')
+        .from("orders")
         .delete()
-        .eq('id', orderId);
+        .eq("id", orderId);
 
       if (orderError) throw orderError;
 
-      setOrders(prev => prev.filter(order => order.id !== orderId));
+      setOrders((prev) => prev.filter((order) => order.id !== orderId));
       setDeleteConfirmOpen(false);
       setOrderToDelete(null);
 
       toast({
-        title: '✅ Pedido excluído!',
-        description: 'Pedido foi removido permanentemente.',
+        title: "✅ Pedido excluído!",
+        description: "Pedido foi removido permanentemente.",
       });
     } catch (error) {
-      console.error('Error deleting order:', error);
+      console.error("Error deleting order:", error);
       toast({
-        title: 'Erro',
-        description: 'Não foi possível excluir o pedido.',
-        variant: 'destructive',
+        title: "Erro",
+        description: "Não foi possível excluir o pedido.",
+        variant: "destructive",
       });
     }
   };
@@ -306,7 +370,7 @@ export default function AdminOrders() {
 
     try {
       const { error } = await supabase
-        .from('orders')
+        .from("orders")
         .update({
           status: editingOrder.status,
           payment_status: editingOrder.payment_status,
@@ -314,38 +378,46 @@ export default function AdminOrders() {
           shipping_address: editingOrder.shipping_address,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', editingOrder.id);
+        .eq("id", editingOrder.id);
 
       if (error) throw error;
 
-      setOrders(prev => prev.map(order => 
-        order.id === editingOrder.id 
-          ? { ...order, ...editingOrder, updated_at: new Date().toISOString() }
-          : order
-      ));
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === editingOrder.id
+            ? {
+                ...order,
+                ...editingOrder,
+                updated_at: new Date().toISOString(),
+              }
+            : order
+        )
+      );
 
       setIsEditOpen(false);
       toast({
-        title: '✅ Pedido atualizado!',
-        description: 'Alterações salvas com sucesso.',
+        title: "✅ Pedido atualizado!",
+        description: "Alterações salvas com sucesso.",
       });
     } catch (error) {
-      console.error('Error updating order:', error);
+      console.error("Error updating order:", error);
       toast({
-        title: 'Erro',
-        description: 'Não foi possível salvar as alterações.',
-        variant: 'destructive',
+        title: "Erro",
+        description: "Não foi possível salvar as alterações.",
+        variant: "destructive",
       });
     }
   };
 
   const getStatusBadge = (status: string) => {
-    const statusConfig = statusOptions.find(s => s.value === status);
+    const statusConfig = statusOptions.find((s) => s.value === status);
     if (!statusConfig) return null;
 
     const Icon = statusConfig.icon;
     return (
-      <Badge className={`${statusConfig.color} text-white font-semibold flex items-center gap-1`}>
+      <Badge
+        className={`${statusConfig.color} text-white font-semibold flex items-center gap-1`}
+      >
         <Icon className="h-3 w-3" />
         {statusConfig.label}
       </Badge>
@@ -353,7 +425,9 @@ export default function AdminOrders() {
   };
 
   const getPaymentBadge = (paymentStatus: string) => {
-    const statusConfig = paymentStatusOptions.find(s => s.value === paymentStatus);
+    const statusConfig = paymentStatusOptions.find(
+      (s) => s.value === paymentStatus
+    );
     if (!statusConfig) return null;
 
     return (
@@ -363,45 +437,49 @@ export default function AdminOrders() {
     );
   };
 
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = 
+  const filteredOrders = orders.filter((order) => {
+    const matchesSearch =
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.profiles?.full_name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       order.profiles?.email?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-    const matchesPayment = paymentFilter === 'all' || order.payment_status === paymentFilter;
-    
+
+    const matchesStatus =
+      statusFilter === "all" || order.status === statusFilter;
+    const matchesPayment =
+      paymentFilter === "all" || order.payment_status === paymentFilter;
+
     // Filtro de data
     let matchesDate = true;
     const orderDate = new Date(order.created_at);
     const today = new Date();
-    
-    if (dateFilter === 'today') {
+
+    if (dateFilter === "today") {
       matchesDate = orderDate.toDateString() === today.toDateString();
-    } else if (dateFilter === 'week') {
+    } else if (dateFilter === "week") {
       const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
       matchesDate = orderDate >= weekAgo;
-    } else if (dateFilter === 'month') {
+    } else if (dateFilter === "month") {
       const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
       matchesDate = orderDate >= monthAgo;
-    } else if (dateFilter === 'custom' && customDateFrom && customDateTo) {
+    } else if (dateFilter === "custom" && customDateFrom && customDateTo) {
       const fromDate = new Date(customDateFrom);
       const toDate = new Date(customDateTo);
       toDate.setHours(23, 59, 59); // Incluir todo o dia
       matchesDate = orderDate >= fromDate && orderDate <= toDate;
     }
-    
+
     return matchesSearch && matchesStatus && matchesPayment && matchesDate;
   });
 
   const stats = {
-    total: orders.length,
-    pending: orders.filter(o => o.status === 'pending').length,
-    confirmed: orders.filter(o => o.status === 'confirmed').length,
-    shipped: orders.filter(o => o.status === 'shipped').length,
-    delivered: orders.filter(o => o.status === 'delivered').length,
-    revenue: orders.reduce((sum, o) => sum + o.total_amount, 0),
+    total: filteredOrders.length,
+    pending: filteredOrders.filter((o) => o.status === "pending").length,
+    confirmed: filteredOrders.filter((o) => o.status === "confirmed").length,
+    shipped: filteredOrders.filter((o) => o.status === "shipped").length,
+    delivered: filteredOrders.filter((o) => o.status === "delivered").length,
+    revenue: filteredOrders.reduce((sum, o) => sum + o.total_amount, 0),
   };
 
   if (loading) {
@@ -426,8 +504,12 @@ export default function AdminOrders() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gerenciar Pedidos</h1>
-          <p className="text-gray-600 mt-1">Acompanhe e gerencie todos os pedidos da loja</p>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Gerenciar Pedidos
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Acompanhe e gerencie todos os pedidos da loja
+          </p>
         </div>
         <Button onClick={fetchOrders} variant="outline" className="gap-2">
           <RefreshCw className="h-4 w-4" />
@@ -444,8 +526,12 @@ export default function AdminOrders() {
                 <ShoppingCart className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">Total de Pedidos</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total de Pedidos
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.total}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -459,7 +545,9 @@ export default function AdminOrders() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-600">Pendentes</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.pending}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -473,7 +561,9 @@ export default function AdminOrders() {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-600">Entregues</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.delivered}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.delivered}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -486,8 +576,12 @@ export default function AdminOrders() {
                 <DollarSign className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">Receita Total</p>
-                <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.revenue)}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Receita Total
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {formatCurrency(stats.revenue)}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -510,7 +604,7 @@ export default function AdminOrders() {
                   />
                 </div>
               </div>
-              
+
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full lg:w-48">
                   <SelectValue placeholder="Status do Pedido" />
@@ -554,10 +648,12 @@ export default function AdminOrders() {
             </div>
 
             {/* Custom Date Range */}
-            {dateFilter === 'custom' && (
+            {dateFilter === "custom" && (
               <div className="flex gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <div className="flex-1">
-                  <Label className="text-sm font-semibold text-blue-700">Data Inicial</Label>
+                  <Label className="text-sm font-semibold text-blue-700">
+                    Data Inicial
+                  </Label>
                   <Input
                     type="date"
                     value={customDateFrom}
@@ -566,7 +662,9 @@ export default function AdminOrders() {
                   />
                 </div>
                 <div className="flex-1">
-                  <Label className="text-sm font-semibold text-blue-700">Data Final</Label>
+                  <Label className="text-sm font-semibold text-blue-700">
+                    Data Final
+                  </Label>
                   <Input
                     type="date"
                     value={customDateTo}
@@ -578,9 +676,9 @@ export default function AdminOrders() {
                   <Button
                     variant="outline"
                     onClick={() => {
-                      setCustomDateFrom('');
-                      setCustomDateTo('');
-                      setDateFilter('all');
+                      setCustomDateFrom("");
+                      setCustomDateTo("");
+                      setDateFilter("all");
                     }}
                     className="h-10"
                   >
@@ -623,22 +721,30 @@ export default function AdminOrders() {
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-medium">{order.profiles?.full_name || 'Cliente'}</p>
-                        <p className="text-sm text-gray-500">{order.profiles?.email}</p>
+                        <p className="font-medium">
+                          {order.profiles?.full_name || "Cliente"}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {order.profiles?.email}
+                        </p>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-gray-400" />
                         <span className="text-sm">
-                          {new Date(order.created_at).toLocaleDateString('pt-BR')}
+                          {new Date(order.created_at).toLocaleDateString(
+                            "pt-BR"
+                          )}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <Select
                         value={order.status}
-                        onValueChange={(value) => updateOrderStatus(order.id, value)}
+                        onValueChange={(value) =>
+                          updateOrderStatus(order.id, value)
+                        }
                       >
                         <SelectTrigger className="w-32">
                           <SelectValue />
@@ -658,7 +764,9 @@ export default function AdminOrders() {
                     <TableCell>
                       <Select
                         value={order.payment_status}
-                        onValueChange={(value) => updatePaymentStatus(order.id, value)}
+                        onValueChange={(value) =>
+                          updatePaymentStatus(order.id, value)
+                        }
                       >
                         <SelectTrigger className="w-32">
                           <SelectValue />
@@ -712,11 +820,13 @@ export default function AdminOrders() {
           {filteredOrders.length === 0 && (
             <div className="text-center py-12">
               <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-600 mb-2">Nenhum pedido encontrado</h3>
+              <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                Nenhum pedido encontrado
+              </h3>
               <p className="text-gray-500">
-                {searchTerm || statusFilter !== 'all' || paymentFilter !== 'all'
-                  ? 'Tente ajustar os filtros de busca'
-                  : 'Quando houver pedidos, eles aparecerão aqui'}
+                {searchTerm || statusFilter !== "all" || paymentFilter !== "all"
+                  ? "Tente ajustar os filtros de busca"
+                  : "Quando houver pedidos, eles aparecerão aqui"}
               </p>
             </div>
           )}
@@ -732,12 +842,17 @@ export default function AdminOrders() {
                 <Eye className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold">Detalhes do Pedido #{selectedOrder ? formatOrderNumber(selectedOrder.id) : ''}</h2>
-                <p className="text-sm text-gray-600">Informações completas do pedido</p>
+                <h2 className="text-xl font-bold">
+                  Detalhes do Pedido #
+                  {selectedOrder ? formatOrderNumber(selectedOrder.id) : ""}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Informações completas do pedido
+                </p>
               </div>
             </DialogTitle>
           </DialogHeader>
-          
+
           {selectedOrder && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
               {/* Customer Info */}
@@ -751,16 +866,28 @@ export default function AdminOrders() {
                 <CardContent className="p-6 space-y-4">
                   <div className="space-y-3">
                     <div>
-                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Nome</Label>
-                      <p className="font-semibold text-gray-800">{selectedOrder.profiles?.full_name || 'Não informado'}</p>
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        Nome
+                      </Label>
+                      <p className="font-semibold text-gray-800">
+                        {selectedOrder.profiles?.full_name || "Não informado"}
+                      </p>
                     </div>
                     <div>
-                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Email</Label>
-                      <p className="font-medium text-gray-700">{selectedOrder.profiles?.email || 'Não informado'}</p>
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        Email
+                      </Label>
+                      <p className="font-medium text-gray-700">
+                        {selectedOrder.profiles?.email || "Não informado"}
+                      </p>
                     </div>
                     <div>
-                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Endereço</Label>
-                      <p className="font-medium text-gray-700 leading-relaxed">{selectedOrder.shipping_address || 'Não informado'}</p>
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        Endereço
+                      </Label>
+                      <p className="font-medium text-gray-700 leading-relaxed">
+                        {selectedOrder.shipping_address || "Não informado"}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -777,26 +904,42 @@ export default function AdminOrders() {
                 <CardContent className="p-6 space-y-4">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</Label>
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        Status
+                      </Label>
                       {getStatusBadge(selectedOrder.status)}
                     </div>
                     <div className="flex items-center justify-between">
-                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Pagamento</Label>
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        Pagamento
+                      </Label>
                       {getPaymentBadge(selectedOrder.payment_status)}
                     </div>
                     <div>
-                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Método</Label>
-                      <p className="font-semibold text-gray-800 capitalize">{selectedOrder.payment_method || 'Não informado'}</p>
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        Método
+                      </Label>
+                      <p className="font-semibold text-gray-800 capitalize">
+                        {selectedOrder.payment_method || "Não informado"}
+                      </p>
                     </div>
                     <div>
-                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Data</Label>
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        Data
+                      </Label>
                       <p className="font-medium text-gray-700">
-                        {new Date(selectedOrder.created_at).toLocaleString('pt-BR')}
+                        {new Date(selectedOrder.created_at).toLocaleString(
+                          "pt-BR"
+                        )}
                       </p>
                     </div>
                     <div className="pt-2 border-t border-gray-200">
-                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total</Label>
-                      <p className="text-2xl font-bold text-primary">{formatCurrency(selectedOrder.total_amount)}</p>
+                      <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        Total
+                      </Label>
+                      <p className="text-2xl font-bold text-primary">
+                        {formatCurrency(selectedOrder.total_amount)}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -811,14 +954,18 @@ export default function AdminOrders() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                  {orderItems[selectedOrder.id] && orderItems[selectedOrder.id].length > 0 ? (
+                  {orderItems[selectedOrder.id] &&
+                  orderItems[selectedOrder.id].length > 0 ? (
                     <div className="space-y-4 max-h-96 overflow-y-auto">
                       {orderItems[selectedOrder.id].map((item) => (
-                        <div key={item.id} className="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                        <div
+                          key={item.id}
+                          className="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-200 shadow-sm"
+                        >
                           <div className="w-16 h-16 bg-gray-50 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
                             {item.products?.image_url ? (
                               <img
-                                src={item.products.image_url.split(',')[0]}
+                                src={item.products.image_url.split(",")[0]}
                                 alt={item.product_name}
                                 className="w-full h-full object-contain bg-white p-1"
                                 onError={(e) => {
@@ -836,11 +983,12 @@ export default function AdminOrders() {
                               {item.product_name}
                             </h4>
                             <p className="text-xs text-gray-500 mb-1">
-                              SKU: {item.products?.sku || 'N/A'}
+                              SKU: {item.products?.sku || "N/A"}
                             </p>
                             <div className="flex items-center justify-between">
                               <span className="text-xs text-gray-600">
-                                {item.quantity}x {formatCurrency(item.unit_price)}
+                                {item.quantity}x{" "}
+                                {formatCurrency(item.unit_price)}
                               </span>
                               <span className="font-bold text-sm text-primary">
                                 {formatCurrency(item.total_price)}
@@ -849,11 +997,13 @@ export default function AdminOrders() {
                           </div>
                         </div>
                       ))}
-                      
+
                       {/* Total Summary */}
                       <div className="pt-4 border-t border-gray-200">
                         <div className="flex items-center justify-between text-lg">
-                          <span className="font-semibold text-gray-800">Total do Pedido:</span>
+                          <span className="font-semibold text-gray-800">
+                            Total do Pedido:
+                          </span>
                           <span className="font-bold text-xl text-primary">
                             {formatCurrency(selectedOrder.total_amount)}
                           </span>
@@ -879,17 +1029,20 @@ export default function AdminOrders() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Edit className="h-5 w-5" />
-              Editar Pedido #{editingOrder.id ? formatOrderNumber(editingOrder.id) : ''}
+              Editar Pedido #
+              {editingOrder.id ? formatOrderNumber(editingOrder.id) : ""}
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4 mt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Status do Pedido</Label>
                 <Select
-                  value={editingOrder.status || ''}
-                  onValueChange={(value) => setEditingOrder(prev => ({ ...prev, status: value }))}
+                  value={editingOrder.status || ""}
+                  onValueChange={(value) =>
+                    setEditingOrder((prev) => ({ ...prev, status: value }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -910,8 +1063,13 @@ export default function AdminOrders() {
               <div className="space-y-2">
                 <Label>Status do Pagamento</Label>
                 <Select
-                  value={editingOrder.payment_status || ''}
-                  onValueChange={(value) => setEditingOrder(prev => ({ ...prev, payment_status: value }))}
+                  value={editingOrder.payment_status || ""}
+                  onValueChange={(value) =>
+                    setEditingOrder((prev) => ({
+                      ...prev,
+                      payment_status: value,
+                    }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -930,8 +1088,13 @@ export default function AdminOrders() {
             <div className="space-y-2">
               <Label>Método de Pagamento</Label>
               <Input
-                value={editingOrder.payment_method || ''}
-                onChange={(e) => setEditingOrder(prev => ({ ...prev, payment_method: e.target.value }))}
+                value={editingOrder.payment_method || ""}
+                onChange={(e) =>
+                  setEditingOrder((prev) => ({
+                    ...prev,
+                    payment_method: e.target.value,
+                  }))
+                }
                 placeholder="PIX, Cartão, Boleto..."
               />
             </div>
@@ -939,14 +1102,23 @@ export default function AdminOrders() {
             <div className="space-y-2">
               <Label>Endereço de Entrega</Label>
               <Input
-                value={editingOrder.shipping_address || ''}
-                onChange={(e) => setEditingOrder(prev => ({ ...prev, shipping_address: e.target.value }))}
+                value={editingOrder.shipping_address || ""}
+                onChange={(e) =>
+                  setEditingOrder((prev) => ({
+                    ...prev,
+                    shipping_address: e.target.value,
+                  }))
+                }
                 placeholder="Endereço completo..."
               />
             </div>
 
             <div className="flex gap-4 pt-4">
-              <Button variant="outline" onClick={() => setIsEditOpen(false)} className="flex-1">
+              <Button
+                variant="outline"
+                onClick={() => setIsEditOpen(false)}
+                className="flex-1"
+              >
                 Cancelar
               </Button>
               <Button onClick={saveOrderChanges} className="flex-1">
@@ -967,14 +1139,17 @@ export default function AdminOrders() {
               Confirmar Exclusão
             </DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja excluir este pedido? Esta ação não pode ser desfeita.
+              Tem certeza que deseja excluir este pedido? Esta ação não pode ser
+              desfeita.
             </DialogDescription>
           </DialogHeader>
-          
+
           {orderToDelete && (
             <div className="space-y-4 mt-4">
               <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                <h4 className="font-semibold text-red-800">Pedido a ser excluído:</h4>
+                <h4 className="font-semibold text-red-800">
+                  Pedido a ser excluído:
+                </h4>
                 <p className="text-sm text-red-700">
                   ID: #{formatOrderNumber(orderToDelete.id)}
                 </p>
@@ -987,12 +1162,16 @@ export default function AdminOrders() {
               </div>
 
               <div className="flex gap-4">
-                <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)} className="flex-1">
+                <Button
+                  variant="outline"
+                  onClick={() => setDeleteConfirmOpen(false)}
+                  className="flex-1"
+                >
                   Cancelar
                 </Button>
-                <Button 
-                  variant="destructive" 
-                  onClick={() => deleteOrder(orderToDelete.id)} 
+                <Button
+                  variant="destructive"
+                  onClick={() => deleteOrder(orderToDelete.id)}
                   className="flex-1"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
